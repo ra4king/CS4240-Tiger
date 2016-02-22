@@ -3,53 +3,14 @@ package edu.cs4240.tiger.parser;
 /**
  * @author Roi Atalla
  */
-public enum Token {
-	ARRAY,
-	BEGIN,
-	BREAK,
-	DO,
-	ELSE,
-	END,
-	ENDDO,
-	ENDIF,
-	FLOAT,
-	FOR,
-	FUNC,
-	IF,
-	IN,
-	INT,
-	LET,
-	OF,
-	RETURN,
-	THEN,
-	TOKEN, 
-	TYPE,
-	VAR,
-	WHILE,
-	COMMA,
-	COLON,
-	SEMICOLON,
-	LPAREN,
-	RPAREN,
-	LBRACKET,
-	RBRACKET,
-	LBRACE,
-	RBRACE,
-	DOT,
-	PLUS,
-	MINUS,
-	STAR,
-	FWSLASH,
-	EQUAL,
-	NOTEQUAL, // <>
-	LT,
-	GT,
-	LEQUAL,
-	GEQUAL,
-	AND,
-	OR,
-	ASSIGN,
-	ID,
-	INTLIT,
-	FLOATLIT
+public class Token {
+	private TokenClass tokenClass;
+	private String line;
+	private int lineNum;
+	
+	public Token(TokenClass tokenClass, String line, int lineNum) {
+		this.tokenClass = tokenClass;
+		this.line = line;
+		this.lineNum = lineNum;
+	}
 }
