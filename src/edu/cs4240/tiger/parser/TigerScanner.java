@@ -61,6 +61,6 @@ public class TigerScanner {
 			return token;
 		}
 		
-		return null;
+		throw new RuntimeException("Invalid token '" + buffer + "' on line " + currLineNum);
 	}
 }
