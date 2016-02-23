@@ -33,26 +33,28 @@ public class Scanner {
 			try {
 				boolean matched = false;
 				
-				// Keep reading characters until the buffer is not an empty string
-				while(i < source.length()) {
-					char c = source.charAt(i);
-					newLine = c == '\n';
-					
-					// if the buffer is empty and we are adding more emptiness, ignore
-					if(buffer.isEmpty() && Character.isWhitespace(c)) {
-						i++;
-					} else {
-						buffer += c;
-						break;
-					}
-				}
-				
-				if(!buffer.isEmpty()) {
-					for(TokenClass tc : TokenClass.values()) {
-						Match match = tc.regex.match(buffer);
-						if(match != null && match.getMatch().length() == buffer.length()) {
-							matched = true; // we don't care about the match itself, just that something did match
+				if(i < source.length()) {
+					// Keep reading characters until the buffer is not an empty string
+					while(i < source.length()) {
+						char c = source.charAt(i);
+						newLine = c == '\n';
+						
+						// if the buffer is empty and we are adding more emptiness, ignore
+						if(buffer.isEmpty() && Character.isWhitespace(c)) {
+							i++;
+						} else {
+							buffer += c;
 							break;
+						}
+					}
+					
+					if(i < source.length() && !buffer.isEmpty()) {
+						for(TokenClass tc : TokenClass.values()) {
+							Match match = tc.regex.match(buffer);
+							if(match != null && match.getMatch().length() == buffer.length()) {
+								matched = true; // we don't care about the match itself, just that something did match
+								break;
+							}
 						}
 					}
 				}
