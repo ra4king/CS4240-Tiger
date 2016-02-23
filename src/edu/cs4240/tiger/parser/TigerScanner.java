@@ -31,9 +31,8 @@ public class TigerScanner {
 			buffer = currLine = null;
 		} else {
 			buffer = currLine = s.trim();
+			currLineNum++;
 		}
-		
-		currLineNum++;
 	}
 	
 	public TigerToken nextToken() throws IOException {
