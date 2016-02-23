@@ -4,8 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import edu.cs4240.tiger.parser.Scanner;
-import edu.cs4240.tiger.parser.Token;
+import edu.cs4240.tiger.parser.TigerScanner;
+import edu.cs4240.tiger.parser.TigerToken;
 
 /**
  * @author Roi Atalla
@@ -17,9 +17,9 @@ public class ScannerTester {
 		for(String s : lines)
 			source += s + '\n';
 		
-		Scanner scanner = new Scanner(source);
+		TigerScanner scanner = new TigerScanner(source);
 		
-		Token token;
+		TigerToken token;
 		while((token = scanner.nextToken()) != null) {
 			System.out.println(token);
 		}

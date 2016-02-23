@@ -5,7 +5,7 @@ import edu.cs4240.tiger.regex.Regex;
 /**
  * @author Roi Atalla
  */
-public enum TokenClass {
+public enum TigerTokenClass {
 	ARRAY(Regex.string("array")),
 	BEGIN(Regex.string("begin")),
 	BREAK(Regex.string("break")),
@@ -59,7 +59,7 @@ public enum TokenClass {
 	
 	public final Regex regex;
 	
-	TokenClass(Regex regex) {
+	TigerTokenClass(Regex regex) {
 		this.regex = regex;
 	}
 }

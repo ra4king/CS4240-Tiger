@@ -3,25 +3,25 @@ package edu.cs4240.tiger.parser;
 /**
  * @author Roi Atalla
  */
-public class Token {
-	private TokenClass tokenClass;
+public class TigerToken {
+	private TigerTokenClass tokenClass;
 	private String token;
 	
 	private String line;
 	private int lineNum;
 	
-	public Token(TokenClass tokenClass, String token, String line, int lineNum) {
+	public TigerToken(TigerTokenClass tokenClass, String token, String line, int lineNum) {
 		this.setTokenClass(tokenClass);
 		this.setToken(token);
 		this.setLine(line);
 		this.setLineNum(lineNum);
 	}
 	
-	public TokenClass getTokenClass() {
+	public TigerTokenClass getTokenClass() {
 		return tokenClass;
 	}
 	
-	public void setTokenClass(TokenClass tokenClass) {
+	public void setTokenClass(TigerTokenClass tokenClass) {
 		this.tokenClass = tokenClass;
 	}
 	

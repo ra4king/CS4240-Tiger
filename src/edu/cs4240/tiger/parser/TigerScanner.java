@@ -5,7 +5,7 @@ import edu.cs4240.tiger.regex.Regex.Match;
 /**
  * @author Roi Atalla
  */
-public class Scanner {
+public class TigerScanner {
 	private String source;
 	private int i;
 	
@@ -13,7 +13,7 @@ public class Scanner {
 	private String currLine;
 	private int currLineNum, currLineIdx;
 	
-	public Scanner(String source) {
+	public TigerScanner(String source) {
 		this.source = source;
 		
 		currLineIdx = source.indexOf('\n');
@@ -26,7 +26,7 @@ public class Scanner {
 	
 	private String buffer = "";
 	
-	public Token nextToken() {
+	public TigerToken nextToken() {
 		while(true) {
 			boolean newLine = false;
 			
@@ -49,7 +49,7 @@ public class Scanner {
 					}
 					
 					if(i < source.length() && !buffer.isEmpty()) {
-						for(TokenClass tc : TokenClass.values()) {
+						for(TigerTokenClass tc : TigerTokenClass.values()) {
 							Match match = tc.regex.match(buffer);
 							if(match != null && match.getMatch().length() == buffer.length()) {
 								matched = true; // we don't care about the match itself, just that something did match
@@ -66,11 +66,11 @@ public class Scanner {
 					}
 					
 					String backtrack = buffer.substring(0, buffer.length() - (i == source.length() ? 0 : 1));
-					for(TokenClass tc : TokenClass.values()) {
+					for(TigerTokenClass tc : TigerTokenClass.values()) {
 						Match match = tc.regex.match(backtrack);
 						if(match != null && match.getMatch().length() == backtrack.length()) {
 							buffer = buffer.substring(backtrack.length()).trim();
-							return new Token(tc, match.getMatch(), currLine, currLineNum);
+							return new TigerToken(tc, match.getMatch(), currLine, currLineNum);
 						}
 					}
 					
