@@ -156,7 +156,7 @@ public abstract class Regex {
 			@Override
 			public Match match(String input) {
 				if(input.startsWith(s)) {
-					return new Match(input.substring(0, s.length()));
+					return new Match(s);
 				}
 				
 				return null;

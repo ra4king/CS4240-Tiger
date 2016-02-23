@@ -18,7 +18,7 @@ public class RegexTester {
 		printMatch(regex, "hello      !");
 		printMatch(regex, "hello IamRoi !");
 		
-		// ([A-Za-z]|_+[A-Za-z0-9])[A-Za-z0-9_]+
+		// ([A-Za-z]|_+[A-Za-z0-9])[A-Za-z0-9_]*
 		Regex id = Regex.and(Regex.or(Regex.letter(), 
 		                              Regex.and(Regex.oneOrMore(Regex.string("_")), Regex.alphanumeric())),
 		                     Regex.zeroOrMore(Regex.wordChar()));

@@ -31,19 +31,19 @@ public enum TokenClass {
 	COMMA(Regex.string(",")),
 	COLON(Regex.string(":")),
 	SEMICOLON(Regex.string(";")),
-	LPAREN(Regex.string("(Regex.string(")),
+	LPAREN(Regex.string("(")),
 	RPAREN(Regex.string(")")),
 	LBRACKET(Regex.string("[")),
 	RBRACKET(Regex.string("]")),
 	LBRACE(Regex.string("{")),
 	RBRACE(Regex.string("}")),
-	DOT(Regex.string("\\.")),
-	PLUS(Regex.string("\\+")),
+	DOT(Regex.string(".")),
+	PLUS(Regex.string("+")),
 	MINUS(Regex.string("-")),
-	STAR(Regex.string("\\*")),
+	STAR(Regex.string("*")),
 	FWSLASH(Regex.string("/")),
 	EQUAL(Regex.string("=")),
-	NOTEQUAL(Regex.string("<>")), // <>
+	NOTEQUAL(Regex.string("<>")),
 	LT(Regex.string("<")),
 	GT(Regex.string(">")),
 	LEQUAL(Regex.string("<=")),
@@ -57,7 +57,7 @@ public enum TokenClass {
 	INTLIT(Regex.oneOrMore(Regex.number())), // [0-9]+
 	FLOATLIT(Regex.and(Regex.oneOrMore(Regex.number()), Regex.string("."), Regex.zeroOrMore(Regex.number()))); // [0-9]+\.[0-9]*
 	
-	private Regex regex;
+	public final Regex regex;
 	
 	TokenClass(Regex regex) {
 		this.regex = regex;
