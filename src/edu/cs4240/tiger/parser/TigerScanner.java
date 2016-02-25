@@ -29,8 +29,10 @@ public class TigerScanner {
 		
 		if(s == null) {
 			buffer = currLine = null;
+			source.close();
 		} else {
-			buffer = currLine = s.trim();
+			currLine = s; 
+			buffer = s.trim();
 			currLineNum++;
 		}
 	}
@@ -60,6 +62,6 @@ public class TigerScanner {
 			return token;
 		}
 		
-		throw new RuntimeException("Invalid token '" + buffer + "' on line " + currLineNum);
+		throw new RuntimeException("Invalid token on line " + currLineNum + ", index " + currLine.lastIndexOf(buffer) + ": " + buffer);
 	}
 }

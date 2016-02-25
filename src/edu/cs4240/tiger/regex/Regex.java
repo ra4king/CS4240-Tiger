@@ -20,11 +20,12 @@ public abstract class Regex {
 		}
 	}
 	
-	private Regex() {}
+	private Regex() {
+	}
 	
 	public abstract Match match(String input);
 	
-	public static Regex and(Regex ... regs) {
+	public static Regex and(Regex... regs) {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
@@ -32,8 +33,9 @@ public abstract class Regex {
 				
 				for(Regex r : regs) {
 					Match m = r.match(input.substring(match.piece.length()));
-					if(m == null)
+					if(m == null) {
 						return null;
+					}
 					
 					match.append(m);
 				}
@@ -51,14 +53,15 @@ public abstract class Regex {
 		};
 	}
 	
-	public static Regex or(Regex ... regs) {
+	public static Regex or(Regex... regs) {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
 				for(Regex r : regs) {
 					Match m = r.match(input);
-					if(m == null)
+					if(m == null) {
 						continue;
+					}
 					
 					return m;
 				}
@@ -71,8 +74,9 @@ public abstract class Regex {
 				String s = "(";
 				for(int i = 0; i < regs.length; i++) {
 					s += regs[i].toString();
-					if(i < regs.length - 1)
+					if(i < regs.length - 1) {
 						s += "|";
+					}
 				}
 				return s + ")";
 			}
@@ -129,16 +133,17 @@ public abstract class Regex {
 				Match match = null;
 				
 				while(match == null || input.length() > match.piece.length()) {
-					Match m = regex.match(input.substring(match == null ? 0 : match.piece.length()));
+					Match m = regex.match(match == null ? input : input.substring(match.piece.length()));
 					
 					if(m == null) {
 						return match;
 					}
 					
-					if(match == null)
+					if(match == null) {
 						match = new Match(m.piece);
-					else
+					} else {
 						match.append(m);
+					}
 				}
 				
 				return match;
@@ -183,8 +188,9 @@ public abstract class Regex {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
-				if(input.length() > 0 && Character.isAlphabetic(input.charAt(0)))
+				if(input.length() > 0 && Character.isAlphabetic(input.charAt(0))) {
 					return new Match(input.substring(0, 1));
+				}
 				return null;
 			}
 			
@@ -199,8 +205,9 @@ public abstract class Regex {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
-				if(input.length() > 0 && Character.isDigit(input.charAt(0)))
+				if(input.length() > 0 && Character.isDigit(input.charAt(0))) {
 					return new Match(input.substring(0, 1));
+				}
 				return null;
 			}
 			
@@ -215,8 +222,9 @@ public abstract class Regex {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
-				if(input.length() > 0 && (Character.isAlphabetic(input.charAt(0)) || Character.isDigit(input.charAt(0))))
+				if(input.length() > 0 && (Character.isAlphabetic(input.charAt(0)) || Character.isDigit(input.charAt(0)))) {
 					return new Match(input.substring(0, 1));
+				}
 				return null;
 			}
 			
@@ -231,8 +239,9 @@ public abstract class Regex {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
-				if(input.length() > 0 && (Character.isAlphabetic(input.charAt(0)) || Character.isDigit(input.charAt(0)) || input.charAt(0) == '_'))
+				if(input.length() > 0 && (Character.isAlphabetic(input.charAt(0)) || Character.isDigit(input.charAt(0)) || input.charAt(0) == '_')) {
 					return new Match(input.substring(0, 1));
+				}
 				return null;
 			}
 			
@@ -247,8 +256,9 @@ public abstract class Regex {
 		return new Regex() {
 			@Override
 			public Match match(String input) {
-				if(input.length() > 0 && Character.isWhitespace(input.charAt(0)))
+				if(input.length() > 0 && Character.isWhitespace(input.charAt(0))) {
 					return new Match(input.substring(0, 1));
+				}
 				return null;
 			}
 			
