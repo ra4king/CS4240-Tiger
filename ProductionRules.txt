@@ -1,0 +1,72 @@
+program → let declseg in stmts end
+declseg → typedecls vardecls funcdecls
+typedecls → ϵ
+typedecls → typedecl typedecls
+typedecl → type id := type ;
+type → int
+type → float
+type → id
+type → array [ intlit ] of type
+vardecls → ϵ
+vardecls → vardecl vardecls
+vardecl → var ids : type optinit;
+ids → id
+ids → id , ids
+optinit → ϵ
+optinit → := const
+funcdecls → ϵ
+funcdecls → funcdecl funcdecls
+funcdecl → func id ( params ) optrettype begin stmts end ;
+params → ϵ
+params → neparams
+neparams → param
+neparams → param , neparams
+param → id : type
+optrettype → ϵ
+optrettype → : type
+stmts → fullstmt
+stmts → fullstmt stmts
+fullstmt → stmt ;
+stmt → lvalue := numexpr
+stmt → if boolexpr then stmts endif
+stmt → if boolexpr then stmts else stmts endif
+stmt → while boolexpr do stmts enddo
+stmt → for id := numexpr to numexpr do stmts enddo
+stmt → optstore id (numexprs)
+stmt → break
+stmt → return numexpr
+lvalue → id optoffset
+optoffset → ϵ
+optoffset → [ numexpr ]
+optstore →ϵ
+optstore → lvalue :=
+numexprs → ϵ
+numexprs → neexprs
+neexprs → numexpr
+neexprs → numexpr , neexprs
+boolexpr → clause
+boolexpr → boolexpr | clause
+clause → pred
+clause → clause & pred
+pred → numexpr boolop numexpr
+pred → ( boolexpr )
+boolop → =
+boolop → <>
+boolop → <=
+boolop → >=
+boolop → <
+boolop → >
+numexpr → term
+numexpr → numexpr linop term
+linop → +
+linop → -
+term → factor
+term → term nonlinop factor
+nonlinop → *
+nonlinop → /
+factor → const
+factor → id
+factor → id[ numexpr]
+factor → ( numexpr )
+const → intlit
+const → floatlit
