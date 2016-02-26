@@ -40,8 +40,9 @@ stmt_id → optoffset := stmt_store
 stmt_id → ( numexprs )
 stmt_if → endif
 stmt_if → else stmts endif
-stmt_store → numexpr
-stmt_store → id ( numexprs )
+stmt_store → id stmt_store_tail
+stmt_store_tail → optoffset term_tail numexpr_tail
+stmt_store_tail → ( numexprs )
 optoffset → ϵ
 optoffset → [ numexpr ]
 numexprs → ϵ

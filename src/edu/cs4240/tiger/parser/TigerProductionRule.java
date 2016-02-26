@@ -35,6 +35,7 @@ public enum TigerProductionRule implements TigerClasses {
 	STMT_ID,
 	STMT_IF,
 	STMT_STORE,
+	STMT_STORE_TAIL,
 	OPTOFFSET,
 	NUMEXPRS,
 	NEEXPRS,
