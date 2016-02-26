@@ -10,8 +10,9 @@ type → array [ intlit ] of type
 vardecls → ϵ
 vardecls → vardecl vardecls
 vardecl → var ids : type optinit;
-ids → id
-ids → id , ids
+ids → id ids-tail
+ids-tail → ϵ
+ids-tail → , ids
 optinit → ϵ
 optinit → := const
 funcdecls → ϵ
@@ -19,17 +20,20 @@ funcdecls → funcdecl funcdecls
 funcdecl → func id ( params ) optrettype begin stmts end ;
 params → ϵ
 params → neparams
-neparams → param
-neparams → param , neparams
+neparams → param neparams-tail
+neparams-tail → ϵ
+neparams-tail → , neparams
 param → id : type
 optrettype → ϵ
 optrettype → : type
-stmts → fullstmt
-stmts → fullstmt stmts
+stmts → fullstmt stmts-tail
+stmts-tail → ϵ
+stmts-tail → fullstmt stmts
 fullstmt → stmt ;
 stmt → lvalue := numexpr
-stmt → if boolexpr then stmts endif
-stmt → if boolexpr then stmts else stmts endif
+stmt → if boolexpr then stmts
+stmt-if → endif
+stmt-if → else stmts endif
 stmt → while boolexpr do stmts enddo
 stmt → for id := numexpr to numexpr do stmts enddo
 stmt → optstore id (numexprs)
@@ -38,16 +42,19 @@ stmt → return numexpr
 lvalue → id optoffset
 optoffset → ϵ
 optoffset → [ numexpr ]
-optstore →ϵ
+optstore → ϵ
 optstore → lvalue :=
 numexprs → ϵ
 numexprs → neexprs
-neexprs → numexpr
-neexprs → numexpr , neexprs
-boolexpr → clause
-boolexpr → boolexpr | clause
-clause → pred
-clause → clause & pred
+neexprs → numexpr neexprs-tail
+neexprs-tail → ϵ
+neexprs-tail → , neexprs
+boolexpr → clause boolexpr-tail
+boolexpr-tail → ϵ
+boolexpr-tail → | boolexpr
+clause → pred clause-tail
+clause-tail → ϵ
+clause-tail → & clause
 pred → numexpr boolop numexpr
 pred → ( boolexpr )
 boolop → =
@@ -56,17 +63,18 @@ boolop → <=
 boolop → >=
 boolop → <
 boolop → >
-numexpr → term
-numexpr → numexpr linop term
+numexpr → term numexpr-tail
+numexpr-tail → ϵ
+numexpr-tail → linop numexpr
 linop → +
 linop → -
-term → factor
-term → term nonlinop factor
+term → factor term-tail
+term-tail → ϵ
+term-tail → nonlinop term
 nonlinop → *
 nonlinop → /
 factor → const
-factor → id
-factor → id[ numexpr]
+factor → id optoffset
 factor → ( numexpr )
 const → intlit
 const → floatlit
