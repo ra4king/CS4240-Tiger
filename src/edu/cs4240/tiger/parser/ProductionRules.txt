@@ -9,10 +9,10 @@ type → id
 type → array [ intlit ] of type
 vardecls → ϵ
 vardecls → vardecl vardecls
-vardecl → var ids : type optinit;
-ids → id ids-tail
-ids-tail → ϵ
-ids-tail → , ids
+vardecl → var ids : type optinit ;
+ids → id ids_tail
+ids_tail → ϵ
+ids_tail → , ids
 optinit → ϵ
 optinit → := const
 funcdecls → ϵ
@@ -20,23 +20,23 @@ funcdecls → funcdecl funcdecls
 funcdecl → func id ( params ) optrettype begin stmts end ;
 params → ϵ
 params → neparams
-neparams → param neparams-tail
-neparams-tail → ϵ
-neparams-tail → , neparams
+neparams → param neparams_tail
+neparams_tail → ϵ
+neparams_tail → , neparams
 param → id : type
 optrettype → ϵ
 optrettype → : type
-stmts → fullstmt stmts-tail
-stmts-tail → ϵ
-stmts-tail → fullstmt stmts
+stmts → fullstmt stmts_tail
+stmts_tail → ϵ
+stmts_tail → fullstmt stmts
 fullstmt → stmt ;
 stmt → lvalue := numexpr
 stmt → if boolexpr then stmts
-stmt-if → endif
-stmt-if → else stmts endif
+stmt_if → endif
+stmt_if → else stmts endif
 stmt → while boolexpr do stmts enddo
 stmt → for id := numexpr to numexpr do stmts enddo
-stmt → optstore id (numexprs)
+stmt → optstore id ( numexprs )
 stmt → break
 stmt → return numexpr
 lvalue → id optoffset
@@ -46,15 +46,15 @@ optstore → ϵ
 optstore → lvalue :=
 numexprs → ϵ
 numexprs → neexprs
-neexprs → numexpr neexprs-tail
-neexprs-tail → ϵ
-neexprs-tail → , neexprs
-boolexpr → clause boolexpr-tail
-boolexpr-tail → ϵ
-boolexpr-tail → | boolexpr
-clause → pred clause-tail
-clause-tail → ϵ
-clause-tail → & clause
+neexprs → numexpr neexprs_tail
+neexprs_tail → ϵ
+neexprs_tail → , neexprs
+boolexpr → clause boolexpr_tail
+boolexpr_tail → ϵ
+boolexpr_tail → | boolexpr
+clause → pred clause_tail
+clause_tail → ϵ
+clause_tail → & clause
 pred → numexpr boolop numexpr
 pred → ( boolexpr )
 boolop → =
@@ -63,14 +63,14 @@ boolop → <=
 boolop → >=
 boolop → <
 boolop → >
-numexpr → term numexpr-tail
-numexpr-tail → ϵ
-numexpr-tail → linop numexpr
+numexpr → term numexpr_tail
+numexpr_tail → ϵ
+numexpr_tail → linop numexpr
 linop → +
 linop → -
-term → factor term-tail
-term-tail → ϵ
-term-tail → nonlinop term
+term → factor term_tail
+term_tail → ϵ
+term_tail → nonlinop term
 nonlinop → *
 nonlinop → /
 factor → const
