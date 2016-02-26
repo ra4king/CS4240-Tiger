@@ -37,7 +37,7 @@ public class TigerScanner {
 		}
 	}
 	
-	public TigerToken nextToken() throws IOException {
+	public TigerToken nextToken() throws IOException, TigerParseException {
 		if(buffer == null || buffer.isEmpty())
 			return null;
 		
@@ -45,16 +45,16 @@ public class TigerScanner {
 		TigerTokenClass bestMatchToken = null;
 		for(TigerTokenClass tokenClass : TigerTokenClass.values()) {
 			Match match = tokenClass.regex.match(buffer);
-			if(match != null && (bestMatch == null || match.getMatch().length() > bestMatch.getMatch().length())) {
+			if(match != null && match.getMatch().length() > 0 && (bestMatch == null || match.getMatch().length() > bestMatch.getMatch().length())) {
 				bestMatch = match;
 				bestMatchToken = tokenClass;
 			}
 		}
 		
 		if(bestMatch != null) {
-			buffer = buffer.substring(bestMatch.getMatch().length()).trim();
-			TigerToken token = new TigerToken(bestMatchToken, bestMatch.getMatch(), currLine, currLineNum);
+			TigerToken token = new TigerToken(bestMatchToken, bestMatch.getMatch(), currLine, currLineNum, currLine.lastIndexOf(buffer));
 			
+			buffer = buffer.substring(bestMatch.getMatch().length()).trim();
 			if(buffer.isEmpty()) {
 				readNextLine();
 			}
@@ -62,6 +62,6 @@ public class TigerScanner {
 			return token;
 		}
 		
-		throw new RuntimeException("Invalid token on line " + currLineNum + ", index " + currLine.lastIndexOf(buffer) + ": " + buffer);
+		throw new TigerParseException("Invalid token", buffer, currLineNum, currLine.lastIndexOf(buffer));
 	}
 }

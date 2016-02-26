@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerScanner;
 import edu.cs4240.tiger.parser.TigerToken;
 
@@ -47,6 +48,9 @@ public class Tiger {
 			catch(IOException exc) {
 				exc.printStackTrace();
 				System.out.println("Unable to open " + source);
+			}
+			catch(TigerParseException exc) {
+				exc.printStackTrace();
 			}
 		} else {
 			System.out.println("Unimplemented...");

@@ -6,6 +6,7 @@ import edu.cs4240.tiger.regex.Regex;
  * @author Roi Atalla
  */
 public enum TigerTokenClass implements TigerClasses {
+	EPSILON(Regex.string("")),
 	ARRAY(Regex.string("array")),
 	BEGIN(Regex.string("begin")),
 	BREAK(Regex.string("break")),

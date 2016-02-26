@@ -8,13 +8,14 @@ public class TigerToken {
 	private String token;
 	
 	private String line;
-	private int lineNum;
+	private int lineNum, indexNum;
 	
-	public TigerToken(TigerTokenClass tokenClass, String token, String line, int lineNum) {
-		this.setTokenClass(tokenClass);
-		this.setToken(token);
-		this.setLine(line);
-		this.setLineNum(lineNum);
+	public TigerToken(TigerTokenClass tokenClass, String token, String line, int lineNum, int indexNum) {
+		this.tokenClass = tokenClass;
+		this.token = token;
+		this.line = line;
+		this.lineNum = lineNum;
+		this.indexNum = indexNum;
 	}
 	
 	public TigerTokenClass getTokenClass() {
@@ -41,16 +42,24 @@ public class TigerToken {
 		this.line = line;
 	}
 	
-	public int getLineNum() {
+	public int getLineNumber() {
 		return lineNum;
 	}
 	
-	public void setLineNum(int lineNum) {
+	public void setLineNumber(int lineNum) {
 		this.lineNum = lineNum;
+	}
+	
+	public int getIndexNumber() {
+		return indexNum;
+	}
+	
+	public void setIndexNum(int indexNum) {
+		this.indexNum = indexNum;
 	}
 	
 	@Override
 	public String toString() {
-		return tokenClass + " on line (" + lineNum + ") \"" + line + "\": " + token;
+		return tokenClass + " - '" + token + "' on line " + lineNum + ", index " + indexNum + ": " + line;
 	}
 }

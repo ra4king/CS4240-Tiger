@@ -32,10 +32,10 @@ public enum TigerProductionRule implements TigerClasses {
 	STMTS_TAIL,
 	FULLSTMT,
 	STMT,
+	STMT_ID,
 	STMT_IF,
-	LVALUE,
+	STMT_STORE,
 	OPTOFFSET,
-	OPTSTORE,
 	NUMEXPRS,
 	NEEXPRS,
 	NEEXPRS_TAIL,
@@ -61,9 +61,9 @@ public enum TigerProductionRule implements TigerClasses {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(TigerProductionRule.class.getResourceAsStream("ProductionRules.txt"), "UTF-8"));
 			
 			char arrow = '→';
-			String eps = "ϵ";
 			
 			HashMap<String, TigerTokenClass> specialTokenClasses = new HashMap<>();
+			specialTokenClasses.put("ϵ", TigerTokenClass.EPSILON);
 			specialTokenClasses.put(",", TigerTokenClass.COMMA);
 			specialTokenClasses.put(":", TigerTokenClass.COLON);
 			specialTokenClasses.put(";", TigerTokenClass.SEMICOLON);
@@ -114,17 +114,13 @@ public enum TigerProductionRule implements TigerClasses {
 						continue;
 					}
 					
-					if(symbol.equals(eps)) {
-						break;
-					}
-					
-					symbol = symbol.toUpperCase();
-					
 					TigerTokenClass specialChar = specialTokenClasses.get(symbol);
 					if(specialChar != null) {
 						productions.add(specialChar);
 						continue;
 					}
+					
+					symbol = symbol.toUpperCase();
 					
 					TigerProductionRule rule;
 					try {
