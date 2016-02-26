@@ -5,7 +5,7 @@ import edu.cs4240.tiger.regex.Regex;
 /**
  * @author Roi Atalla
  */
-public enum TigerTokenClass {
+public enum TigerTokenClass implements TigerClasses {
 	ARRAY(Regex.string("array")),
 	BEGIN(Regex.string("begin")),
 	BREAK(Regex.string("break")),
@@ -35,13 +35,13 @@ public enum TigerTokenClass {
 	RPAREN(Regex.string(")")),
 	LBRACKET(Regex.string("[")),
 	RBRACKET(Regex.string("]")),
-	LBRACE(Regex.string("{")),
-	RBRACE(Regex.string("}")),
+	//LBRACE(Regex.string("{")),
+	//RBRACE(Regex.string("}")),
 	DOT(Regex.string(".")),
 	PLUS(Regex.string("+")),
 	MINUS(Regex.string("-")),
-	STAR(Regex.string("*")),
-	FWSLASH(Regex.string("/")),
+	MULT(Regex.string("*")),
+	DIV(Regex.string("/")),
 	EQUAL(Regex.string("=")),
 	NOTEQUAL(Regex.string("<>")),
 	LT(Regex.string("<")),
