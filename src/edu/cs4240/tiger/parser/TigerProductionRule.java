@@ -57,8 +57,6 @@ public enum TigerProductionRule implements TigerClasses {
 	public final List<List<TigerClasses>> productions = new ArrayList<>();
 	
 	static {
-		final boolean DEBUG_PRINT = false;
-		
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(TigerProductionRule.class.getResourceAsStream("ProductionRules.txt"), "UTF-8"));
 			
