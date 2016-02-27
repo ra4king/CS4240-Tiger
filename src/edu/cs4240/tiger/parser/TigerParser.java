@@ -166,10 +166,10 @@ public class TigerParser {
 					}
 				}
 			}
-		}
-		
-		if(foundEps) {
-			currentFirsts.add(new Pair<>(TigerTokenClass.EPSILON, new ArrayList<>()));
+			
+			if(foundEps) {
+				currentFirsts.add(new Pair<>(TigerTokenClass.EPSILON, new ArrayList<>()));
+			}
 		}
 		
 		return currentFirsts;

@@ -31,10 +31,24 @@ public class TigerScanner {
 			buffer = currLine = null;
 			source.close();
 		} else {
+			s = clean(s);
+			
 			currLine = s; 
 			buffer = s.trim();
 			currLineNum++;
 		}
+	}
+	
+	private String clean(String s) {
+		int beginComment = s.indexOf("/*");
+		if(beginComment == -1)
+			return s;
+		
+		int endComment = s.indexOf("*/");
+		if(endComment == -1)
+			return s.substring(0, beginComment).trim();
+		
+		return clean(s.substring(0, beginComment).trim() + " " + s.substring(endComment + 2).trim());
 	}
 	
 	public TigerToken nextToken() throws IOException, TigerParseException {
