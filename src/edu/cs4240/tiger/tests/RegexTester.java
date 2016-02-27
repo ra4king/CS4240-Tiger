@@ -1,7 +1,7 @@
 package edu.cs4240.tiger.tests;
 
-import edu.cs4240.tiger.regex.Regex;
-import edu.cs4240.tiger.regex.Regex.Match;
+import edu.cs4240.tiger.util.Regex;
+import edu.cs4240.tiger.util.Regex.Match;
 
 /**
  * @author Roi Atalla

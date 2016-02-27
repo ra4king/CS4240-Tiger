@@ -1,4 +1,4 @@
-package edu.cs4240.tiger.regex;
+package edu.cs4240.tiger.util;
 
 /**
  * @author Roi Atalla

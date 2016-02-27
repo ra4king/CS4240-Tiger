@@ -1,6 +1,6 @@
 package edu.cs4240.tiger.parser;
 
-import edu.cs4240.tiger.regex.Regex;
+import edu.cs4240.tiger.util.Regex;
 
 /**
  * @author Roi Atalla

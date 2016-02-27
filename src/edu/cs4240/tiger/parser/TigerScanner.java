@@ -3,7 +3,7 @@ package edu.cs4240.tiger.parser;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import edu.cs4240.tiger.regex.Regex.Match;
+import edu.cs4240.tiger.util.Regex.Match;
 
 /**
  * @author Roi Atalla

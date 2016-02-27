@@ -57,13 +57,40 @@ public enum TigerProductionRule implements TigerClasses {
 	
 	public final List<List<TigerClasses>> productions = new ArrayList<>();
 	
+	private static HashMap<String, TigerTokenClass> specialTokenClasses = new HashMap<>();
+	
+	public static String printRule(TigerProductionRule rule, List<TigerClasses> classes) {
+		char arrow = '→';
+		char eps = 'ϵ';
+		
+		String s = rule.toString().toLowerCase() + " " + arrow;
+		
+		if(classes.isEmpty()) {
+			s += " " + eps;
+		} else {
+			for(TigerClasses c : classes) {
+				if(c instanceof TigerTokenClass && specialTokenClasses.containsValue(c)) {
+					for(String token : specialTokenClasses.keySet()) {
+						if(specialTokenClasses.get(token) == c) {
+							s += " " + token;
+							break;
+						}
+					}
+				} else {
+					s += " " + c.toString().toLowerCase();
+				}
+			}
+		}
+		
+		return s;
+	}
+	
 	static {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(TigerProductionRule.class.getResourceAsStream("ProductionRules.txt"), "UTF-8"));
 			
 			char arrow = '→';
 			
-			HashMap<String, TigerTokenClass> specialTokenClasses = new HashMap<>();
 			specialTokenClasses.put("ϵ", TigerTokenClass.EPSILON);
 			specialTokenClasses.put(",", TigerTokenClass.COMMA);
 			specialTokenClasses.put(":", TigerTokenClass.COLON);
@@ -146,7 +173,8 @@ public enum TigerProductionRule implements TigerClasses {
 				
 				productionRule.productions.add(productions);
 			}
-		} catch(IOException exc) {
+		}
+		catch(IOException exc) {
 			System.err.println("Error trying to read ProductionRules.txt file.");
 			exc.printStackTrace();
 		}
