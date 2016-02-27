@@ -12,11 +12,11 @@ let
 
 /*
         func stupid( i : int ) begin
-            i := 2 + i;
+            i := 2 + i; // ok
         end;
 */
-
-in
+// hahaha
+in // hello!
         a := twiced(7);
 
          /*

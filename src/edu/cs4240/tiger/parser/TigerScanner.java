@@ -32,6 +32,10 @@ public class TigerScanner {
 				break;
 			
 			while(true) {
+				beginComment = s.indexOf("//");
+				if(beginComment != -1)
+					s = s.substring(0, beginComment);
+				
 				beginComment = s.indexOf("/*");
 				if(beginComment == -1)
 					break;
@@ -42,10 +46,10 @@ public class TigerScanner {
 				}
 				
 				if(endComment == -1) {
-					s = s.substring(0, beginComment + 2).trim();
+					s = s.substring(0, beginComment + 2);
 					break;
 				} else {
-					s = s.substring(0, beginComment).trim() + " " + s.substring(endComment + 2).trim();
+					s = s.substring(0, beginComment) + " " + s.substring(endComment + 2);
 				}
 			}
 		} while(beginComment > -1 || s.trim().isEmpty());
