@@ -15,7 +15,7 @@ public enum TigerProductionRule implements TigerClasses {
 	DECLSEG,
 	TYPEDECLS,
 	TYPEDECL,
-	TYPE,
+	TYPE_,
 	VARDECLS,
 	VARDECL,
 	IDS,

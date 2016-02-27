@@ -2,14 +2,14 @@ program → let declseg in stmts end
 declseg → typedecls vardecls funcdecls
 typedecls → ϵ
 typedecls → typedecl typedecls
-typedecl → type id := type ;
-type → int
-type → float
-type → id
-type → array [ intlit ] of type
+typedecl → type id := type_ ;
+type_ → int
+type_ → float
+type_ → id
+type_ → array [ intlit ] of type_
 vardecls → ϵ
 vardecls → vardecl vardecls
-vardecl → var ids : type optinit ;
+vardecl → var ids : type_ optinit ;
 ids → id ids_tail
 ids_tail → ϵ
 ids_tail → , ids
@@ -23,9 +23,9 @@ params → neparams
 neparams → param neparams_tail
 neparams_tail → ϵ
 neparams_tail → , neparams
-param → id : type
+param → id : type_
 optrettype → ϵ
-optrettype → : type
+optrettype → : type_
 stmts → fullstmt stmts_tail
 stmts_tail → ϵ
 stmts_tail → fullstmt stmts_tail
@@ -40,6 +40,8 @@ stmt_id → optoffset := stmt_store
 stmt_id → ( numexprs )
 stmt_if → endif
 stmt_if → else stmts endif
+stmt_store → const term_tail numexpr_tail
+stmt_store → ( numexpr ) term_tail numexpr_tail
 stmt_store → id stmt_store_tail
 stmt_store_tail → optoffset term_tail numexpr_tail
 stmt_store_tail → ( numexprs )

@@ -50,7 +50,7 @@ public class TigerParser {
 					for(Pair<TigerTokenClass, List<TigerClasses>> pair : firsts.get(rule)) {
 						if(epsilon == null && pair.getKey() == TigerTokenClass.EPSILON) {
 							epsilon = pair;
-						} else if(pair.getKey() == token.getTokenClass()) {
+						} else if(token != null && pair.getKey() == token.getTokenClass()) {
 							foundProduction = true;
 							symbolStack.pop();
 							push(symbolStack, pair.getValue());
@@ -60,15 +60,20 @@ public class TigerParser {
 					
 					if(!foundProduction) {
 						if(epsilon != null) {
+							System.out.println("ϵ");
 							symbolStack.pop();
 							
 							// if epsilon.getValues().size() == 0, record this rule as epsilon
 							// else expand rule
+						} else if(token == null) {
+							throw new TigerParseException("Unexpected end-of-file.");
 						} else {
 							throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
 						}
 					}
 				}
+			} else if(token == null) {
+				throw new TigerParseException("Unexpected end-of-file. Expected token " + currClass);
 			} else if(currClass == token.getTokenClass()) {
 				System.out.println(tokenQueue.remove());
 				symbolStack.pop();
@@ -76,6 +81,8 @@ public class TigerParser {
 				throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
 			}
 		}
+		
+		System.out.println();
 	}
 	
 	private void push(Deque<TigerClasses> stack, List<TigerClasses> production) {
