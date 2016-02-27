@@ -45,6 +45,7 @@ public enum TigerProductionRule implements TigerClasses {
 	CLAUSE,
 	CLAUSE_TAIL,
 	PRED,
+	PRED_TAIL,
 	BOOLOP,
 	NUMEXPR,
 	NUMEXPR_TAIL,

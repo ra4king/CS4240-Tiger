@@ -66,7 +66,7 @@ public class TigerScanner {
 		}
 		
 		if(bestMatch != null) {
-			TigerToken token = new TigerToken(bestMatchToken, bestMatch.getMatch(), currLine, currLineNum, currLine.lastIndexOf(buffer));
+			TigerToken token = new TigerToken(bestMatchToken, bestMatch.getMatch(), currLine.trim(), currLineNum, currLine.lastIndexOf(buffer));
 			
 			buffer = buffer.substring(bestMatch.getMatch().length()).trim();
 			if(buffer.isEmpty()) {
