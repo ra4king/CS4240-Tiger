@@ -22,33 +22,42 @@ public class TigerScanner {
 	}
 	
 	private void readNextLine() throws IOException {
-		String s;
+		String s = "";
+		int beginComment = -1;
 		do {
-			s = source.readLine();
-		} while(s != null && s.trim().isEmpty());
+			String n = source.readLine();
+			if(n != null)
+				s += n;
+			else if(beginComment == -1)
+				break;
+			
+			while(true) {
+				beginComment = s.indexOf("/*");
+				if(beginComment == -1)
+					break;
+				
+				int endComment = s.indexOf("*/", beginComment);
+				if(endComment == -1 && n == null) {
+					endComment = s.length();
+				}
+				
+				if(endComment == -1) {
+					s = s.substring(0, beginComment + 2).trim();
+					break;
+				} else {
+					s = s.substring(0, beginComment).trim() + " " + s.substring(endComment + 2).trim();
+				}
+			}
+		} while(beginComment > -1 || s.trim().isEmpty());
 		
-		if(s == null) {
+		if(s.trim().isEmpty()) {
 			buffer = currLine = null;
 			source.close();
 		} else {
-			s = clean(s);
-			
 			currLine = s; 
 			buffer = s.trim();
 			currLineNum++;
 		}
-	}
-	
-	private String clean(String s) {
-		int beginComment = s.indexOf("/*");
-		if(beginComment == -1)
-			return s;
-		
-		int endComment = s.indexOf("*/");
-		if(endComment == -1)
-			return s.substring(0, beginComment).trim();
-		
-		return clean(s.substring(0, beginComment).trim() + " " + s.substring(endComment + 2).trim());
 	}
 	
 	public TigerToken nextToken() throws IOException, TigerParseException {
