@@ -82,7 +82,9 @@ public class TigerParser {
 		}
 	}
 	
-	public TigerParser(BufferedReader source) throws IOException, TigerParseException {
+	private Node ast;
+	
+	public TigerParser(BufferedReader source, boolean debug) throws IOException, TigerParseException {
 		TigerScanner scanner = new TigerScanner(source);
 		
 		Queue<TigerToken> tokenQueue = new LinkedList<>();
@@ -98,18 +100,107 @@ public class TigerParser {
 		Deque<TigerClasses> symbolStack = new ArrayDeque<>();
 		symbolStack.push(TigerProductionRule.PROGRAM);
 		
-		Node ast = parse(tokenQueue, symbolStack);
+		ast = parse(tokenQueue, symbolStack, debug);
+		cleanupTails(ast);
+		cleanupRecursiveRules(ast);
 		
-		System.out.println("\n" + ast);
+		if(debug) {
+			System.out.println();
+		}
 	}
 	
-	private Node parse(Queue<TigerToken> tokenQueue, Deque<TigerClasses> symbolStack) throws TigerParseException {
+	public Node getAST() {
+		return ast;
+	}
+	
+	private void cleanupTails(Node node) throws TigerParseException {
+		if(node instanceof RuleNode) {
+			RuleNode ruleNode = (RuleNode)node;
+			
+			for(int i = 0; i < ruleNode.getChildren().size(); i++) {
+				Node child = ruleNode.getChildren().get(i);
+				
+				if(child instanceof RuleNode) {
+					RuleNode childRule = (RuleNode)child;
+					cleanupTails(childRule);
+					
+					if(childRule.getValue().toString().endsWith("_TAIL")) {
+						ruleNode.getChildren().remove(i);
+						
+						for(int j = 0; j < childRule.getChildren().size(); j++) {
+							ruleNode.getChildren().add(i + j, childRule.getChildren().get(j));
+						}
+						
+						i += childRule.getChildren().size() - 1;
+					}
+				}
+			}
+		}
+	}
+	
+	private void cleanupRecursiveRules(Node node) throws TigerParseException {
+		RuleNode ruleNode = (RuleNode)node;
+		for(Node child : ruleNode.getChildren()) {
+			if(child instanceof RuleNode) {
+				RuleNode childRule = (RuleNode)child;
+				
+				cleanupRecursiveRule(ruleNode, childRule, TigerProductionRule.NUMEXPR, TigerProductionRule.TERM);
+				cleanupRecursiveRule(ruleNode, childRule, TigerProductionRule.TERM, TigerProductionRule.FACTOR);
+				
+				cleanupRecursiveRules(child);
+			}
+		}
+	}
+	
+	private void cleanupRecursiveRule(RuleNode ruleNode, RuleNode childRule, TigerProductionRule parent, TigerProductionRule child) throws TigerParseException {
+		if(ruleNode.getValue() != parent && childRule.getValue() == parent) {
+			while(true) {
+				if(childRule.getChildren().size() == 3) {
+					RuleNode rightExpr = (RuleNode)childRule.getChildren().remove(2);
+					RuleNode op = (RuleNode)childRule.getChildren().remove(1);
+					RuleNode leftExpr = (RuleNode)childRule.getChildren().remove(0);
+					
+					if(leftExpr.getValue() == child) {
+						leftExpr = new RuleNode(parent, leftExpr);
+					}
+					
+					if(rightExpr.getValue() == child) {
+						childRule.getChildren().add(0, leftExpr);
+						childRule.getChildren().add(1, op);
+						childRule.getChildren().add(2, rightExpr);
+						break;
+					}
+					
+					if(rightExpr.getChildren().size() == 1) {
+						childRule.getChildren().add(0, leftExpr);
+						childRule.getChildren().add(1, op);
+						childRule.getChildren().add(2, rightExpr.getChildren().get(0));
+						break;
+					} else {
+						if(rightExpr.getChildren().size() != 3) {
+							throw new TigerParseException("Something bad happened!");
+						}
+						
+						childRule.getChildren().add(0, new RuleNode(parent, leftExpr, op, rightExpr.getChildren().get(0)));
+						childRule.getChildren().add(1, rightExpr.getChildren().get(1));
+						childRule.getChildren().add(2, rightExpr.getChildren().get(2));
+					}
+				} else {
+					break;
+				}
+			}
+		}
+	}
+	
+	private Node parse(Queue<TigerToken> tokenQueue, Deque<TigerClasses> symbolStack, boolean debug) throws TigerParseException {
 		TigerToken token = tokenQueue.peek();
 		TigerClasses currClass = symbolStack.pop();
 		if(currClass instanceof TigerProductionRule) {
 			TigerProductionRule rule = (TigerProductionRule)currClass;
 			
-			System.out.println(rule);
+			if(debug) {
+				System.out.println(rule);
+			}
 			
 			Pair<TigerTokenClass, List<TigerClasses>> epsilon = null;
 			
@@ -130,12 +221,14 @@ public class TigerParser {
 					
 					try {
 						while(!newSymbolStack.isEmpty()) {
-							node.getChildren().add(parse(newTokenQueue, newSymbolStack));
+							node.getChildren().add(parse(newTokenQueue, newSymbolStack, debug));
 						}
 					}
 					catch(TigerParseException exc) {
 						innerParseException = exc;
-						System.out.println("> > > > BACKTRACK OUT OF " + currClass + "-" + innerParseException);
+						if(debug) {
+							System.out.println("> > > > BACKTRACK OUT OF " + currClass + "-" + innerParseException);
+						}
 						continue;
 					}
 					
@@ -159,7 +252,9 @@ public class TigerParser {
 			throw new TigerParseException("Unexpected end-of-file. Expected token " + currClass);
 		} else if(currClass == token.getTokenClass()) {
 			TigerToken childToken = tokenQueue.remove();
-			System.out.println(childToken);
+			if(debug) {
+				System.out.println(childToken);
+			}
 			return new LeafNode(childToken);
 		} else {
 			throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);

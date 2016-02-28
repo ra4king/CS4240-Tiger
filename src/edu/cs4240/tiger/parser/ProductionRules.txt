@@ -73,8 +73,9 @@ term_tail → nonlinop term
 nonlinop → *
 nonlinop → /
 factor → const
-factor → id
-factor → id [ numexpr ]
+factor → id factor_tail
+factor_tail → ϵ
+factor_tail → [ numexpr ] 
 factor → ( numexpr )
 const → intlit
 const → floatlit

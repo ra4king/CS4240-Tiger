@@ -51,6 +51,7 @@ public enum TigerProductionRule implements TigerClasses {
 	TERM_TAIL,
 	NONLINOP,
 	FACTOR,
+	FACTOR_TAIL,
 	CONST;
 	
 	public final List<List<TigerClasses>> productions = new ArrayList<>();
