@@ -3,8 +3,10 @@ package edu.cs4240.tiger;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Queue;
 
 import edu.cs4240.tiger.parser.TigerParseException;
+import edu.cs4240.tiger.parser.TigerParser;
 import edu.cs4240.tiger.parser.TigerScanner;
 import edu.cs4240.tiger.parser.TigerToken;
 
@@ -12,6 +14,10 @@ import edu.cs4240.tiger.parser.TigerToken;
  * @author Roi Atalla
  */
 public class Tiger {
+	private static void printUsage() {
+		System.out.println("Usage: java -jar tigerc.jar [--ast] [--tokens] sourceFile.tgr");
+	}
+	
 	public static void main(String[] args) {
 		if(args.length == 0) {
 			printUsage();
@@ -19,45 +25,53 @@ public class Tiger {
 		}
 		
 		String source = null;
-		boolean tokensOnly = false;
+		boolean printTokens = false;
+		boolean printAST = false;
 		
-		for(int i = 0; i < args.length; i++) {
-			if(args[i].equals("--token")) {
-				tokensOnly = true;
-			} else {
-				source = args[i];
+		for(String s : args) {
+			switch(s) {
+				case "--tokens":
+					printTokens = true;
+					break;
+				case "--ast":
+					printAST = true;
+					break;
+				default:
+					source = s;
+					break;
 			}
 		}
 		
-		if(source == null) {
+		if(source == null || (!printTokens && !printAST)) {
 			printUsage();
 			return;
 		}
 		
-		if(tokensOnly) {
-			TigerScanner scanner;
-			try {
-				scanner = new TigerScanner(new BufferedReader(new FileReader(source)));
-				
-				TigerToken token;
-				while((token = scanner.nextToken()) != null) {
-					System.out.print(token.getToken() + " ");
-				}
-				System.out.println();
+		TigerParser parser;
+		try {
+			parser = new TigerParser(new TigerScanner(new BufferedReader(new FileReader(source))));
+		}
+		catch(IOException | TigerParseException exc) {
+			exc.printStackTrace();
+			return;
+		}
+		
+		if(printTokens) {
+			Queue<TigerToken> tokenQueue = parser.getTokenQueue();
+			TigerToken token;
+			while((token = tokenQueue.remove()) != null) {
+				System.out.print(token.getToken() + " ");
 			}
-			catch(IOException exc) {
-				exc.printStackTrace();
-				System.out.println("Unable to open " + source);
+			System.out.println();
+		}
+		
+		if(printAST) {
+			try {
+				System.out.println(parser.parse());
 			}
 			catch(TigerParseException exc) {
 				exc.printStackTrace();
 			}
-		} else {
-			System.out.println("Unimplemented...");
 		}
-	}
-	
-	private static void printUsage() {
-		System.out.println("Usage: tigerc sourceFile.tgr");
 	}
 }

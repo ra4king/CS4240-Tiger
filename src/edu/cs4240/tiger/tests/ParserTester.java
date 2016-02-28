@@ -8,6 +8,7 @@ import java.util.List;
 
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser;
+import edu.cs4240.tiger.parser.TigerScanner;
 
 /**
  * @author Roi Atalla
@@ -30,7 +31,7 @@ public class ParserTester {
 	
 	private static void testFile(File file) {
 		try {
-			TigerParser parser = new TigerParser(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName())));
+			TigerParser parser = new TigerParser(new TigerScanner(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName()))));
 			String ast = parser.parse().toString();
 			
 			List<String> lines = Files.readAllLines(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName().substring(0, file.getName().lastIndexOf('.')) + ".ast"));

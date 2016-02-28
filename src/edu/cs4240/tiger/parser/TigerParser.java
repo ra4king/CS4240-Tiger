@@ -1,6 +1,5 @@
 package edu.cs4240.tiger.parser;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -90,9 +89,7 @@ public class TigerParser {
 	private Queue<TigerToken> tokenQueue;
 	private Deque<TigerSymbol> symbolStack;
 	
-	public TigerParser(BufferedReader source) throws IOException, TigerParseException {
-		TigerScanner scanner = new TigerScanner(source);
-		
+	public TigerParser(TigerScanner scanner) throws IOException, TigerParseException {
 		tokenQueue = new LinkedList<>();
 		
 		while(true) {
@@ -105,6 +102,10 @@ public class TigerParser {
 		
 		symbolStack = new ArrayDeque<>();
 		symbolStack.push(TigerProductionRule.PROGRAM);
+	}
+	
+	public Queue<TigerToken> getTokenQueue() {
+		return new LinkedList<>(tokenQueue);
 	}
 	
 	public Node parse() throws TigerParseException {
