@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,12 +18,71 @@ import edu.cs4240.tiger.util.Pair;
  * @author Roi Atalla
  */
 public class TigerParser {
+	public interface Node {}
+	
+	public class RuleNode implements Node {
+		private TigerProductionRule value;
+		private List<Node> children;
+		
+		public RuleNode() {
+			this((TigerProductionRule)null);
+		}
+		
+		public RuleNode(RuleNode node) {
+			this.value = node.value;
+			this.children = new ArrayList<>(node.children);
+		}
+		
+		public RuleNode(TigerProductionRule value, Node ... children) {
+			this.value = value;
+			this.children = new ArrayList<>(Arrays.asList(children));
+		}
+		
+		public TigerProductionRule getValue() {
+			return value;
+		}
+		
+		public void setValue(TigerProductionRule value) {
+			this.value = value;
+		}
+		
+		public List<Node> getChildren() {
+			return children;
+		}
+		
+		@Override
+		public String toString() {
+			if(children.size() == 0)
+				return value.toString().toLowerCase();
+			
+			String s = "(" + value.toString().toLowerCase();
+			for(Node child : children) {
+				s += " " + child.toString();
+			}
+			s += ")";
+			return s;
+		}
+	}
+	
+	public class LeafNode implements Node {
+		private TigerToken token;
+		
+		public LeafNode() {}
+		
+		public LeafNode(TigerToken token) {
+			this.token = token;
+		}
+		
+		@Override
+		public String toString() {
+			return token.getToken();
+		}
+	}
+	
 	public TigerParser(BufferedReader source) throws IOException, TigerParseException {
 		TigerScanner scanner = new TigerScanner(source);
 		
 		Queue<TigerToken> tokenQueue = new LinkedList<>();
-		Deque<TigerClasses> symbolStack = new ArrayDeque<>();
-		symbolStack.push(TigerProductionRule.PROGRAM);
 		
 		while(true) {
 			TigerToken token = scanner.nextToken();
@@ -31,63 +91,79 @@ public class TigerParser {
 			tokenQueue.offer(token);
 		}
 		
-		while(!symbolStack.isEmpty()) {
-			TigerToken token = tokenQueue.peek();
-			TigerClasses currClass = symbolStack.peek();
-			if(currClass instanceof TigerProductionRule) {
-				TigerProductionRule rule = (TigerProductionRule)currClass;
-				
-				System.out.println(rule);
-				
-				if(rule.productions.size() == 1) {
-					symbolStack.pop();
-					push(symbolStack, rule.productions.get(0));
-				} else {
-					Pair<TigerTokenClass, List<TigerClasses>> epsilon = null;
+		Deque<TigerClasses> symbolStack = new ArrayDeque<>();
+		symbolStack.push(TigerProductionRule.PROGRAM);
+		
+		Node ast = parse(tokenQueue, symbolStack);
+		
+		System.out.println("\n" + ast);
+	}
+	
+	private Node parse(Queue<TigerToken> tokenQueue, Deque<TigerClasses> symbolStack) throws TigerParseException {
+		TigerToken token = tokenQueue.peek();
+		TigerClasses currClass = symbolStack.pop();
+		if(currClass instanceof TigerProductionRule) {
+			TigerProductionRule rule = (TigerProductionRule)currClass;
+			
+			System.out.println(rule);
+			
+			Pair<TigerTokenClass, List<TigerClasses>> epsilon = null;
+			
+			TigerParseException innerParseException = null;
+			
+			for(Pair<TigerTokenClass, List<TigerClasses>> pair : firsts.get(rule)) {
+				if(epsilon == null && pair.getKey() == TigerTokenClass.EPSILON) {
+					epsilon = pair;
+				} else if(token != null && pair.getKey() == token.getTokenClass()) {
+					Queue<TigerToken> newTokenQueue = new LinkedList<>(tokenQueue);
 					
-					boolean foundProduction = false;
-					
-					for(Pair<TigerTokenClass, List<TigerClasses>> pair : firsts.get(rule)) {
-						if(epsilon == null && pair.getKey() == TigerTokenClass.EPSILON) {
-							epsilon = pair;
-						} else if(token != null && pair.getKey() == token.getTokenClass()) {
-							foundProduction = true;
-							symbolStack.pop();
-							push(symbolStack, pair.getValue());
-							break;
-						}
+					Deque<TigerClasses> newSymbolStack = new ArrayDeque<>();
+					for(int i = pair.getValue().size() - 1; i >= 0; i--) {
+						newSymbolStack.push(pair.getValue().get(i));
 					}
 					
-					if(!foundProduction) {
-						if(epsilon != null) {
-							System.out.println("ϵ");
-							symbolStack.pop();
-							
-							// if epsilon.getValues().size() == 0, record this rule as epsilon
-							// else expand rule
-						} else if(token == null) {
-							throw new TigerParseException("Unexpected end-of-file.");
-						} else {
-							throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
+					RuleNode node = new RuleNode(rule);
+					
+					try {
+						while(!newSymbolStack.isEmpty()) {
+							Node n = parse(newTokenQueue, newSymbolStack);
+							if(n != null)
+								node.getChildren().add(n);
 						}
+					} catch(TigerParseException exc) {
+						innerParseException = exc;
+						System.out.println("> > > > BACKTRACK OUT OF " + currClass + "-" + innerParseException);
+						continue;
 					}
+					
+					tokenQueue.clear();
+					tokenQueue.addAll(newTokenQueue);
+					
+					return node;
 				}
+			}
+			
+			if(innerParseException != null) {
+				throw innerParseException;
+			}
+			else if(epsilon != null) {
+				return new RuleNode(rule);
+				
+				// if epsilon.getValues().size() == 0, record this rule as epsilon
+				// else expand rule
 			} else if(token == null) {
-				throw new TigerParseException("Unexpected end-of-file. Expected token " + currClass);
-			} else if(currClass == token.getTokenClass()) {
-				System.out.println(tokenQueue.remove());
-				symbolStack.pop();
+				throw new TigerParseException("Unexpected end-of-file.");
 			} else {
 				throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
 			}
-		}
-		
-		System.out.println();
-	}
-	
-	private void push(Deque<TigerClasses> stack, List<TigerClasses> production) {
-		for(int i = production.size() - 1; i >= 0; i--) {
-			stack.push(production.get(i));
+		} else if(token == null) {
+			throw new TigerParseException("Unexpected end-of-file. Expected token " + currClass);
+		} else if(currClass == token.getTokenClass()) {
+			TigerToken childToken = tokenQueue.remove();
+			System.out.println(childToken);
+			return new LeafNode(childToken);
+		} else {
+			throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
 		}
 	}
 	

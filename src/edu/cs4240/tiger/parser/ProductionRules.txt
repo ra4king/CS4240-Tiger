@@ -58,11 +58,8 @@ boolexpr_tail → | boolexpr
 clause → pred clause_tail
 clause_tail → ϵ
 clause_tail → & clause
-pred → id optoffset boolop pred_tail
-pred → const boolop pred_tail
+pred → numexpr boolop numexpr
 pred → ( boolexpr )
-pred_tail → id optoffset
-pred_tail → const
 boolop → =
 boolop → <>
 boolop → <=

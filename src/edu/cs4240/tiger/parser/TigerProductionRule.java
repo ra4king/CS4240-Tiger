@@ -45,7 +45,6 @@ public enum TigerProductionRule implements TigerClasses {
 	CLAUSE,
 	CLAUSE_TAIL,
 	PRED,
-	PRED_TAIL,
 	BOOLOP,
 	NUMEXPR,
 	NUMEXPR_TAIL,
@@ -173,6 +172,11 @@ public enum TigerProductionRule implements TigerClasses {
 				}
 				
 				productionRule.productions.add(productions);
+			}
+			
+			for(TigerProductionRule rule : TigerProductionRule.values()) {
+				if(rule.productions.isEmpty())
+					System.out.println("EMPTY PRODUCTION RULE: " + rule);
 			}
 		}
 		catch(IOException exc) {

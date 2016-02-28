@@ -12,6 +12,6 @@ import edu.cs4240.tiger.parser.TigerParser;
  */
 public class ParserTester {
 	public static void main(String[] args) throws IOException, TigerParseException {
-		TigerParser parser = new TigerParser(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/func2.tgr")));
+		TigerParser parser = new TigerParser(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/factorial.tgr")));
 	}
 }
