@@ -26,7 +26,7 @@ public enum TigerTokenClass implements TigerClasses {
 	RETURN(Regex.string("return")),
 	THEN(Regex.string("then")),
 	TO(Regex.string("to")), 
-	TYPE(Regex.string("type")),
+	TYPE_(Regex.string("type")),
 	VAR(Regex.string("var")),
 	WHILE(Regex.string("while")),
 	COMMA(Regex.string(",")),

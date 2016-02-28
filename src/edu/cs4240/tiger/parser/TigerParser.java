@@ -18,7 +18,8 @@ import edu.cs4240.tiger.util.Pair;
  * @author Roi Atalla
  */
 public class TigerParser {
-	public interface Node {}
+	public interface Node {
+	}
 	
 	public class RuleNode implements Node {
 		private TigerProductionRule value;
@@ -33,7 +34,7 @@ public class TigerParser {
 			this.children = new ArrayList<>(node.children);
 		}
 		
-		public RuleNode(TigerProductionRule value, Node ... children) {
+		public RuleNode(TigerProductionRule value, Node... children) {
 			this.value = value;
 			this.children = new ArrayList<>(Arrays.asList(children));
 		}
@@ -52,8 +53,9 @@ public class TigerParser {
 		
 		@Override
 		public String toString() {
-			if(children.size() == 0)
+			if(children.size() == 0) {
 				return value.toString().toLowerCase();
+			}
 			
 			String s = "(" + value.toString().toLowerCase();
 			for(Node child : children) {
@@ -67,7 +69,8 @@ public class TigerParser {
 	public class LeafNode implements Node {
 		private TigerToken token;
 		
-		public LeafNode() {}
+		public LeafNode() {
+		}
 		
 		public LeafNode(TigerToken token) {
 			this.token = token;
@@ -86,8 +89,9 @@ public class TigerParser {
 		
 		while(true) {
 			TigerToken token = scanner.nextToken();
-			if(token == null)
+			if(token == null) {
 				break;
+			}
 			tokenQueue.offer(token);
 		}
 		
@@ -126,11 +130,10 @@ public class TigerParser {
 					
 					try {
 						while(!newSymbolStack.isEmpty()) {
-							Node n = parse(newTokenQueue, newSymbolStack);
-							if(n != null)
-								node.getChildren().add(n);
+							node.getChildren().add(parse(newTokenQueue, newSymbolStack));
 						}
-					} catch(TigerParseException exc) {
+					}
+					catch(TigerParseException exc) {
 						innerParseException = exc;
 						System.out.println("> > > > BACKTRACK OUT OF " + currClass + "-" + innerParseException);
 						continue;
@@ -145,12 +148,8 @@ public class TigerParser {
 			
 			if(innerParseException != null) {
 				throw innerParseException;
-			}
-			else if(epsilon != null) {
+			} else if(epsilon != null) {
 				return new RuleNode(rule);
-				
-				// if epsilon.getValues().size() == 0, record this rule as epsilon
-				// else expand rule
 			} else if(token == null) {
 				throw new TigerParseException("Unexpected end-of-file.");
 			} else {

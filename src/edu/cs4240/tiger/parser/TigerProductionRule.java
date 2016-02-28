@@ -15,7 +15,7 @@ public enum TigerProductionRule implements TigerClasses {
 	DECLSEG,
 	TYPEDECLS,
 	TYPEDECL,
-	TYPE_,
+	TYPE,
 	VARDECLS,
 	VARDECL,
 	IDS,
@@ -150,25 +150,20 @@ public enum TigerProductionRule implements TigerClasses {
 					
 					symbol = symbol.toUpperCase();
 					
-					TigerProductionRule rule;
 					try {
-						rule = TigerProductionRule.valueOf(symbol);
+						TigerProductionRule rule = TigerProductionRule.valueOf(symbol);
+						productions.add(rule);
 					}
 					catch(Exception exc) {
 						TigerTokenClass tokenClass;
 						try {
 							tokenClass = TigerTokenClass.valueOf(symbol);
+							productions.add(tokenClass);
 						}
 						catch(Exception exc2) {
 							System.err.println("Unrecognized symbol '" + symbol + "' for rule " + productionName);
-							continue;
 						}
-						
-						productions.add(tokenClass);
-						continue;
 					}
-					
-					productions.add(rule);
 				}
 				
 				productionRule.productions.add(productions);
@@ -176,7 +171,7 @@ public enum TigerProductionRule implements TigerClasses {
 			
 			for(TigerProductionRule rule : TigerProductionRule.values()) {
 				if(rule.productions.isEmpty())
-					System.out.println("EMPTY PRODUCTION RULE: " + rule);
+					System.err.println("EMPTY PRODUCTION RULE: " + rule);
 			}
 		}
 		catch(IOException exc) {
