@@ -117,8 +117,7 @@ public enum TigerProductionRule implements TigerClasses {
 			while((s = reader.readLine()) != null) {
 				int arrowIdx = s.indexOf(arrow);
 				if(arrowIdx == -1) {
-					System.err.println("No arrow found: " + s);
-					continue;
+					throw new RuntimeException("No arrow found: " + s);
 				}
 				
 				String productionName = s.substring(0, arrowIdx).trim().toUpperCase();
@@ -128,8 +127,7 @@ public enum TigerProductionRule implements TigerClasses {
 					productionRule = TigerProductionRule.valueOf(productionName);
 				}
 				catch(Exception exc) {
-					System.err.println("Unrecognized production: " + productionName);
-					continue;
+					throw new RuntimeException("Unrecognized production: " + productionName);
 				}
 				
 				ArrayList<TigerClasses> productions = new ArrayList<>();
@@ -160,7 +158,7 @@ public enum TigerProductionRule implements TigerClasses {
 							productions.add(tokenClass);
 						}
 						catch(Exception exc2) {
-							System.err.println("Unrecognized symbol '" + symbol + "' for rule " + productionName);
+							throw new RuntimeException("Unrecognized symbol '" + symbol + "' for rule " + productionName);
 						}
 					}
 				}
@@ -170,12 +168,11 @@ public enum TigerProductionRule implements TigerClasses {
 			
 			for(TigerProductionRule rule : TigerProductionRule.values()) {
 				if(rule.productions.isEmpty())
-					System.err.println("EMPTY PRODUCTION RULE: " + rule);
+					throw new RuntimeException("Empty production rule: " + rule);
 			}
 		}
 		catch(IOException exc) {
-			System.err.println("Error trying to read ProductionRules.txt file.");
-			exc.printStackTrace();
+			throw new RuntimeException("Error trying to read ProductionRules.txt file.", exc);
 		}
 	}
 }

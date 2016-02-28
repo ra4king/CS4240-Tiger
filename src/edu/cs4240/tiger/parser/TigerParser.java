@@ -194,9 +194,9 @@ public class TigerParser {
 	
 	private Node parse(Queue<TigerToken> tokenQueue, Deque<TigerClasses> symbolStack, boolean debug) throws TigerParseException {
 		TigerToken token = tokenQueue.peek();
-		TigerClasses currClass = symbolStack.pop();
-		if(currClass instanceof TigerProductionRule) {
-			TigerProductionRule rule = (TigerProductionRule)currClass;
+		TigerClasses symbol = symbolStack.pop();
+		if(symbol instanceof TigerProductionRule) {
+			TigerProductionRule rule = (TigerProductionRule)symbol;
 			
 			if(debug) {
 				System.out.println(rule);
@@ -227,7 +227,7 @@ public class TigerParser {
 					catch(TigerParseException exc) {
 						innerParseException = exc;
 						if(debug) {
-							System.out.println("> > > > BACKTRACK OUT OF " + currClass + "-" + innerParseException);
+							System.out.println("> > > > BACKTRACK OUT OF " + symbol + "-" + innerParseException);
 						}
 						continue;
 					}
@@ -249,8 +249,8 @@ public class TigerParser {
 				throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
 			}
 		} else if(token == null) {
-			throw new TigerParseException("Unexpected end-of-file. Expected token " + currClass);
-		} else if(currClass == token.getTokenClass()) {
+			throw new TigerParseException("Unexpected end-of-file. Expected token " + symbol);
+		} else if(symbol == token.getTokenClass()) {
 			TigerToken childToken = tokenQueue.remove();
 			if(debug) {
 				System.out.println(childToken);
@@ -271,12 +271,12 @@ public class TigerParser {
 		}
 		
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
-			System.out.print(rule.toString().toLowerCase() + " -");
+//			System.out.print(rule.toString().toLowerCase() + " -");
 			List<Pair<TigerTokenClass, List<TigerClasses>>> f = firsts.get(rule);
 			for(Iterator<Pair<TigerTokenClass, List<TigerClasses>>> it = f.iterator(); it.hasNext(); ) {
 				Pair<TigerTokenClass, List<TigerClasses>> pair = it.next();
 				
-				boolean removed = false;
+//				boolean removed = false;
 				for(Pair<TigerTokenClass, List<TigerClasses>> innerPair : f) {
 					if(pair == innerPair) {
 						break;
@@ -285,23 +285,23 @@ public class TigerParser {
 					if(pair.getKey() == innerPair.getKey()) {
 						if(pair.getValue().equals(innerPair.getValue())) {
 							it.remove();
-							removed = true;
-						} else {
-							System.out.print("**");
+//							removed = true;
+//						} else {
+//							System.out.print("**");
 						}
 						
 						break;
 					}
 				}
 				
-				if(!removed) {
-					System.out.print(" " + pair.getKey().toString().toLowerCase() + "{" + TigerProductionRule.printRule(rule, pair.getValue()) + "}");
-				}
+//				if(!removed) {
+//					System.out.print(" " + pair.getKey().toString().toLowerCase() + "{" + TigerProductionRule.printRule(rule, pair.getValue()) + "}");
+//				}
 			}
-			System.out.println();
+//			System.out.println();
 		}
 		
-		System.out.println();
+//		System.out.println();
 	}
 	
 	private static List<Pair<TigerTokenClass, List<TigerClasses>>> getFirsts(TigerProductionRule currentRule) {

@@ -23,6 +23,7 @@ public class ParserTester {
 		for(File file : testsFolder.listFiles()) {
 			if(file.getName().endsWith("tgr")) {
 				testFile(file, false);
+				System.out.println();
 			}
 		}
 	}
