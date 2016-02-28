@@ -146,10 +146,10 @@ public class TigerParser {
 				}
 			}
 			
-			if(innerParseException != null) {
-				throw innerParseException;
-			} else if(epsilon != null) {
+			if(epsilon != null) {
 				return new RuleNode(rule);
+			} else if(innerParseException != null) {
+				throw innerParseException;
 			} else if(token == null) {
 				throw new TigerParseException("Unexpected end-of-file.");
 			} else {

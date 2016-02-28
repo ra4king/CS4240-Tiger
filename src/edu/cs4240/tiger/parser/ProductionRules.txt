@@ -2,14 +2,14 @@ program → let declseg in stmts end
 declseg → typedecls vardecls funcdecls
 typedecls → ϵ
 typedecls → typedecl typedecls
-typedecl → type id := type_ ;
-type_ → int
-type_ → float
-type_ → id
-type_ → array [ intlit ] of type_
+typedecl → type_ id := type ;
+type → int
+type → float
+type → id
+type → array [ intlit ] of type
 vardecls → ϵ
 vardecls → vardecl vardecls
-vardecl → var ids : type_ optinit ;
+vardecl → var ids : type optinit ;
 ids → id ids_tail
 ids_tail → ϵ
 ids_tail → , ids
@@ -23,30 +23,26 @@ params → neparams
 neparams → param neparams_tail
 neparams_tail → ϵ
 neparams_tail → , neparams
-param → id : type_
+param → id : type
 optrettype → ϵ
-optrettype → : type_
+optrettype → : type
 stmts → fullstmt stmts_tail
 stmts_tail → ϵ
-stmts_tail → fullstmt stmts_tail
+stmts_tail → stmts
 fullstmt → stmt ;
-stmt → id stmt_id
-stmt → if boolexpr then stmts stmt_if
+stmt → if boolexpr then stmts endif
+stmt → if boolexpr then stmts else stmts endif
 stmt → while boolexpr do stmts enddo
 stmt → for id := numexpr to numexpr do stmts enddo
+stmt → optstore id ( numexprs )
+stmt → lvalue := numexpr
 stmt → break
 stmt → return numexpr
-stmt_id → optoffset := stmt_store
-stmt_id → ( numexprs )
-stmt_if → endif
-stmt_if → else stmts endif
-stmt_store → const term_tail numexpr_tail
-stmt_store → ( numexpr ) term_tail numexpr_tail
-stmt_store → id stmt_store_tail
-stmt_store_tail → optoffset term_tail numexpr_tail
-stmt_store_tail → ( numexprs )
+lvalue → id optoffset
 optoffset → ϵ
 optoffset → [ numexpr ]
+optstore → ϵ
+optstore → lvalue :=
 numexprs → ϵ
 numexprs → neexprs
 neexprs → numexpr neexprs_tail
@@ -77,7 +73,8 @@ term_tail → nonlinop term
 nonlinop → *
 nonlinop → /
 factor → const
-factor → id optoffset
+factor → id
+factor → id [ numexpr ]
 factor → ( numexpr )
 const → intlit
 const → floatlit
