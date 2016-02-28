@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author Roi Atalla
  */
-public enum TigerProductionRule implements TigerClasses {
+public enum TigerProductionRule implements TigerSymbol {
 	PROGRAM,
 	DECLSEG,
 	TYPEDECLS,
@@ -54,20 +54,20 @@ public enum TigerProductionRule implements TigerClasses {
 	FACTOR_TAIL,
 	CONST;
 	
-	public final List<List<TigerClasses>> productions = new ArrayList<>();
+	public final List<List<TigerSymbol>> productions = new ArrayList<>();
 	
 	private static HashMap<String, TigerTokenClass> specialTokenClasses = new HashMap<>();
 	
-	public static String printRule(TigerProductionRule rule, List<TigerClasses> classes) {
+	public static String printRule(TigerProductionRule rule, List<TigerSymbol> symbols) {
 		char arrow = '→';
 		char eps = 'ϵ';
 		
 		String s = rule.toString().toLowerCase() + " " + arrow;
 		
-		if(classes.isEmpty()) {
+		if(symbols.isEmpty()) {
 			s += " " + eps;
 		} else {
-			for(TigerClasses c : classes) {
+			for(TigerSymbol c : symbols) {
 				if(c instanceof TigerTokenClass && specialTokenClasses.containsValue(c)) {
 					for(String token : specialTokenClasses.keySet()) {
 						if(specialTokenClasses.get(token) == c) {
@@ -130,7 +130,7 @@ public enum TigerProductionRule implements TigerClasses {
 					throw new RuntimeException("Unrecognized production: " + productionName);
 				}
 				
-				ArrayList<TigerClasses> productions = new ArrayList<>();
+				ArrayList<TigerSymbol> productions = new ArrayList<>();
 				
 				String[] symbols = s.substring(arrowIdx + 1).trim().split(" ");
 				for(String symbol : symbols) {

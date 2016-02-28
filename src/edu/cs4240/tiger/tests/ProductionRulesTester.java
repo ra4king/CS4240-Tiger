@@ -3,7 +3,7 @@ package edu.cs4240.tiger.tests;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cs4240.tiger.parser.TigerClasses;
+import edu.cs4240.tiger.parser.TigerSymbol;
 import edu.cs4240.tiger.parser.TigerProductionRule;
 
 /**
@@ -12,7 +12,7 @@ import edu.cs4240.tiger.parser.TigerProductionRule;
 public class ProductionRulesTester {
 	public static void main(String[] args) {
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
-			for(List<TigerClasses> classes : rule.productions) {
+			for(List<TigerSymbol> classes : rule.productions) {
 				System.out.println(TigerProductionRule.printRule(rule, classes));
 			}
 		}

@@ -22,16 +22,16 @@ public class ParserTester {
 		
 		for(File file : testsFolder.listFiles()) {
 			if(file.getName().endsWith("tgr")) {
-				testFile(file, false);
+				testFile(file);
 				System.out.println();
 			}
 		}
 	}
 	
-	private static void testFile(File file, boolean debug) {
+	private static void testFile(File file) {
 		try {
-			TigerParser parser = new TigerParser(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName())), debug);
-			String ast = parser.getAST().toString();
+			TigerParser parser = new TigerParser(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName())));
+			String ast = parser.parse().toString();
 			
 			List<String> lines = Files.readAllLines(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName().substring(0, file.getName().lastIndexOf('.')) + ".ast"));
 			String line = "";

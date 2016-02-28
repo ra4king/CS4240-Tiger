@@ -8,7 +8,7 @@ public class TigerParseException extends Exception {
 	private int lineNum, indexNum;
 	
 	public TigerParseException(String message) {
-		this(message, "", 0, 0);
+		this(message, null, -1, -1);
 	}
 	
 	public TigerParseException(String message, TigerToken token) {
@@ -37,6 +37,6 @@ public class TigerParseException extends Exception {
 	
 	@Override
 	public String toString() {
-		return getMessage() + " on line " + lineNum + ", index " + indexNum + ": " + line;
+		return getMessage() + (line == null ? "" : " on line " + lineNum + ", index " + indexNum + ": " + line);
 	}
 }

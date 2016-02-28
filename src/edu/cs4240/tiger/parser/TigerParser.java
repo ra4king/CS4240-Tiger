@@ -76,6 +76,10 @@ public class TigerParser {
 			this.token = token;
 		}
 		
+		public TigerToken getToken() {
+			return token;
+		}
+		
 		@Override
 		public String toString() {
 			return token.getToken();
@@ -83,11 +87,13 @@ public class TigerParser {
 	}
 	
 	private Node ast;
+	private Queue<TigerToken> tokenQueue;
+	private Deque<TigerSymbol> symbolStack;
 	
-	public TigerParser(BufferedReader source, boolean debug) throws IOException, TigerParseException {
+	public TigerParser(BufferedReader source) throws IOException, TigerParseException {
 		TigerScanner scanner = new TigerScanner(source);
 		
-		Queue<TigerToken> tokenQueue = new LinkedList<>();
+		tokenQueue = new LinkedList<>();
 		
 		while(true) {
 			TigerToken token = scanner.nextToken();
@@ -97,19 +103,17 @@ public class TigerParser {
 			tokenQueue.offer(token);
 		}
 		
-		Deque<TigerClasses> symbolStack = new ArrayDeque<>();
+		symbolStack = new ArrayDeque<>();
 		symbolStack.push(TigerProductionRule.PROGRAM);
-		
-		ast = parse(tokenQueue, symbolStack, debug);
-		cleanupTails(ast);
-		cleanupRecursiveRules(ast);
-		
-		if(debug) {
-			System.out.println();
-		}
 	}
 	
-	public Node getAST() {
+	public Node parse() throws TigerParseException {
+		if(ast == null) {
+			ast = parse(tokenQueue, symbolStack);
+			cleanupTails(ast);
+			cleanupRecursiveRules(ast);
+		}
+		
 		return ast;
 	}
 	
@@ -192,27 +196,24 @@ public class TigerParser {
 		}
 	}
 	
-	private Node parse(Queue<TigerToken> tokenQueue, Deque<TigerClasses> symbolStack, boolean debug) throws TigerParseException {
+	private Node parse(Queue<TigerToken> tokenQueue, Deque<TigerSymbol> symbolStack) throws TigerParseException {
 		TigerToken token = tokenQueue.peek();
-		TigerClasses symbol = symbolStack.pop();
+		TigerSymbol symbol = symbolStack.pop();
+		
 		if(symbol instanceof TigerProductionRule) {
 			TigerProductionRule rule = (TigerProductionRule)symbol;
 			
-			if(debug) {
-				System.out.println(rule);
-			}
-			
-			Pair<TigerTokenClass, List<TigerClasses>> epsilon = null;
+			Pair<TigerTokenClass, List<TigerSymbol>> epsilon = null;
 			
 			TigerParseException innerParseException = null;
 			
-			for(Pair<TigerTokenClass, List<TigerClasses>> pair : firsts.get(rule)) {
+			for(Pair<TigerTokenClass, List<TigerSymbol>> pair : firsts.get(rule)) {
 				if(epsilon == null && pair.getKey() == TigerTokenClass.EPSILON) {
 					epsilon = pair;
 				} else if(token != null && pair.getKey() == token.getTokenClass()) {
 					Queue<TigerToken> newTokenQueue = new LinkedList<>(tokenQueue);
 					
-					Deque<TigerClasses> newSymbolStack = new ArrayDeque<>();
+					Deque<TigerSymbol> newSymbolStack = new ArrayDeque<>();
 					for(int i = pair.getValue().size() - 1; i >= 0; i--) {
 						newSymbolStack.push(pair.getValue().get(i));
 					}
@@ -221,14 +222,11 @@ public class TigerParser {
 					
 					try {
 						while(!newSymbolStack.isEmpty()) {
-							node.getChildren().add(parse(newTokenQueue, newSymbolStack, debug));
+							node.getChildren().add(parse(newTokenQueue, newSymbolStack));
 						}
 					}
 					catch(TigerParseException exc) {
 						innerParseException = exc;
-						if(debug) {
-							System.out.println("> > > > BACKTRACK OUT OF " + symbol + "-" + innerParseException);
-						}
 						continue;
 					}
 					
@@ -251,88 +249,71 @@ public class TigerParser {
 		} else if(token == null) {
 			throw new TigerParseException("Unexpected end-of-file. Expected token " + symbol);
 		} else if(symbol == token.getTokenClass()) {
-			TigerToken childToken = tokenQueue.remove();
-			if(debug) {
-				System.out.println(childToken);
-			}
-			return new LeafNode(childToken);
+			return new LeafNode(tokenQueue.remove());
 		} else {
 			throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
 		}
 	}
 	
-	private static final HashMap<TigerProductionRule, List<Pair<TigerTokenClass, List<TigerClasses>>>> firsts;
+	private static final HashMap<TigerProductionRule, List<Pair<TigerTokenClass, List<TigerSymbol>>>> firsts;
 	
 	static {
 		firsts = new HashMap<>();
 		
+		// Generated the firsts table for each rule
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
 			firsts.put(rule, getFirsts(rule));
 		}
 		
+		// Remove all duplicate firsts for each symbol for each rule
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
-//			System.out.print(rule.toString().toLowerCase() + " -");
-			List<Pair<TigerTokenClass, List<TigerClasses>>> f = firsts.get(rule);
-			for(Iterator<Pair<TigerTokenClass, List<TigerClasses>>> it = f.iterator(); it.hasNext(); ) {
-				Pair<TigerTokenClass, List<TigerClasses>> pair = it.next();
+			List<Pair<TigerTokenClass, List<TigerSymbol>>> f = firsts.get(rule);
+			for(Iterator<Pair<TigerTokenClass, List<TigerSymbol>>> it = f.iterator(); it.hasNext(); ) {
+				Pair<TigerTokenClass, List<TigerSymbol>> pair = it.next();
 				
-//				boolean removed = false;
-				for(Pair<TigerTokenClass, List<TigerClasses>> innerPair : f) {
+				for(Pair<TigerTokenClass, List<TigerSymbol>> innerPair : f) {
 					if(pair == innerPair) {
 						break;
 					}
 					
-					if(pair.getKey() == innerPair.getKey()) {
-						if(pair.getValue().equals(innerPair.getValue())) {
-							it.remove();
-//							removed = true;
-//						} else {
-//							System.out.print("**");
-						}
-						
+					if(pair.getKey() == innerPair.getKey() && pair.getValue().equals(innerPair.getValue())) {
+						it.remove();
 						break;
 					}
 				}
-				
-//				if(!removed) {
-//					System.out.print(" " + pair.getKey().toString().toLowerCase() + "{" + TigerProductionRule.printRule(rule, pair.getValue()) + "}");
-//				}
 			}
-//			System.out.println();
 		}
-		
-//		System.out.println();
 	}
 	
-	private static List<Pair<TigerTokenClass, List<TigerClasses>>> getFirsts(TigerProductionRule currentRule) {
-		List<Pair<TigerTokenClass, List<TigerClasses>>> currentFirsts = new ArrayList<>();
+	private static List<Pair<TigerTokenClass, List<TigerSymbol>>> getFirsts(TigerProductionRule currentRule) {
+		List<Pair<TigerTokenClass, List<TigerSymbol>>> currentFirsts = new ArrayList<>();
 		
 		boolean foundEps = false;
 		
-		for(List<TigerClasses> classes : currentRule.productions) {
-			for(TigerClasses tigerClass : classes) {
-				if(tigerClass instanceof TigerTokenClass) {
-					if(tigerClass != TigerTokenClass.EPSILON) {
+		for(List<TigerSymbol> production : currentRule.productions) {
+			for(TigerSymbol symbol : production) {
+				if(symbol instanceof TigerTokenClass) {
+					if(symbol != TigerTokenClass.EPSILON) {
 						foundEps = false;
 					}
 					
-					currentFirsts.add(new Pair<>((TigerTokenClass)tigerClass, classes));
+					currentFirsts.add(new Pair<>((TigerTokenClass)symbol, production));
 					break;
 				} else {
-					TigerProductionRule subRule = (TigerProductionRule)tigerClass;
+					TigerProductionRule subRule = (TigerProductionRule)symbol;
 					
-					List<Pair<TigerTokenClass, List<TigerClasses>>> subFirsts = getFirsts(subRule);
+					List<Pair<TigerTokenClass, List<TigerSymbol>>> subFirsts = getFirsts(subRule);
 					
 					foundEps = false;
 					
-					for(Iterator<Pair<TigerTokenClass, List<TigerClasses>>> it = subFirsts.iterator(); it.hasNext(); ) {
-						Pair<TigerTokenClass, List<TigerClasses>> pair = it.next();
+					for(Iterator<Pair<TigerTokenClass, List<TigerSymbol>>> it = subFirsts.iterator(); it.hasNext(); ) {
+						Pair<TigerTokenClass, List<TigerSymbol>> pair = it.next();
 						
 						if(pair.getKey() == TigerTokenClass.EPSILON) {
 							foundEps = true;
 							it.remove();
 						} else {
-							pair.setValue(classes);
+							pair.setValue(production);
 						}
 					}
 					
