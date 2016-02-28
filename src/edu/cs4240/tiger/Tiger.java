@@ -15,7 +15,7 @@ import edu.cs4240.tiger.parser.TigerToken;
  */
 public class Tiger {
 	private static void printUsage() {
-		System.out.println("Usage: java -jar tigerc.jar [--ast] [--tokens] sourceFile.tgr");
+		System.out.println("Usage: java -jar parser.jar [--tokens] [--ast] sourceFile.tgr");
 	}
 	
 	public static void main(String[] args) {
@@ -57,15 +57,17 @@ public class Tiger {
 		}
 		
 		if(printTokens) {
+			System.out.println("Tokens:");
 			Queue<TigerToken> tokenQueue = parser.getTokenQueue();
-			TigerToken token;
-			while((token = tokenQueue.remove()) != null) {
+			for(TigerToken token; tokenQueue.size() > 0;) {
+				token = tokenQueue.remove();
 				System.out.print(token.getToken() + " ");
 			}
-			System.out.println();
+			System.out.println("\n");
 		}
 		
 		if(printAST) {
+			System.out.println("AST:");
 			try {
 				System.out.println(parser.parse());
 			}
