@@ -260,8 +260,8 @@ public class TigerParser {
 		}
 	}
 	
+	private static final List<TigerProductionRule> noErrorRules;
 	private static final HashMap<TigerProductionRule, List<Pair<TigerTokenClass, List<TigerSymbol>>>> firsts;
-	private static List<TigerProductionRule> noErrorRules;
 	
 	static {
 		noErrorRules = new ArrayList<>();
@@ -274,7 +274,7 @@ public class TigerParser {
 		
 		firsts = new HashMap<>();
 		
-		// Generated the firsts table for each rule
+		// Generate the firsts table for each rule
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
 			if(rule.toString().endsWith("_TAIL"))
 				noErrorRules.add(rule);
