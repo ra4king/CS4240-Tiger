@@ -16,6 +16,7 @@ import edu.cs4240.tiger.parser.TigerToken;
 public class Tiger {
 	private static void printUsage() {
 		System.out.println("Usage: java -jar parser.jar [--tokens] [--ast] sourceFile.tgr");
+		System.out.println("At least one of --tokens or --ast must be specified.");
 	}
 	
 	public static void main(String[] args) {
