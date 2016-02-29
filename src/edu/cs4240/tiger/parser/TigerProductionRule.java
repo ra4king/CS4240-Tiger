@@ -32,6 +32,7 @@ public enum TigerProductionRule implements TigerSymbol {
 	STMTS_TAIL,
 	FULLSTMT,
 	STMT,
+	STMT_TAIL,
 	LVALUE,
 	OPTOFFSET,
 	OPTSTORE,

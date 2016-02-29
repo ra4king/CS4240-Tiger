@@ -30,14 +30,16 @@ stmts → fullstmt stmts_tail
 stmts_tail → ϵ
 stmts_tail → stmts
 fullstmt → stmt ;
-stmt → if boolexpr then stmts endif
-stmt → if boolexpr then stmts else stmts endif
+stmt → if boolexpr then stmts stmt_tail
+stmt → if boolexpr then stmts stmt_tail
 stmt → while boolexpr do stmts enddo
 stmt → for id := numexpr to numexpr do stmts enddo
 stmt → optstore id ( numexprs )
 stmt → lvalue := numexpr
 stmt → break
 stmt → return numexpr
+stmt_tail → endif
+stmt_tail → else stmts endif
 lvalue → id optoffset
 optoffset → ϵ
 optoffset → [ numexpr ]
