@@ -239,6 +239,10 @@ public class TigerParser {
 			}
 			
 			if(epsilon != null) {
+				if(noErrorRules.contains(rule) && innerParseException != null) {
+					throw innerParseException;
+				}
+				
 				return new RuleNode(rule);
 			} else if(innerParseException != null) {
 				throw innerParseException;
@@ -257,12 +261,24 @@ public class TigerParser {
 	}
 	
 	private static final HashMap<TigerProductionRule, List<Pair<TigerTokenClass, List<TigerSymbol>>>> firsts;
+	private static List<TigerProductionRule> noErrorRules;
 	
 	static {
+		noErrorRules = new ArrayList<>();
+		noErrorRules.add(TigerProductionRule.DECLSEG);
+		noErrorRules.add(TigerProductionRule.TYPEDECLS);
+		noErrorRules.add(TigerProductionRule.VARDECLS);
+		noErrorRules.add(TigerProductionRule.FUNCDECLS);
+		noErrorRules.add(TigerProductionRule.OPTINIT);
+		noErrorRules.add(TigerProductionRule.PARAMS);
+		
 		firsts = new HashMap<>();
 		
 		// Generated the firsts table for each rule
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
+			if(rule.toString().endsWith("_TAIL"))
+				noErrorRules.add(rule);
+			
 			firsts.put(rule, getFirsts(rule));
 		}
 		
