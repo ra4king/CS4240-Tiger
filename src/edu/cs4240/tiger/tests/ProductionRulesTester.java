@@ -3,8 +3,8 @@ package edu.cs4240.tiger.tests;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.cs4240.tiger.parser.TigerSymbol;
 import edu.cs4240.tiger.parser.TigerProductionRule;
+import edu.cs4240.tiger.parser.TigerSymbol;
 
 /**
  * @author Roi Atalla
@@ -12,8 +12,8 @@ import edu.cs4240.tiger.parser.TigerProductionRule;
 public class ProductionRulesTester {
 	public static void main(String[] args) {
 		for(TigerProductionRule rule : TigerProductionRule.values()) {
-			for(List<TigerSymbol> classes : rule.productions) {
-				System.out.println(TigerProductionRule.printRule(rule, classes));
+			for(List<TigerSymbol> production : rule.productions) {
+				System.out.println(TigerProductionRule.printRule(rule, production));
 			}
 		}
 		
@@ -37,9 +37,9 @@ public class ProductionRulesTester {
 			
 			rulesVisited.add(currentRule);
 			
-			currentRule.productions.forEach((classes) -> {
-				if(classes.size() > 0 && classes.get(0) instanceof TigerProductionRule) {
-					firsts(indent + 1, rulesVisited, (TigerProductionRule)classes.get(0));
+			currentRule.productions.forEach((production) -> {
+				if(production.size() > 0 && production.get(0) instanceof TigerProductionRule) {
+					firsts(indent + 1, rulesVisited, (TigerProductionRule)production.get(0));
 				}
 			});
 		}

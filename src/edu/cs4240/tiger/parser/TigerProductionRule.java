@@ -131,7 +131,7 @@ public enum TigerProductionRule implements TigerSymbol {
 					throw new RuntimeException("Unrecognized production: " + productionName);
 				}
 				
-				ArrayList<TigerSymbol> productions = new ArrayList<>();
+				ArrayList<TigerSymbol> production = new ArrayList<>();
 				
 				String[] symbols = s.substring(arrowIdx + 1).trim().split(" ");
 				for(String symbol : symbols) {
@@ -142,7 +142,7 @@ public enum TigerProductionRule implements TigerSymbol {
 					
 					TigerTokenClass specialChar = specialTokenClasses.get(symbol);
 					if(specialChar != null) {
-						productions.add(specialChar);
+						production.add(specialChar);
 						continue;
 					}
 					
@@ -150,13 +150,13 @@ public enum TigerProductionRule implements TigerSymbol {
 					
 					try {
 						TigerProductionRule rule = TigerProductionRule.valueOf(symbol);
-						productions.add(rule);
+						production.add(rule);
 					}
 					catch(Exception exc) {
 						TigerTokenClass tokenClass;
 						try {
 							tokenClass = TigerTokenClass.valueOf(symbol);
-							productions.add(tokenClass);
+							production.add(tokenClass);
 						}
 						catch(Exception exc2) {
 							throw new RuntimeException("Unrecognized symbol '" + symbol + "' for rule " + productionName);
@@ -164,12 +164,13 @@ public enum TigerProductionRule implements TigerSymbol {
 					}
 				}
 				
-				productionRule.productions.add(productions);
+				productionRule.productions.add(production);
 			}
 			
 			for(TigerProductionRule rule : TigerProductionRule.values()) {
-				if(rule.productions.isEmpty())
+				if(rule.productions.isEmpty()) {
 					throw new RuntimeException("Empty production rule: " + rule);
+				}
 			}
 		}
 		catch(IOException exc) {

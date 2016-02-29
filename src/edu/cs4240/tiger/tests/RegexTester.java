@@ -19,9 +19,9 @@ public class RegexTester {
 		printMatch(regex, "hello IamRoi !");
 		
 		// ([A-Za-z]|_+[A-Za-z0-9])[A-Za-z0-9_]*
-		Regex id = Regex.and(Regex.or(Regex.letter(), 
-		                              Regex.and(Regex.oneOrMore(Regex.string("_")), Regex.alphanumeric())),
-		                     Regex.zeroOrMore(Regex.wordChar()));
+		Regex id = Regex.and(Regex.or(Regex.letter(),
+		  Regex.and(Regex.oneOrMore(Regex.string("_")), Regex.alphanumeric())),
+		  Regex.zeroOrMore(Regex.wordChar()));
 		
 		System.out.println("\nNow testing regex: " + id);
 		
@@ -57,9 +57,10 @@ public class RegexTester {
 	
 	public static void printMatch(Regex regex, String s) {
 		Match match = regex.match(s);
-		if(match != null)
+		if(match != null) {
 			System.out.println(s + " matched: " + match.getMatch());
-		else
+		} else {
 			System.out.println(s + " did not match.");
+		}
 	}
 }

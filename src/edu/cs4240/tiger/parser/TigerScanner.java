@@ -26,19 +26,22 @@ public class TigerScanner {
 		int beginComment = -1;
 		do {
 			String n = source.readLine();
-			if(n != null)
+			if(n != null) {
 				s += n;
-			else if(beginComment == -1)
+			} else if(beginComment == -1) {
 				break;
+			}
 			
 			while(true) {
 				beginComment = s.indexOf("//");
-				if(beginComment != -1)
+				if(beginComment != -1) {
 					s = s.substring(0, beginComment);
+				}
 				
 				beginComment = s.indexOf("/*");
-				if(beginComment == -1)
+				if(beginComment == -1) {
 					break;
+				}
 				
 				int endComment = s.indexOf("*/", beginComment);
 				if(endComment == -1 && n == null) {
@@ -58,15 +61,16 @@ public class TigerScanner {
 			buffer = currLine = null;
 			source.close();
 		} else {
-			currLine = s; 
+			currLine = s;
 			buffer = s.trim();
 			currLineNum++;
 		}
 	}
 	
 	public TigerToken nextToken() throws IOException, TigerParseException {
-		if(buffer == null || buffer.isEmpty())
+		if(buffer == null || buffer.isEmpty()) {
 			return null;
+		}
 		
 		Match bestMatch = null;
 		TigerTokenClass bestMatchToken = null;

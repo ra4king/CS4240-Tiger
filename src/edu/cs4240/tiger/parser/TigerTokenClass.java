@@ -25,7 +25,7 @@ public enum TigerTokenClass implements TigerSymbol {
 	OF(Regex.string("of")),
 	RETURN(Regex.string("return")),
 	THEN(Regex.string("then")),
-	TO(Regex.string("to")), 
+	TO(Regex.string("to")),
 	TYPE_(Regex.string("type")),
 	VAR(Regex.string("var")),
 	WHILE(Regex.string("while")),

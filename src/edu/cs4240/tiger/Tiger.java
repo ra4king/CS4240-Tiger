@@ -59,7 +59,7 @@ public class Tiger {
 		
 		if(printTokens) {
 			Queue<TigerToken> tokenQueue = parser.getTokenQueue();
-			for(TigerToken token; tokenQueue.size() > 0;) {
+			for(TigerToken token; tokenQueue.size() > 0; ) {
 				token = tokenQueue.remove();
 				System.out.print(token.getToken() + " ");
 			}
