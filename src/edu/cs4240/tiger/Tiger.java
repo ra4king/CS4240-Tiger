@@ -58,17 +58,15 @@ public class Tiger {
 		}
 		
 		if(printTokens) {
-			System.out.println("Tokens:");
 			Queue<TigerToken> tokenQueue = parser.getTokenQueue();
 			for(TigerToken token; tokenQueue.size() > 0;) {
 				token = tokenQueue.remove();
 				System.out.print(token.getToken() + " ");
 			}
-			System.out.println("\n");
+			System.out.println();
 		}
 		
 		if(printAST) {
-			System.out.println("AST:");
 			try {
 				System.out.println(parser.parse());
 			}
