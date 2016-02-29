@@ -37,6 +37,22 @@ public class TigerParseException extends Exception {
 	
 	@Override
 	public String toString() {
-		return getMessage() + (line == null ? "" : " on line " + lineNum + ", index " + indexNum + ": " + line);
+		if(line == null)
+			return getMessage();
+		
+		String s = getMessage() + " on line " + lineNum + ", index " + indexNum + ": ";
+		int len = s.length() + indexNum;
+		
+		String trimmed = line.trim();
+		len -= line.indexOf(trimmed);
+		
+		s += trimmed + "\n";
+		
+		for(int i = 0; i < len; i++) {
+			s += " ";
+		}
+		s += "^^^";
+		
+		return s;
 	}
 }

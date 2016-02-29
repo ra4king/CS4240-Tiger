@@ -53,7 +53,7 @@ public class Tiger {
 			parser = new TigerParser(new TigerScanner(new BufferedReader(new FileReader(source))));
 		}
 		catch(IOException | TigerParseException exc) {
-			exc.printStackTrace();
+			System.err.println("\n" + exc);
 			return;
 		}
 		
@@ -71,7 +71,7 @@ public class Tiger {
 				System.out.println(parser.parse());
 			}
 			catch(TigerParseException exc) {
-				exc.printStackTrace();
+				System.err.println("\n" + exc);
 			}
 		}
 	}
