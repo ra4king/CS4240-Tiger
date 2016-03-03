@@ -18,13 +18,19 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class TigerSourceGenerator {
+	private static final String version = "1.0";
+	
 	private static Random rng;
 	private static HashMap<TigerTokenClass, String> specialTokenClasses;
 	
 	private static void printUsage() {
+		System.out.println("Tiger Source Generator " + version + " by Roi Atalla\n");
 		System.out.println("Usage:");
+		System.out.println("-h,   --help      Prints this message.");
 		System.out.println("-d N, --depth N   Set maximum rule depth. N must be a positive integer.");
+		System.out.println("                  If not specified, one is chosen randomly in range [5,25).");
 		System.out.println("-s L, --seed L    Set RNG seed value. L can be any long.");
+		System.out.println("                  If not specified, the current nano time is used.");
 		System.out.println("-v,   --verbose   Prints depth, seed, and time spent to generate program.");
 	}
 	
@@ -36,27 +42,41 @@ public class TigerSourceGenerator {
 		try {
 			for(int i = 0; i < args.length; i++) {
 				switch(args[i]) {
+					case "-h":
+					case "--help":
+						printUsage();
+						return;
 					case "-d":
 					case "--depth":
-						if(++i == args.length || depth != -1)
-							throw new RuntimeException();
+						if(++i == args.length || depth != -1) {
+							printUsage();
+							return;
+						}
 						
 						depth = Integer.parseInt(args[i]);
-						if(depth <= 0)
-							throw new RuntimeException();
+						if(depth <= 0) {
+							printUsage();
+							return;
+						}
+						
 						break;
 					case "-s":
 					case "--seed":
-						if(++i == args.length || rng != null)
-							throw new RuntimeException();
+						if(++i == args.length || rng != null) {
+							printUsage();
+							return;
+						}
 						
-						seed = Integer.parseInt(args[++i]);
+						seed = Long.parseLong(args[i]);
 						rng = new Random(seed);
 						break;
 					case "-v":
 					case "--verbose":
 						verbose = true;
 						break;
+					default:
+						printUsage();
+						return;
 				}
 			}
 		} catch(Exception exc) {
@@ -64,12 +84,12 @@ public class TigerSourceGenerator {
 			return;
 		}
 		
-		if(depth == -1) {
-			depth = (int)(Math.random() * 20 + 5);
-		}
-		
 		if(rng == null)
 			rng = new Random(seed);
+		
+		if(depth == -1) {
+			depth = (int)(rng.nextDouble() * 20 + 5);
+		}
 		
 		specialTokenClasses = new HashMap<>();
 		specialTokenClasses.put(TigerTokenClass.EPSILON, "ϵ");
@@ -103,7 +123,8 @@ public class TigerSourceGenerator {
 		long time = System.nanoTime() - before;
 		
 		if(verbose) {
-			System.out.printf("Generated Tiger program with depth = %d and seed = %d in %.3f ms\n\n", depth, seed, time / 1e6);
+			System.out.println("// Tiger Source Generator " + version + " by Roi Atalla");
+			System.out.printf("// Generated Tiger program with depth=%d and seed=%d in %.3f ms\n\n", depth, seed, time / 1e6);
 		}
 		
 		print(0, program);
@@ -161,7 +182,7 @@ public class TigerSourceGenerator {
 					if(production == null) {
 						int trycount = 3;
 						while(trycount-- > 0) {
-							int idx = (int)(Math.random() * rule.productions.size());
+							int idx = (int)(rng.nextDouble() * rule.productions.size());
 							production = rule.productions.get(idx);
 							
 							if(production.get(0) != TigerTokenClass.EPSILON) {
@@ -234,6 +255,7 @@ public class TigerSourceGenerator {
 			case DO:
 			case SEMICOLON:
 			case IN:
+			case END:
 				return true;
 		}
 		
@@ -246,11 +268,11 @@ public class TigerSourceGenerator {
 		}
 		
 		if(symbol == TigerTokenClass.INTLIT) {
-			return String.valueOf((int)(Math.random() * 1000));
+			return String.valueOf((int)(rng.nextDouble() * 1000));
 		}
 		
 		if(symbol == TigerTokenClass.FLOATLIT) {
-			return String.format("%.3f", Math.random() * 1000);
+			return String.format("%.3f", rng.nextDouble() * 1000);
 		}
 		
 		String token;
@@ -263,13 +285,43 @@ public class TigerSourceGenerator {
 		return symbol.toString().replace("_", "").toLowerCase();
 	}
 	
+	private static char generateIDChar() {
+		switch((int)(rng.nextDouble() * 4)) {
+			case 0:
+				return (char)((rng.nextDouble() * ('z' - 'a')) + 'a');
+			case 1:
+				return Character.toUpperCase((char)((rng.nextDouble() * ('z' - 'a')) + 'a'));
+			case 2:
+				return (char)((rng.nextDouble() * ('9' - '0')) + '0');
+			default:
+				return '_';
+		}
+	}
+	
 	private static String generateID() {
-		String id;
+		String id = "";
+		
+		if(rng.nextBoolean()) {
+			id += "_";
+			
+			while(rng.nextBoolean())
+				id += "_";
+			
+			char c;
+			while((c = generateIDChar()) == '_');
+			
+			id += c;
+		} else {
+			char c;
+			while(Character.isDigit(c = generateIDChar()) || c == '_');
+			
+			id += c;
+		}
+		
 		do {
-			id = "";
-			int len = (int)(Math.random() * 5) + 3;
+			int len = (int)(rng.nextDouble() * 5) + 3;
 			for(int i = 0; i < len; i++) {
-				id += (char)((Math.random() * ('z' - 'a')) + 'a');
+				id += generateIDChar();
 			}
 			
 			try {
