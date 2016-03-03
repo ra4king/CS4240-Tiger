@@ -3,10 +3,12 @@ package edu.cs4240.tiger.generator;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Random;
 
+import edu.cs4240.tiger.parser.TigerParser.LeafNode;
+import edu.cs4240.tiger.parser.TigerParser.Node;
+import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerSymbol;
 import edu.cs4240.tiger.parser.TigerToken;
@@ -16,9 +18,59 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class TigerSourceGenerator {
+	private static Random rng;
 	private static HashMap<TigerTokenClass, String> specialTokenClasses;
 	
+	private static void printUsage() {
+		System.out.println("Usage:");
+		System.out.println("-d N, --depth N   Set maximum rule depth. N must be a positive integer.");
+		System.out.println("-s L, --seed L    Set RNG seed value. L can be any long.");
+		System.out.println("-v,   --verbose   Prints depth, seed, and time spent to generate program.");
+	}
+	
 	public static void main(String[] args) {
+		int depth = -1;
+		long seed = System.nanoTime();
+		boolean verbose = false;
+		
+		try {
+			for(int i = 0; i < args.length; i++) {
+				switch(args[i]) {
+					case "-d":
+					case "--depth":
+						if(++i == args.length || depth != -1)
+							throw new RuntimeException();
+						
+						depth = Integer.parseInt(args[i]);
+						if(depth <= 0)
+							throw new RuntimeException();
+						break;
+					case "-s":
+					case "--seed":
+						if(++i == args.length || rng != null)
+							throw new RuntimeException();
+						
+						seed = Integer.parseInt(args[++i]);
+						rng = new Random(seed);
+						break;
+					case "-v":
+					case "--verbose":
+						verbose = true;
+						break;
+				}
+			}
+		} catch(Exception exc) {
+			printUsage();
+			return;
+		}
+		
+		if(depth == -1) {
+			depth = (int)(Math.random() * 20 + 5);
+		}
+		
+		if(rng == null)
+			rng = new Random(seed);
+		
 		specialTokenClasses = new HashMap<>();
 		specialTokenClasses.put(TigerTokenClass.EPSILON, "ϵ");
 		specialTokenClasses.put(TigerTokenClass.COMMA, ",");
@@ -46,23 +98,48 @@ public class TigerSourceGenerator {
 		Deque<TigerSymbol> symbolStack = new ArrayDeque<>();
 		symbolStack.add(TigerProductionRule.PROGRAM);
 		
-		int limit = (int)(Math.random() * 20 + 10);
 		long before = System.nanoTime();
-		Queue<TigerToken> program = generate(limit, symbolStack);
+		Node program = generate(depth, symbolStack);
 		long time = System.nanoTime() - before;
 		
-		System.out.printf("This program generated in %.3f ms, using limit = %d:\n\n", time / 1e6, limit);
+		if(verbose) {
+			System.out.printf("Generated Tiger program with depth = %d and seed = %d in %.3f ms\n\n", depth, seed, time / 1e6);
+		}
 		
-		for(TigerToken token; program.size() > 0; ) {
-			token = program.remove();
+		print(0, program);
+	}
+	
+	private static void print(int level, Node node) {
+		if(node instanceof RuleNode) {
+			RuleNode ruleNode = (RuleNode)node;
+			
+			if(addIndent(ruleNode.getValue()))
+				level += 1;
+			
+			if(printIndent(ruleNode.getValue())) {
+				for(int i = 0; i < level; i++) {
+					System.out.print("   ");
+				}
+			}
+			
+			for(Node child : ruleNode.getChildren()) {
+				print(level, child);
+			}
+		} else if(((LeafNode)node).getToken().getTokenClass() != TigerTokenClass.EPSILON) {
+			TigerToken token = ((LeafNode)node).getToken();
+			
+			if(printIndent(token.getTokenClass())) {
+				for(int i = 0; i < level; i++) {
+					System.out.print("   ");
+				}
+			}
+			
 			System.out.print(token.getToken());
 			System.out.print(generateNewLine(token) ? "\n" : " ");
 		}
 	}
 	
-	private static Queue<TigerToken> generate(int limit, Deque<TigerSymbol> symbolStack) {
-		Queue<TigerToken> tokenQueue = new LinkedList<>();
-		
+	private static Node generate(int limit, Deque<TigerSymbol> symbolStack) {
 		TigerSymbol symbol = symbolStack.pop();
 		
 		if(symbol instanceof TigerProductionRule) {
@@ -93,30 +170,58 @@ public class TigerSourceGenerator {
 						}
 					}
 					
-					Queue<TigerToken> newTokenQueue = new LinkedList<>();
+					RuleNode node = new RuleNode(rule);
+					
 					Deque<TigerSymbol> newSymbolStack = new ArrayDeque<>();
 					for(int i = production.size() - 1; i >= 0; i--) {
 						newSymbolStack.push(production.get(i));
 					}
 					
 					while(!newSymbolStack.isEmpty()) {
-						newTokenQueue.addAll(generate(limit - 1, newSymbolStack));
+						node.getChildren().add(generate(limit - 1, newSymbolStack));
 					}
 					
-					tokenQueue.addAll(newTokenQueue);
-					
-					break;
+					return node;
 				}
 				catch(Throwable t) {
 				}
 			}
-			
-			return tokenQueue;
 		} else {
-			if(symbol != TigerTokenClass.EPSILON) {
-				tokenQueue.add(new TigerToken((TigerTokenClass)symbol, generateTokenString((TigerTokenClass)symbol), "", 0, 0));
-			}
-			return tokenQueue;
+			return new LeafNode(new TigerToken((TigerTokenClass)symbol, generateTokenString((TigerTokenClass)symbol), "", 0, 0));
+		}
+	}
+	
+	private static boolean printIndent(TigerProductionRule rule) {
+		switch(rule) {
+			case TYPEDECL:
+			case VARDECL:
+			case FUNCDECL:
+			case STMT:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	private static boolean printIndent(TigerTokenClass tokenClass) {
+		switch(tokenClass) {
+			case ELSE:
+			case END:
+			case ENDIF:
+			case ENDDO:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	private static boolean addIndent(TigerProductionRule token) {
+		switch(token) {
+			case DECLSEG:
+			case STMT:
+				return true;
+			default:
+				return false;
 		}
 	}
 	
@@ -124,6 +229,9 @@ public class TigerSourceGenerator {
 		switch(token.getTokenClass()) {
 			case LET:
 			case BEGIN:
+			case THEN:
+			case ELSE:
+			case DO:
 			case SEMICOLON:
 			case IN:
 				return true;

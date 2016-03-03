@@ -20,7 +20,7 @@ public class TigerParser {
 	public interface Node {
 	}
 	
-	public class RuleNode implements Node {
+	public static class RuleNode implements Node {
 		private TigerProductionRule value;
 		private List<Node> children;
 		
@@ -65,7 +65,7 @@ public class TigerParser {
 		}
 	}
 	
-	public class LeafNode implements Node {
+	public static class LeafNode implements Node {
 		private TigerToken token;
 		
 		public LeafNode() {
