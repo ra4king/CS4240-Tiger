@@ -128,6 +128,7 @@ public class TigerSourceGenerator {
 		}
 		
 		print(0, program);
+		System.out.println();
 	}
 	
 	private static void print(int level, Node node) {
@@ -153,10 +154,12 @@ public class TigerSourceGenerator {
 				for(int i = 0; i < level; i++) {
 					System.out.print("   ");
 				}
+			} else if(addWhitespace(token.getTokenClass())) {
+				System.out.print(" ");
 			}
 			
 			System.out.print(token.getToken());
-			System.out.print(generateNewLine(token) ? "\n" : " ");
+			System.out.print(generateNewLine(token.getTokenClass()) ? "\n" : "");
 		}
 	}
 	
@@ -246,8 +249,18 @@ public class TigerSourceGenerator {
 		}
 	}
 	
-	private static boolean generateNewLine(TigerToken token) {
-		switch(token.getTokenClass()) {
+	private static boolean addWhitespace(TigerTokenClass tokenClass) {
+		switch(tokenClass) {
+			case COMMA:
+			case SEMICOLON:
+				return false;
+		}
+		
+		return true;
+	}
+	
+	private static boolean generateNewLine(TigerTokenClass token) {
+		switch(token) {
 			case LET:
 			case BEGIN:
 			case THEN:
@@ -255,7 +268,6 @@ public class TigerSourceGenerator {
 			case DO:
 			case SEMICOLON:
 			case IN:
-			case END:
 				return true;
 		}
 		
