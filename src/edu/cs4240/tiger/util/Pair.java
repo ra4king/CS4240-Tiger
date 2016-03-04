@@ -9,6 +9,11 @@ public class Pair<K, V> {
 	private K key;
 	private V value;
 	
+	public Pair(Pair<K, V> pair) {
+		this.key = pair.key;
+		this.value = pair.value;
+	}
+	
 	public Pair(K key, V value) {
 		this.key = key;
 		this.value = value;

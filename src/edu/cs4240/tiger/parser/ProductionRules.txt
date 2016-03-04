@@ -5,6 +5,7 @@ typedecls → typedecl typedecls
 typedecl → type_ id := type ;
 type → int
 type → float
+type → bool
 type → id
 type → array [ intlit ] of type
 vardecls → ϵ
@@ -30,7 +31,6 @@ stmts → fullstmt stmts_tail
 stmts_tail → ϵ
 stmts_tail → stmts
 fullstmt → stmt ;
-stmt → if boolexpr then stmts stmt_tail
 stmt → if boolexpr then stmts stmt_tail
 stmt → while boolexpr do stmts enddo
 stmt → for id := numexpr to numexpr do stmts enddo
@@ -81,3 +81,5 @@ factor_tail → [ numexpr ]
 factor → ( numexpr )
 const → intlit
 const → floatlit
+const → true
+const → false

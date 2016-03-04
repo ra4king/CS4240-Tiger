@@ -319,7 +319,18 @@ public class TigerParser {
 				} else {
 					TigerProductionRule subRule = (TigerProductionRule)symbol;
 					
-					List<Pair<TigerTokenClass, List<TigerSymbol>>> subFirsts = getFirsts(subRule);
+					List<Pair<TigerTokenClass, List<TigerSymbol>>> subFirsts;
+					
+					if(firsts.containsKey(subRule)) {
+						subFirsts = firsts.get(subRule);
+						List<Pair<TigerTokenClass, List<TigerSymbol>>> temp = new ArrayList<>();
+						subFirsts.forEach((pair) -> temp.add(new Pair<>(pair)));
+						subFirsts = temp;
+					}
+					else {
+						subFirsts = getFirsts(subRule);
+						firsts.put(subRule, subFirsts);
+					}
 					
 					foundEps = false;
 					
