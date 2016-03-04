@@ -18,7 +18,7 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class TigerSourceGenerator {
-	private static final String version = "1.0";
+	private static final String version = "1.0.1";
 	
 	private static Random rng;
 	private static HashMap<TigerTokenClass, String> specialTokenClasses;
