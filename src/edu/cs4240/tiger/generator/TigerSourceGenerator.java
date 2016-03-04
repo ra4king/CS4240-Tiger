@@ -79,13 +79,15 @@ public class TigerSourceGenerator {
 						return;
 				}
 			}
-		} catch(Exception exc) {
+		}
+		catch(Exception exc) {
 			printUsage();
 			return;
 		}
 		
-		if(rng == null)
+		if(rng == null) {
 			rng = new Random(seed);
+		}
 		
 		if(depth == -1) {
 			depth = (int)(rng.nextDouble() * 20 + 5);
@@ -135,8 +137,9 @@ public class TigerSourceGenerator {
 		if(node instanceof RuleNode) {
 			RuleNode ruleNode = (RuleNode)node;
 			
-			if(addIndent(ruleNode.getValue()))
+			if(addIndent(ruleNode.getValue())) {
 				level += 1;
+			}
 			
 			if(printIndent(ruleNode.getValue())) {
 				for(int i = 0; i < level; i++) {
@@ -320,12 +323,12 @@ public class TigerSourceGenerator {
 				id += "_";
 			
 			char c;
-			while((c = generateIDChar()) == '_');
+			while((c = generateIDChar()) == '_') ;
 			
 			id += c;
 		} else {
 			char c;
-			while(Character.isDigit(c = generateIDChar()) || c == '_');
+			while(Character.isDigit(c = generateIDChar()) || c == '_') ;
 			
 			id += c;
 		}
@@ -337,11 +340,17 @@ public class TigerSourceGenerator {
 			}
 			
 			try {
-				if(id.equals("type"))
+				if(id.equals("type")) {
 					continue;
+				}
+				
+				if(id.toUpperCase().equals("ID") || id.toUpperCase().equals("INTLIT") || id.toUpperCase().equals("FLOATLIT")) {
+					break;
+				}
 				
 				TigerTokenClass.valueOf(id.toUpperCase());
-			} catch(Exception exc) {
+			}
+			catch(Exception exc) {
 				break;
 			}
 		} while(true);

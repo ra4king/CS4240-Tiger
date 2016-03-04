@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 import edu.cs4240.tiger.util.Pair;
 
@@ -51,6 +52,17 @@ public class TigerParser {
 		}
 		
 		@Override
+		public boolean equals(Object o) {
+			if(o instanceof RuleNode) {
+				RuleNode r = (RuleNode)o;
+				
+				return this.value == r.getValue() && this.children.equals(r.children);
+			}
+			
+			return false;
+		}
+		
+		@Override
 		public String toString() {
 			if(children.size() == 0) {
 				return value.toString().toLowerCase();
@@ -77,6 +89,17 @@ public class TigerParser {
 		
 		public TigerToken getToken() {
 			return token;
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if(o instanceof LeafNode) {
+				LeafNode l = (LeafNode)o;
+				
+				return this.token.getTokenClass() == l.getToken().getTokenClass() && this.token.getToken().equals(l.getToken().getToken());
+			}
+			
+			return false;
 		}
 		
 		@Override
@@ -323,9 +346,7 @@ public class TigerParser {
 					
 					if(firsts.containsKey(subRule)) {
 						subFirsts = firsts.get(subRule);
-						List<Pair<TigerTokenClass, List<TigerSymbol>>> temp = new ArrayList<>();
-						subFirsts.forEach((pair) -> temp.add(new Pair<>(pair)));
-						subFirsts = temp;
+						subFirsts = subFirsts.stream().map(Pair::new).collect(Collectors.toList());
 					}
 					else {
 						subFirsts = getFirsts(subRule);
