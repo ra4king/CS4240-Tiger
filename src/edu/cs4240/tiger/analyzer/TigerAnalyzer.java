@@ -1,5 +1,6 @@
 package edu.cs4240.tiger.analyzer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerToken;
 import edu.cs4240.tiger.parser.TigerTokenClass;
+import edu.cs4240.tiger.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -17,12 +19,13 @@ public class TigerAnalyzer {
 	private RuleNode ast;
 	private HashMap<String, RuleNode> typeAliases;
 	private HashMap<String, RuleNode> varTypes;
-	private HashMap<String, RuleNode> funcTypes;
+	private HashMap<String, Pair<RuleNode, List<Pair<String, RuleNode>>>> funcTypes;
 	
 	public TigerAnalyzer(RuleNode ast) {
 		this.ast = ast;
 		
 		buildSymbolTable();
+		analyzeFunctions();
 		
 		System.out.println("Types:");
 		for(String s : typeAliases.keySet()) {
@@ -38,6 +41,9 @@ public class TigerAnalyzer {
 		for(String s : funcTypes.keySet()) {
 			System.out.println(s + " - " + funcTypes.get(s).toString());
 		}
+	}
+	
+	private void analyzeFunctions() {
 	}
 	
 	private void buildSymbolTable() {
@@ -130,14 +136,59 @@ public class TigerAnalyzer {
 		
 		RuleNode funcdecl = (RuleNode)funcdecls.getChildren().get(0);
 		TigerToken id = ((LeafNode)funcdecl.getChildren().get(1)).getToken();
+		RuleNode params = (RuleNode)funcdecl.getChildren().get(3);
 		RuleNode optrettype = (RuleNode)funcdecl.getChildren().get(5);
 		
-		if(optrettype.getChildren().size() != 0) {
-			funcTypes.put(id.getToken(), (RuleNode)optrettype.getChildren().get(1));
+		List<Pair<String, RuleNode>> argumentTypes;
+		
+		if(params.getChildren().size() == 1) {
+			argumentTypes = analyzeFuncArgs((RuleNode)params.getChildren().get(0));
 		} else {
-			funcTypes.put(id.getToken(), null); // null == void
+			argumentTypes = new ArrayList<>();
+		}
+		
+		if(optrettype.getChildren().size() != 0) {
+			funcTypes.put(id.getToken(), new Pair<>((RuleNode)optrettype.getChildren().get(1), argumentTypes));
+		} else {
+			funcTypes.put(id.getToken(), new Pair<>(null, argumentTypes)); // null == void
 		}
 		
 		analyzeFuncdecls((RuleNode)funcdecls.getChildren().get(1));
+	}
+	
+	private List<Pair<String, RuleNode>> analyzeFuncArgs(RuleNode params) {
+		if(params.getValue() != TigerProductionRule.NEPARAMS) {
+			throw new IllegalArgumentException("Expected NEPARAMS, received " + params.getValue());
+		}
+		
+		ArrayList<Pair<String, RuleNode>> argumentTypes = new ArrayList<>();
+		
+		for(Node child : params.getChildren()) {
+			if(child instanceof RuleNode) {
+				RuleNode ruleNode = (RuleNode)child;
+				
+				switch(ruleNode.getValue()) {
+					case NEPARAMS:
+						argumentTypes.addAll(analyzeFuncArgs((RuleNode)child));
+						break;
+					case PARAM:
+						TigerToken id = ((LeafNode)ruleNode.getChildren().get(0)).getToken();
+						if(id.getTokenClass() != TigerTokenClass.ID) {
+							throw new IllegalArgumentException("Expecting ID, received " + id.getTokenClass());
+						}
+						
+						RuleNode type = (RuleNode)ruleNode.getChildren().get(2);
+						if(type.getValue() != TigerProductionRule.TYPE) {
+							throw new IllegalArgumentException("Expecting TYPE, received " + type.getValue());
+						}
+						argumentTypes.add(new Pair<>(id.getToken(), type));
+						break;
+					default:
+						throw new IllegalArgumentException("Expecting NEPARAMS or PARAM, received " + ruleNode.getValue());
+				}
+			}
+		}
+		
+		return argumentTypes;
 	}
 }

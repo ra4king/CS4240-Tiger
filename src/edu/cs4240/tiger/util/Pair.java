@@ -57,7 +57,7 @@ public class Pair<K, V> {
 	
 	@Override
 	public String toString() {
-		return "(" + key.toString() + " :: " + value.toString() + ")";
+		return "(" + (key == null ? "null" : key.toString()) + " :: " + (value == null ? "null" : value.toString()) + ")";
 	}
 	
 	public static <K, V> boolean containsKey(List<Pair<K, V>> list, K key) {
