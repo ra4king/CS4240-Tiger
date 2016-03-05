@@ -317,7 +317,6 @@ public class TigerParser {
 					}
 					
 					if(pair.getKey() == innerPair.getKey() && pair.getValue().equals(innerPair.getValue())) {
-						System.out.println("Found duplicate: " + rule + ":" + pair);
 						it.remove();
 						break;
 					}
