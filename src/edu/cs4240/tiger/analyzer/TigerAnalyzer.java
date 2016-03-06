@@ -407,11 +407,14 @@ public class TigerAnalyzer {
 		}
 		
 		RuleNode funcdecl = (RuleNode)funcdecls.getChildren().get(0);
-		analyzeFunctionStmts(symbolTable.getFunctions().get(((LeafNode)funcdecl.getChildren().get(1)).getToken().getToken()), (RuleNode)funcdecl.getChildren().get(7));
+		Pair<RuleNode, List<Pair<String, RuleNode>>> funcInfo = symbolTable.getFunctions().get(((LeafNode)funcdecl.getChildren().get(1)).getToken().getToken());
+		if(!analyzeFunctionStmts(funcInfo, (RuleNode)funcdecl.getChildren().get(7)) && funcInfo.getKey() != null) {
+			throw new TigerParseException("No return statement found", ((LeafNode)funcdecl.getChildren().get(8)).getToken());
+		}
 		analyzeFunction((RuleNode)funcdecls.getChildren().get(1));
 	}
 	
-	private void analyzeFunctionStmts(Pair<RuleNode, List<Pair<String, RuleNode>>> funcInfo, RuleNode stmts) throws TigerParseException {
+	private boolean analyzeFunctionStmts(Pair<RuleNode, List<Pair<String, RuleNode>>> funcInfo, RuleNode stmts) throws TigerParseException {
 		if(funcInfo == null) {
 			throw new IllegalStateException("funcInfo is null somehow...");
 		}
@@ -423,17 +426,22 @@ public class TigerAnalyzer {
 		RuleNode stmt = (RuleNode)((RuleNode)stmts.getChildren().get(0)).getChildren().get(0);
 		Node first = stmt.getChildren().get(0);
 		
+		boolean doesReturn = false;
+		
 		if(first instanceof LeafNode && ((LeafNode)first).getToken().getTokenClass() == TigerTokenClass.RETURN) {
 			RuleNode returnType = getNumexprType((RuleNode)stmt.getChildren().get(1), funcVarTypes);
 			if(funcInfo.getKey() == null || !isTypeCompatibleAssign((funcInfo.getKey()), returnType)) {
 				throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
 			}
+			doesReturn = true;
 		} else {
 			analyzeStatement(stmt, funcVarTypes, false);
 		}
 		
 		if(stmts.getChildren().size() > 1) {
-			analyzeFunctionStmts(funcInfo, (RuleNode)stmts.getChildren().get(1));
+			doesReturn |= analyzeFunctionStmts(funcInfo, (RuleNode)stmts.getChildren().get(1));
 		}
+		
+		return doesReturn;
 	}
 }
