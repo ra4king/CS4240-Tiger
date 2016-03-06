@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import edu.cs4240.tiger.analyzer.TigerAnalyzer;
+import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser;
 import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerScanner;
@@ -13,7 +14,13 @@ import edu.cs4240.tiger.parser.TigerScanner;
  */
 public class AnalyzerTester {
 	public static void main(String[] args) throws Exception {
-		TigerParser parser = new TigerParser(new TigerScanner(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/test0.tgr"))));
-		TigerAnalyzer analyzer = new TigerAnalyzer((RuleNode)parser.parse());
+		try {
+			TigerParser parser = new TigerParser(new TigerScanner(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/test0.tgr"))));
+			RuleNode ast = (RuleNode)parser.parse();
+			System.out.println(ast);
+			TigerAnalyzer analyzer = new TigerAnalyzer(ast);
+		} catch(TigerParseException exc) {
+			exc.printStackTrace();
+		}
 	}
 }

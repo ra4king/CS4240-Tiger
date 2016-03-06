@@ -32,6 +32,8 @@ public class TigerScanner {
 				break;
 			}
 			
+			currLineNum++;
+			
 			while(true) {
 				beginComment = s.indexOf("//");
 				if(beginComment != -1) {
@@ -63,7 +65,6 @@ public class TigerScanner {
 		} else {
 			currLine = s;
 			buffer = s.trim();
-			currLineNum++;
 		}
 	}
 	
