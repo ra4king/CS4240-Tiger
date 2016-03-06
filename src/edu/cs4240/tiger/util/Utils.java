@@ -16,14 +16,14 @@ public class Utils {
 		}
 	}
 	
-	public static LeafNode getLeftmostLeaf(RuleNode node) {
+	public static TigerToken getLeftmostLeaf(RuleNode node) {
 		if(node.getChildren().size() == 0) {
 			return null;
 		}
 		
 		Node first = node.getChildren().get(0);
 		if(first instanceof LeafNode) {
-			return (LeafNode)first;
+			return ((LeafNode)first).getToken();
 		}
 		
 		return getLeftmostLeaf((RuleNode)first);

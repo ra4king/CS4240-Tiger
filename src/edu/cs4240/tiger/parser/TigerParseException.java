@@ -48,7 +48,7 @@ public class TigerParseException extends Exception {
 		
 		s += trimmed + "\n";
 		
-		for(int i = 0; i < len; i++) {
+		for(int i = 0; i < len - 1; i++) {
 			s += " ";
 		}
 		s += "^";

@@ -10,6 +10,7 @@ import edu.cs4240.tiger.parser.TigerParser.LeafNode;
 import edu.cs4240.tiger.parser.TigerParser.Node;
 import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerProductionRule;
+import edu.cs4240.tiger.parser.TigerToken;
 import edu.cs4240.tiger.parser.TigerTokenClass;
 import edu.cs4240.tiger.util.Pair;
 
@@ -84,16 +85,60 @@ public class TigerAnalyzer {
 			
 			switch(firstRule.getValue()) {
 				case LVALUE:
-					// stmt -> lvalue := numexpr
-					// lvalue -> id optoffset
-					// optoffset -> e | [ numexpr ]
+					RuleNode lvalueType = getIdOptOffsetType((RuleNode)stmt.getChildren().get(0), varTypes);
+					RuleNode numexprType = getNumexprType((RuleNode)stmt.getChildren().get(2), varTypes);
 					
-					
+					if(!isTypeCompatibleAssign(lvalueType, numexprType)) {
+						throw new TigerParseException("Incompatible types", getLeftmostLeaf(numexprType));
+					}
 					
 					break;
 				case OPTSTORE:
 					// stmt -> optstore id ( numexprs )
 					// optstore -> e | lvalue :=
+					
+					TigerToken functionToken = ((LeafNode)stmt.getChildren().get(1)).getToken();
+					Pair<RuleNode, List<Pair<String, RuleNode>>> function = symbolTable.getFunctions().get(functionToken.getToken());
+					
+					RuleNode optstore = (RuleNode)stmt.getChildren().get(0);
+					if(optstore.getChildren().size() > 0) {
+						lvalueType = getIdOptOffsetType((RuleNode)optstore.getChildren().get(0), varTypes);
+						
+						if(!isTypeCompatibleAssign(lvalueType, function.getKey())) {
+							throw new TigerParseException("Return type incompatible with left-hand side type", functionToken);
+						}
+					}
+					
+					RuleNode numexprs = (RuleNode)stmt.getChildren().get(3);
+					if(function == null) {
+						throw new TigerParseException("No such function found", ((LeafNode)stmt.getChildren().get(1)).getToken());
+					}
+					
+					if(numexprs.getChildren().size() == 0 && function.getValue().size() != 0) {
+						throw new TigerParseException("Missing arguments to function", functionToken);
+					}
+					
+					if(numexprs.getChildren().size() == 1) {
+						RuleNode neexprs = (RuleNode)numexprs.getChildren().get(0);
+						
+						for(Pair<String, RuleNode> arg : function.getValue()) {
+							if(neexprs == null) {
+								throw new TigerParseException("Argument mismatch", functionToken);
+							}
+							
+							RuleNode numexpr = (RuleNode)neexprs.getChildren().get(0);
+							RuleNode argType = getNumexprType(numexpr, varTypes);
+							
+							if(!isTypeCompatibleAssign(arg.getValue(), argType)) {
+								throw new TigerParseException("Incompatible types", getLeftmostLeaf(numexpr));
+							}
+							
+							if(neexprs.getChildren().size() == 3)
+								neexprs = (RuleNode)neexprs.getChildren().get(2);
+							else
+								neexprs = null;
+						}
+					}
 					
 					break;
 				default:
@@ -130,15 +175,13 @@ public class TigerAnalyzer {
 					RuleNode numexpr1 = getNumexprType((RuleNode)stmt.getChildren().get(3), varTypes);
 					
 					if(!isTypeCompatibleAssign(idType, numexpr1)) {
-						LeafNode leftMostLeaf = getLeftmostLeaf((RuleNode)stmt.getChildren().get(3));
-						throw new TigerParseException("Type of expression does not match type of iterating variable", leftMostLeaf == null ? null : leftMostLeaf.getToken());
+						throw new TigerParseException("Type of expression does not match type of iterating variable", getLeftmostLeaf((RuleNode)stmt.getChildren().get(3)));
 					}
 					
 					RuleNode numexpr2 = getNumexprType((RuleNode)stmt.getChildren().get(5), varTypes);
 					
 					if(!isTypeCompatibleAssign(idType, numexpr2)) {
-						LeafNode leftMostLeaf = getLeftmostLeaf((RuleNode)stmt.getChildren().get(5));
-						throw new TigerParseException("Type of expression does not match type of iterating variable", leftMostLeaf == null ? null : leftMostLeaf.getToken());
+						throw new TigerParseException("Type of expression does not match type of iterating variable", getLeftmostLeaf((RuleNode)stmt.getChildren().get(5)));
 					}
 					
 					analyzeStatements((RuleNode)stmt.getChildren().get(7), varTypes, true);
@@ -196,8 +239,7 @@ public class TigerAnalyzer {
 			RuleNode rightRule = (RuleNode)pred.getChildren().get(2);
 			
 			if(leftRule.getValue() != TigerProductionRule.NUMEXPR) {
-				LeafNode leftmostLeaf = getLeftmostLeaf(leftRule);
-				throw new TigerParseException("Something went very wrong", leftmostLeaf == null ? null : leftmostLeaf.getToken());
+				throw new TigerParseException("Something went very wrong", getLeftmostLeaf(leftRule));
 			}
 			
 			RuleNode leftTypeRule = getNumexprType(leftRule, varTypes);
@@ -207,14 +249,12 @@ public class TigerAnalyzer {
 			
 			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
 			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				LeafNode leftMostLeaf = getLeftmostLeaf(leftRule);
-				throw new TigerParseException("Operator can only be applied on numeric types", leftMostLeaf == null ? null : leftMostLeaf.getToken());
+				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(leftRule));
 			}
 			
 			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
 			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				LeafNode leftMostLeaf = getLeftmostLeaf(rightRule);
-				throw new TigerParseException("Operator can only be applied on numeric types", leftMostLeaf == null ? null : leftMostLeaf.getToken());
+				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(rightRule));
 			}
 		}
 	}
@@ -298,27 +338,7 @@ public class TigerAnalyzer {
 			
 			switch(firstLeaf.getToken().getTokenClass()) {
 				case ID:
-					RuleNode idType = symbolTable.getVariables().get(firstLeaf.getToken().getToken());
-					
-					if(idType == null) {
-						throw new TigerParseException("Undeclared variable", firstLeaf.getToken());
-					}
-					
-					if(factor.getChildren().size() == 1) {
-						return idType;
-					} else {
-						RuleNode indexType = getNumexprType((RuleNode)factor.getChildren().get(2), varTypes);
-						if(((LeafNode)indexType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.INT) {
-							throw new TigerParseException("Array index must be an integer type", ((LeafNode)factor.getChildren().get(1)).getToken());
-						}
-						
-						if(((LeafNode)idType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.ARRAY) {
-							LeafNode leftmostLeaf = getLeftmostLeaf((RuleNode)factor.getChildren().get(2));
-							throw new TigerParseException("Cannot index into non-array type", leftmostLeaf == null ? null : leftmostLeaf.getToken());
-						}
-						
-						return (RuleNode)idType.getChildren().get(5);
-					}
+					return getIdOptOffsetType(factor, varTypes);
 				case LPAREN:
 					return getNumexprType((RuleNode)factor.getChildren().get(1), varTypes);
 				default:
@@ -331,9 +351,49 @@ public class TigerAnalyzer {
 				case CONST:
 					return new RuleNode(TigerProductionRule.TYPE, new LeafNode(getLiteralType(((LeafNode)firstRule.getChildren().get(0)).getToken())));
 				default:
-					LeafNode leftmostLeaf = getLeftmostLeaf(firstRule);
-					throw new TigerParseException("Something went very wrong", leftmostLeaf == null ? null : leftmostLeaf.getToken());
+					throw new TigerParseException("Something went very wrong", getLeftmostLeaf(firstRule));
 			}
+		}
+	}
+	
+	private RuleNode getIdOptOffsetType(RuleNode rule, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+		LeafNode id = (LeafNode)rule.getChildren().get(0);
+		
+		RuleNode idType = symbolTable.getVariables().get(id.getToken().getToken());
+		
+		if(idType == null) {
+			throw new TigerParseException("Undeclared variable", id.getToken());
+		}
+		
+		if(rule.getChildren().size() == 1) {
+			return idType;
+		} else {
+			LeafNode lbracket, rbracket;
+			RuleNode numexpr;
+			
+			if(rule.getChildren().get(1) instanceof RuleNode) { // optoffset rule
+				lbracket = (LeafNode)((RuleNode)rule.getChildren().get(1)).getChildren().get(0);
+				rbracket = (LeafNode)((RuleNode)rule.getChildren().get(1)).getChildren().get(2);
+				numexpr = (RuleNode)((RuleNode)rule.getChildren().get(1)).getChildren().get(1);
+			} else {
+				lbracket = (LeafNode)rule.getChildren().get(1);
+				rbracket = (LeafNode)rule.getChildren().get(3);
+				numexpr = (RuleNode)rule.getChildren().get(2);
+			}
+			
+			ensureValue(lbracket.getToken().getTokenClass(), TigerTokenClass.LBRACKET);
+			ensureValue(rbracket.getToken().getTokenClass(), TigerTokenClass.RBRACKET);
+			
+			RuleNode indexType = getNumexprType(numexpr, varTypes);
+			if(((LeafNode)indexType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.INT) {
+				throw new TigerParseException("Array index must be an integer type", getLeftmostLeaf(numexpr));
+			}
+			
+			if(((LeafNode)idType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.ARRAY) {
+				throw new TigerParseException("Cannot index into non-array type", getLeftmostLeaf(numexpr));
+			}
+			
+			return (RuleNode)idType.getChildren().get(5);
 		}
 	}
 	
@@ -365,7 +425,7 @@ public class TigerAnalyzer {
 		
 		if(first instanceof LeafNode && ((LeafNode)first).getToken().getTokenClass() == TigerTokenClass.RETURN) {
 			RuleNode returnType = getNumexprType((RuleNode)stmt.getChildren().get(1), funcVarTypes);
-			if(!isTypeCompatibleAssign((funcInfo.getKey()), returnType)) {
+			if(funcInfo.getKey() == null || !isTypeCompatibleAssign((funcInfo.getKey()), returnType)) {
 				throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
 			}
 		} else {
