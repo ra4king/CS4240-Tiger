@@ -21,7 +21,7 @@ public class AnalyzerTester {
 			TigerAnalyzer analyzer = new TigerAnalyzer(ast);
 			analyzer.run();
 		} catch(TigerParseException exc) {
-			exc.printStackTrace();
+			System.err.println(exc.toString());
 		}
 	}
 }

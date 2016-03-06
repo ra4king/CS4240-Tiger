@@ -3,6 +3,7 @@ package edu.cs4240.tiger.util;
 import edu.cs4240.tiger.parser.TigerParser.LeafNode;
 import edu.cs4240.tiger.parser.TigerParser.Node;
 import edu.cs4240.tiger.parser.TigerParser.RuleNode;
+import edu.cs4240.tiger.parser.TigerToken;
 import edu.cs4240.tiger.parser.TigerTokenClass;
 
 /**
@@ -28,7 +29,7 @@ public class Utils {
 		return getLeftmostLeaf((RuleNode)first);
 	}
 	
-	public static boolean isTypeCompatible(RuleNode dest, RuleNode src) {
+	public static boolean isTypeCompatibleAssign(RuleNode dest, RuleNode src) {
 		if(dest.equals(src)) {
 			return true;
 		}
@@ -44,5 +45,32 @@ public class Utils {
 		}
 		
 		return false;
+	}
+	
+	public static boolean isTypeCompatibleCompare(RuleNode src1, RuleNode src2) {
+		return src1.equals(src2) || (isNumericType(src1) && isNumericType(src2));
+	}
+	
+	public static boolean isNumericType(RuleNode type) {
+		if(type.getChildren().size() == 1) {
+			LeafNode leaf = (LeafNode)type.getChildren().get(0);
+			return leaf.getToken().getTokenClass() == TigerTokenClass.INT || leaf.getToken().getTokenClass() == TigerTokenClass.FLOAT;
+		}
+		
+		return false;
+	}
+	
+	public static TigerToken getLiteralType(TigerToken token) {
+		if(token.getTokenClass() == TigerTokenClass.INTLIT) {
+			return new TigerToken(TigerTokenClass.INT, "int", "", 0, 0);
+		}
+		if(token.getTokenClass() == TigerTokenClass.FLOATLIT) {
+			return new TigerToken(TigerTokenClass.FLOAT, "float", "", 0, 0);
+		}
+		if(token.getTokenClass() == TigerTokenClass.TRUE || token.getTokenClass() == TigerTokenClass.FALSE) {
+			return new TigerToken(TigerTokenClass.BOOL, "bool", "", 0, 0);
+		}
+		
+		throw new IllegalArgumentException("Argument is not a literal.");
 	}
 }

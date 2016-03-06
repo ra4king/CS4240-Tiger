@@ -57,6 +57,9 @@ public class TigerScanner {
 					s = s.substring(0, beginComment) + " " + s.substring(endComment + 2);
 				}
 			}
+			
+			if(s.trim().isEmpty())
+				s = s.trim();
 		} while(beginComment > -1 || s.trim().isEmpty());
 		
 		if(s.trim().isEmpty()) {
@@ -84,7 +87,7 @@ public class TigerScanner {
 		}
 		
 		if(bestMatch != null) {
-			TigerToken token = new TigerToken(bestMatchToken, bestMatch.getMatch(), currLine, currLineNum, currLine.lastIndexOf(buffer));
+			TigerToken token = new TigerToken(bestMatchToken, bestMatch.getMatch(), currLine, currLineNum, currLine.lastIndexOf(buffer) + 1);
 			
 			buffer = buffer.substring(bestMatch.getMatch().length()).trim();
 			if(buffer.isEmpty()) {
@@ -94,6 +97,6 @@ public class TigerScanner {
 			return token;
 		}
 		
-		throw new TigerParseException("Invalid token", buffer, currLineNum, currLine.lastIndexOf(buffer));
+		throw new TigerParseException("Invalid token", buffer, currLineNum, currLine.lastIndexOf(buffer) + 1);
 	}
 }
