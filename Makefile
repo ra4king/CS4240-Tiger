@@ -26,4 +26,5 @@ gen: clean
 clean:
 	@echo Cleaning...
 	@rm -rf $(OUTPUT_BIN)
-	@rm -rf $(OUTPUT_JAR)
+	@rm -rf $(OUTPUT_JAR_MAIN)
+	@rm -rf $(OUTPUT_JAR_GEN)
