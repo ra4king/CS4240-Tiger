@@ -174,6 +174,8 @@ public class TigerParser {
 				
 				cleanupRecursiveRule(ruleNode, childRule, TigerProductionRule.NUMEXPR, TigerProductionRule.TERM);
 				cleanupRecursiveRule(ruleNode, childRule, TigerProductionRule.TERM, TigerProductionRule.FACTOR);
+				cleanupRecursiveRule(ruleNode, childRule, TigerProductionRule.BOOLEXPR, TigerProductionRule.CLAUSE);
+				cleanupRecursiveRule(ruleNode, childRule, TigerProductionRule.CLAUSE, TigerProductionRule.PRED);
 				
 				cleanupRecursiveRules(child);
 			}
@@ -185,7 +187,7 @@ public class TigerParser {
 			while(true) {
 				if(childRule.getChildren().size() == 3) {
 					RuleNode rightExpr = (RuleNode)childRule.getChildren().remove(2);
-					RuleNode op = (RuleNode)childRule.getChildren().remove(1);
+					Node op = childRule.getChildren().remove(1);
 					RuleNode leftExpr = (RuleNode)childRule.getChildren().remove(0);
 					
 					if(leftExpr.getValue() == child) {

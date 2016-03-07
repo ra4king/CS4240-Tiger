@@ -8,6 +8,7 @@ let
 	var g, i, j : bool := false;
 	
 	var h : array[10] of hello;
+	var k : array[10] of float;
 	
 	var wat : array[5] of array[5] of hello;
 	
@@ -15,13 +16,13 @@ let
 		return h[4];
 	end;
 	
-	func test(a : int) : int begin
+	func test(a : array[10] of float) : int begin
 		h[4] := h[4];
-		a := 1000;
+		a := k;
 		myFunc(3, 4);
 		
 		if(g & i | j | a < 100) then
-			for a := 0 to 9 do
+			for b := 0 to 9 do
 				printi(42);
 			enddo;
 		endif;
