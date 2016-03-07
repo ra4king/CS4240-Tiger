@@ -28,32 +28,8 @@ public class TigerAnalyzer {
 	public void run() throws TigerParseException {
 		symbolTable = new TigerSymbolTable(ast);
 
-//		Thread functionsThread = new Thread(() -> {
-//			try {
 		analyzeFunctions();
-//			}
-//			catch(TigerParseException exc) {
-//				exc.printStackTrace();
-//			}
-//		});
-//		functionsThread.start();
-//		
-//		Thread statementsThread = new Thread(() -> {
-//			try {
 		analyzeProgramStatements();
-//			} catch(TigerParseException exc) {
-//				exc.printStackTrace();
-//			}
-//		});
-//		statementsThread.start();
-//		
-//		try {
-//			functionsThread.join();
-//		} catch(InterruptedException exc) {}
-//		
-//		try {
-//			statementsThread.join();
-//		} catch(InterruptedException exc) {}
 	}
 	
 	private void analyzeProgramStatements() throws TigerParseException {
