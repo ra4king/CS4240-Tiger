@@ -179,10 +179,6 @@ public class TigerSymbolTable {
 	}
 	
 	public void addSpecialFunctions() {
-		final RuleNode INT_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.INT, "int", "", 0, 0)));
-		final RuleNode FLOAT_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.FLOAT, "float", "", 0, 0)));
-		final RuleNode BOOL_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.BOOL, "bool", "", 0, 0)));
-		
 		functions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", INT_TYPE))));
 		functions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", FLOAT_TYPE))));
 		functions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", BOOL_TYPE))));

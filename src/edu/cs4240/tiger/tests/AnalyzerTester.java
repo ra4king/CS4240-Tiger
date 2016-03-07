@@ -15,12 +15,13 @@ import edu.cs4240.tiger.parser.TigerScanner;
  */
 public class AnalyzerTester {
 	public static void main(String[] args) throws Exception {
-		try(BufferedReader reader = new BufferedReader(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "src/edu/cs4240/tiger/tests/test.tgr")))) {
+		String file = "test.tgr";
+		try(BufferedReader reader = new BufferedReader(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "src/edu/cs4240/tiger/tests/" + file)))) {
 			TigerParser parser = new TigerParser(new TigerScanner(reader));
 			RuleNode ast = parser.parse();
 			TigerAnalyzer analyzer = new TigerAnalyzer(ast);
 			analyzer.run();
-			System.out.println("Parsed and analyzed successfully!");
+			System.out.println(file + " parsed and analyzed successfully!");
 		} catch(TigerParseException exc) {
 			System.err.println(exc.toString());
 		}

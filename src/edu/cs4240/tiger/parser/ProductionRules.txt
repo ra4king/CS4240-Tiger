@@ -57,6 +57,7 @@ clause → pred clause_tail
 clause_tail → ϵ
 clause_tail → & clause
 pred → numexpr boolop numexpr
+pred → id
 pred → ( boolexpr )
 boolop → =
 boolop → <>

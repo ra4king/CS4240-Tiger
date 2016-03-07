@@ -15,6 +15,7 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class TigerTypeAnalyzer {
+	
 	public static RuleNode getNumexprType(RuleNode numexpr, HashMap<String, RuleNode> varTypes) throws TigerParseException {
 		ensureValue(numexpr.getValue(), TigerProductionRule.NUMEXPR);
 		
@@ -188,11 +189,18 @@ public class TigerTypeAnalyzer {
 		if(first instanceof LeafNode) {
 			LeafNode firstLeaf = (LeafNode)first;
 			
-			if(firstLeaf.getToken().getTokenClass() != TigerTokenClass.LPAREN) {
-				throw new TigerParseException("Something went very wrong", firstLeaf.getToken());
+			switch(firstLeaf.getToken().getTokenClass()) {
+				case ID:
+					if(!BOOL_TYPE.equals(varTypes.get(firstLeaf.getToken().getToken()))) {
+						throw new TigerParseException("Not a boolean type", firstLeaf.getToken());
+					}
+					break;
+				case LPAREN:
+					analyzeBoolexpr((RuleNode)pred.getChildren().get(1), varTypes);
+					break;
+				default:
+					throw new TigerParseException("Something went very wrong", firstLeaf.getToken());
 			}
-			
-			analyzeBoolexpr((RuleNode)pred.getChildren().get(1), varTypes);
 		} else {
 			RuleNode leftRule = (RuleNode)first;
 			RuleNode rightRule = (RuleNode)pred.getChildren().get(2);

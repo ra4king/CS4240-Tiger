@@ -5,7 +5,7 @@ let
 	var a, b, c : hello := 9;
 	var d, e, f : world := 42.0;
 	
-	var g : bool := false;
+	var g, i, j : bool := false;
 	
 	var h : array[10] of hello;
 	
@@ -19,6 +19,12 @@ let
 		h[4] := h[4];
 		a := 1000;
 		myFunc(3, 4);
+		
+		if(g & i | j | a < 100) then
+			for a := 0 to 9 do
+				printi(42);
+			enddo;
+		endif;
 		
 		if 3 = 4 then
 			printi(3);

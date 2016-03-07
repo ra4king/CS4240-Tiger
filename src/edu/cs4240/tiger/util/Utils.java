@@ -11,6 +11,10 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class Utils {
+	public static final RuleNode INT_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.INT, "int", "", 0, 0)));
+	public static final RuleNode FLOAT_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.FLOAT, "float", "", 0, 0)));
+	public static final RuleNode BOOL_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.BOOL, "bool", "", 0, 0)));
+	
 	public static <T> void ensureValue(T value, T expected) {
 		if(value != expected) {
 			throw new IllegalArgumentException("Expected " + expected + ", received " + value);
