@@ -108,7 +108,7 @@ public class TigerParser {
 		}
 	}
 	
-	private Node ast;
+	private RuleNode ast;
 	private Queue<TigerToken> tokenQueue;
 	private Deque<TigerSymbol> symbolStack;
 	
@@ -131,9 +131,9 @@ public class TigerParser {
 		return new LinkedList<>(tokenQueue);
 	}
 	
-	public Node parse() throws TigerParseException {
+	public RuleNode parse() throws TigerParseException {
 		if(ast == null) {
-			ast = parse(tokenQueue, symbolStack);
+			ast = (RuleNode)parse(tokenQueue, symbolStack);
 			cleanupTails(ast);
 			cleanupRecursiveRules(ast);
 		}

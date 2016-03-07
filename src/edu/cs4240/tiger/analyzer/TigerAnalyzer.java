@@ -1,5 +1,6 @@
 package edu.cs4240.tiger.analyzer;
 
+import static edu.cs4240.tiger.analyzer.TigerTypeAnalyzer.*;
 import static edu.cs4240.tiger.util.Utils.*;
 
 import java.util.HashMap;
@@ -33,10 +34,10 @@ public class TigerAnalyzer {
 	}
 	
 	private void analyzeProgramStatements() throws TigerParseException {
-		analyzeStatements((RuleNode)ast.getChildren().get(3), symbolTable.getVariables(), false);
+		analyzeStatements((RuleNode)ast.getChildren().get(3), symbolTable.getVariables(), null, false);
 	}
 	
-	private void analyzeStatements(RuleNode stmts, HashMap<String, RuleNode> varTypes, boolean insideLoop) throws TigerParseException {
+	private void analyzeStatements(RuleNode stmts, HashMap<String, RuleNode> varTypes, RuleNode returnValue, boolean insideLoop) throws TigerParseException {
 		ensureValue(stmts.getValue(), TigerProductionRule.STMTS);
 		
 		if(stmts.getChildren().size() == 0) {
@@ -45,14 +46,14 @@ public class TigerAnalyzer {
 		
 		RuleNode fullstmt = (RuleNode)stmts.getChildren().get(0);
 		ensureValue(fullstmt.getValue(), TigerProductionRule.FULLSTMT);
-		analyzeStatement((RuleNode)fullstmt.getChildren().get(0), varTypes, insideLoop);
+		analyzeStatement((RuleNode)fullstmt.getChildren().get(0), varTypes, returnValue, insideLoop);
 		
 		if(stmts.getChildren().size() > 1) {
-			analyzeStatements((RuleNode)stmts.getChildren().get(1), varTypes, insideLoop);
+			analyzeStatements((RuleNode)stmts.getChildren().get(1), varTypes, returnValue, insideLoop);
 		}
 	}
 	
-	private void analyzeStatement(RuleNode stmt, HashMap<String, RuleNode> varTypes, boolean insideLoop) throws TigerParseException {
+	private void analyzeStatement(RuleNode stmt, HashMap<String, RuleNode> varTypes, RuleNode returnType, boolean insideLoop) throws TigerParseException {
 		ensureValue(stmt.getValue(), TigerProductionRule.STMT);
 		
 		Node first = stmt.getChildren().get(0);
@@ -65,20 +66,21 @@ public class TigerAnalyzer {
 					RuleNode numexprType = getNumexprType((RuleNode)stmt.getChildren().get(2), varTypes);
 					
 					if(!isTypeCompatibleAssign(lvalueType, numexprType)) {
-						throw new TigerParseException("Incompatible types", getLeftmostLeaf(numexprType));
+						throw new TigerParseException("Incompatible types", getLeftmostLeaf((RuleNode)stmt.getChildren().get(2)));
 					}
 					
 					break;
 				case OPTSTORE:
-					// stmt -> optstore id ( numexprs )
-					// optstore -> e | lvalue :=
-					
 					TigerToken functionToken = ((LeafNode)stmt.getChildren().get(1)).getToken();
 					Pair<RuleNode, List<Pair<String, RuleNode>>> function = symbolTable.getFunctions().get(functionToken.getToken());
 					
 					RuleNode optstore = (RuleNode)stmt.getChildren().get(0);
 					if(optstore.getChildren().size() > 0) {
 						lvalueType = getIdOptOffsetType((RuleNode)optstore.getChildren().get(0), varTypes);
+						
+						if(function.getKey() == null) {
+							throw new TigerParseException("Function does not return a value", functionToken);
+						}
 						
 						if(!isTypeCompatibleAssign(lvalueType, function.getKey())) {
 							throw new TigerParseException("Return type incompatible with left-hand side type", functionToken);
@@ -126,16 +128,16 @@ public class TigerAnalyzer {
 			switch(firstLeaf.getToken().getTokenClass()) {
 				case IF:
 					analyzeBoolexpr((RuleNode)stmt.getChildren().get(1), varTypes);
-					analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, insideLoop);
+					analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, returnType, insideLoop);
 					
 					if(((LeafNode)stmt.getChildren().get(4)).getToken().getTokenClass() == TigerTokenClass.ELSE) {
-						analyzeStatements((RuleNode)stmt.getChildren().get(5), varTypes, insideLoop);
+						analyzeStatements((RuleNode)stmt.getChildren().get(5), varTypes, returnType, insideLoop);
 					}
 					
 					break;
 				case WHILE:
 					analyzeBoolexpr((RuleNode)stmt.getChildren().get(1), varTypes);
-					analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, true);
+					analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, returnType, true);
 					
 					break;
 				case FOR:
@@ -160,7 +162,7 @@ public class TigerAnalyzer {
 						throw new TigerParseException("Type of expression does not match type of iterating variable", getLeftmostLeaf((RuleNode)stmt.getChildren().get(5)));
 					}
 					
-					analyzeStatements((RuleNode)stmt.getChildren().get(7), varTypes, true);
+					analyzeStatements((RuleNode)stmt.getChildren().get(7), varTypes, returnType, true);
 					
 					break;
 				case BREAK:
@@ -168,208 +170,19 @@ public class TigerAnalyzer {
 						throw new TigerParseException("Illegal break, not inside any loops", firstLeaf.getToken());
 					}
 					break;
+				case RETURN:
+					if(returnType == null) {
+						throw new TigerParseException("Illegal return statement", firstLeaf.getToken());
+					}
+					
+					if(!isTypeCompatibleAssign(returnType, returnType)) {
+						throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
+					}
+					
+					break;
 				default:
 					throw new TigerParseException("Unexpected statement", firstLeaf.getToken());
 			}
-		}
-	}
-	
-	private void analyzeBoolexpr(RuleNode boolexpr, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		ensureValue(boolexpr.getValue(), TigerProductionRule.BOOLEXPR);
-		
-		RuleNode child = (RuleNode)boolexpr.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.BOOLEXPR) {
-			analyzeBoolexpr(child, varTypes);
-			analyzeClause((RuleNode)boolexpr.getChildren().get(2), varTypes);
-		} else {
-			analyzeClause(child, varTypes);
-		}
-	}
-	
-	private void analyzeClause(RuleNode clause, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		ensureValue(clause.getValue(), TigerProductionRule.CLAUSE);
-		
-		RuleNode child = (RuleNode)clause.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.CLAUSE) {
-			analyzeClause(child, varTypes);
-			analyzePred((RuleNode)clause.getChildren().get(2), varTypes);
-		} else {
-			analyzePred(child, varTypes);
-		}
-	}
-	
-	private void analyzePred(RuleNode pred, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		ensureValue(pred.getValue(), TigerProductionRule.PRED);
-		
-		Node first = pred.getChildren().get(0);
-		if(first instanceof LeafNode) {
-			LeafNode firstLeaf = (LeafNode)first;
-			
-			if(firstLeaf.getToken().getTokenClass() != TigerTokenClass.LPAREN) {
-				throw new TigerParseException("Something went very wrong", firstLeaf.getToken());
-			}
-			
-			analyzeBoolexpr((RuleNode)pred.getChildren().get(1), varTypes);
-		} else {
-			RuleNode leftRule = (RuleNode)first;
-			RuleNode rightRule = (RuleNode)pred.getChildren().get(2);
-			
-			if(leftRule.getValue() != TigerProductionRule.NUMEXPR) {
-				throw new TigerParseException("Something went very wrong", getLeftmostLeaf(leftRule));
-			}
-			
-			RuleNode leftTypeRule = getNumexprType(leftRule, varTypes);
-			RuleNode rightTypeRule = getNumexprType(rightRule, varTypes);
-			LeafNode leftType = (LeafNode)leftTypeRule.getChildren().get(0);
-			LeafNode rightType = (LeafNode)rightTypeRule.getChildren().get(0);
-			
-			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(leftRule));
-			}
-			
-			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(rightRule));
-			}
-		}
-	}
-	
-	private RuleNode getNumexprType(RuleNode numexpr, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		ensureValue(numexpr.getValue(), TigerProductionRule.NUMEXPR);
-		
-		RuleNode child = (RuleNode)numexpr.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.NUMEXPR) {
-			RuleNode leftTypeRule = getNumexprType(child, varTypes);
-			RuleNode rightTypeRule = getTermType((RuleNode)numexpr.getChildren().get(2), varTypes);
-			
-			LeafNode leftType = (LeafNode)leftTypeRule.getChildren().get(0);
-			LeafNode rightType = (LeafNode)rightTypeRule.getChildren().get(0);
-			
-			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", leftType.getToken());
-			}
-			
-			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", rightType.getToken());
-			}
-			
-			if(leftType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return leftTypeRule;
-			}
-			
-			if(rightType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return rightTypeRule;
-			}
-			
-			return leftTypeRule;
-		} else {
-			return getTermType(child, varTypes);
-		}
-	}
-	
-	private RuleNode getTermType(RuleNode term, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		ensureValue(term.getValue(), TigerProductionRule.TERM);
-		
-		RuleNode child = (RuleNode)term.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.TERM) {
-			RuleNode leftTypeRule = getTermType(child, varTypes);
-			RuleNode rightTypeRule = getFactorType((RuleNode)term.getChildren().get(2), varTypes);
-			
-			LeafNode leftType = (LeafNode)leftTypeRule.getChildren().get(0);
-			LeafNode rightType = (LeafNode)rightTypeRule.getChildren().get(0);
-			
-			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", leftType.getToken());
-			}
-			
-			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", rightType.getToken());
-			}
-			
-			if(leftType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return leftTypeRule;
-			}
-			
-			if(rightType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return rightTypeRule;
-			}
-			
-			return leftTypeRule;
-		} else {
-			return getFactorType(child, varTypes);
-		}
-	}
-	
-	private RuleNode getFactorType(RuleNode factor, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		ensureValue(factor.getValue(), TigerProductionRule.FACTOR);
-		
-		Node first = factor.getChildren().get(0);
-		if(first instanceof LeafNode) {
-			LeafNode firstLeaf = (LeafNode)first;
-			
-			switch(firstLeaf.getToken().getTokenClass()) {
-				case ID:
-					return getIdOptOffsetType(factor, varTypes);
-				case LPAREN:
-					return getNumexprType((RuleNode)factor.getChildren().get(1), varTypes);
-				default:
-					throw new TigerParseException("Something went very wrong", firstLeaf.getToken());
-			}
-		} else {
-			RuleNode firstRule = (RuleNode)first;
-			
-			switch(firstRule.getValue()) {
-				case CONST:
-					return new RuleNode(TigerProductionRule.TYPE, new LeafNode(getLiteralType(((LeafNode)firstRule.getChildren().get(0)).getToken())));
-				default:
-					throw new TigerParseException("Something went very wrong", getLeftmostLeaf(firstRule));
-			}
-		}
-	}
-	
-	private RuleNode getIdOptOffsetType(RuleNode rule, HashMap<String, RuleNode> varTypes) throws TigerParseException {
-		LeafNode id = (LeafNode)rule.getChildren().get(0);
-		
-		RuleNode idType = symbolTable.getVariables().get(id.getToken().getToken());
-		
-		if(idType == null) {
-			throw new TigerParseException("Undeclared variable", id.getToken());
-		}
-		
-		if(rule.getChildren().size() == 1) {
-			return idType;
-		} else {
-			LeafNode lbracket, rbracket;
-			RuleNode numexpr;
-			
-			if(rule.getChildren().get(1) instanceof RuleNode) { // optoffset rule
-				lbracket = (LeafNode)((RuleNode)rule.getChildren().get(1)).getChildren().get(0);
-				rbracket = (LeafNode)((RuleNode)rule.getChildren().get(1)).getChildren().get(2);
-				numexpr = (RuleNode)((RuleNode)rule.getChildren().get(1)).getChildren().get(1);
-			} else {
-				lbracket = (LeafNode)rule.getChildren().get(1);
-				rbracket = (LeafNode)rule.getChildren().get(3);
-				numexpr = (RuleNode)rule.getChildren().get(2);
-			}
-			
-			ensureValue(lbracket.getToken().getTokenClass(), TigerTokenClass.LBRACKET);
-			ensureValue(rbracket.getToken().getTokenClass(), TigerTokenClass.RBRACKET);
-			
-			RuleNode indexType = getNumexprType(numexpr, varTypes);
-			if(((LeafNode)indexType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.INT) {
-				throw new TigerParseException("Array index must be an integer type", getLeftmostLeaf(numexpr));
-			}
-			
-			if(((LeafNode)idType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.ARRAY) {
-				throw new TigerParseException("Cannot index into non-array type", getLeftmostLeaf(numexpr));
-			}
-			
-			return (RuleNode)idType.getChildren().get(5);
 		}
 	}
 	
@@ -385,7 +198,7 @@ public class TigerAnalyzer {
 		RuleNode funcdecl = (RuleNode)funcdecls.getChildren().get(0);
 		Pair<RuleNode, List<Pair<String, RuleNode>>> funcInfo = symbolTable.getFunctions().get(((LeafNode)funcdecl.getChildren().get(1)).getToken().getToken());
 		if(!analyzeFunctionStmts(funcInfo, (RuleNode)funcdecl.getChildren().get(7)) && funcInfo.getKey() != null) {
-			throw new TigerParseException("No return statement found", ((LeafNode)funcdecl.getChildren().get(8)).getToken());
+			throw new TigerParseException("Not all code paths return", ((LeafNode)funcdecl.getChildren().get(8)).getToken());
 		}
 		analyzeFunction((RuleNode)funcdecls.getChildren().get(1));
 	}
@@ -411,7 +224,7 @@ public class TigerAnalyzer {
 			}
 			doesReturn = true;
 		} else {
-			analyzeStatement(stmt, funcVarTypes, false);
+			analyzeStatement(stmt, funcVarTypes, funcInfo.getKey(), false);
 		}
 		
 		if(stmts.getChildren().size() > 1) {

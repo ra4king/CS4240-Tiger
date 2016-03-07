@@ -1,5 +1,6 @@
 package edu.cs4240.tiger.tests;
 
+import java.io.BufferedReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -14,12 +15,12 @@ import edu.cs4240.tiger.parser.TigerScanner;
  */
 public class AnalyzerTester {
 	public static void main(String[] args) throws Exception {
-		try {
-			TigerParser parser = new TigerParser(new TigerScanner(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/aaa.tgr"))));
-			RuleNode ast = (RuleNode)parser.parse();
-			System.out.println(ast);
+		try(BufferedReader reader = new BufferedReader(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "src/edu/cs4240/tiger/tests/test.tgr")))) {
+			TigerParser parser = new TigerParser(new TigerScanner(reader));
+			RuleNode ast = parser.parse();
 			TigerAnalyzer analyzer = new TigerAnalyzer(ast);
 			analyzer.run();
+			System.out.println("Parsed and analyzed successfully!");
 		} catch(TigerParseException exc) {
 			System.err.println(exc.toString());
 		}

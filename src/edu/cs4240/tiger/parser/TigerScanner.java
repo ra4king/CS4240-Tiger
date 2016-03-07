@@ -64,7 +64,6 @@ public class TigerScanner {
 		
 		if(s.trim().isEmpty()) {
 			buffer = currLine = null;
-			source.close();
 		} else {
 			currLine = s;
 			buffer = s.trim();

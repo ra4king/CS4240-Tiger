@@ -1,19 +1,22 @@
 package edu.cs4240.tiger.tests;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import edu.cs4240.tiger.analyzer.TigerAnalyzer;
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser;
+import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerScanner;
 
 /**
  * @author Roi Atalla
  */
-public class ParserTester {
+public class TestsRunner {
 	public static void main(String[] args) throws IOException, TigerParseException {
 		File testsFolder = Paths.get(System.getProperty("user.dir"), "tests/").toFile();
 		if(!testsFolder.isDirectory()) {
@@ -30,9 +33,10 @@ public class ParserTester {
 	}
 	
 	private static void testFile(File file) {
-		try {
-			TigerParser parser = new TigerParser(new TigerScanner(Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName()))));
-			String ast = parser.parse().toString();
+		try(BufferedReader reader = Files.newBufferedReader(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName()))) {
+			TigerParser parser = new TigerParser(new TigerScanner(reader));
+			RuleNode astNode = parser.parse();
+			String ast = astNode.toString();
 			
 			List<String> lines = Files.readAllLines(Paths.get(System.getProperty("user.dir"), "tests/" + file.getName().substring(0, file.getName().lastIndexOf('.')) + ".ast"));
 			String line = "";
@@ -44,6 +48,11 @@ public class ParserTester {
 			} else {
 				System.out.println(file.getName() + " NO MATCH!\n" + ast.toLowerCase());
 			}
+			
+			TigerAnalyzer analyzer = new TigerAnalyzer(astNode);
+			analyzer.run();
+			
+			System.out.println(file.getName() + " is semantically correct!");
 		}
 		catch(Exception exc) {
 			System.err.println(file.getName() + " error:");

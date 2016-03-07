@@ -13,6 +13,7 @@ import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerSymbol;
 import edu.cs4240.tiger.parser.TigerToken;
 import edu.cs4240.tiger.parser.TigerTokenClass;
+import edu.cs4240.tiger.util.Utils;
 
 /**
  * @author Roi Atalla
@@ -129,44 +130,10 @@ public class TigerSourceGenerator {
 			System.out.printf("// Generated Tiger program with depth=%d and seed=%d in %.3f ms\n\n", depth, seed, time / 1e6);
 		}
 		
-		print(0, program);
-		System.out.println();
+		System.out.println(Utils.stringify(0, program));
 	}
 	
-	private static void print(int level, Node node) {
-		if(node instanceof RuleNode) {
-			RuleNode ruleNode = (RuleNode)node;
-			
-			if(addIndent(ruleNode.getValue())) {
-				level += 1;
-			}
-			
-			if(printIndent(ruleNode.getValue())) {
-				for(int i = 0; i < level; i++) {
-					System.out.print("   ");
-				}
-			}
-			
-			for(Node child : ruleNode.getChildren()) {
-				print(level, child);
-			}
-		} else if(((LeafNode)node).getToken().getTokenClass() != TigerTokenClass.EPSILON) {
-			TigerToken token = ((LeafNode)node).getToken();
-			
-			if(printIndent(token.getTokenClass())) {
-				for(int i = 0; i < level; i++) {
-					System.out.print("   ");
-				}
-			} else if(addWhitespace(token.getTokenClass())) {
-				System.out.print(" ");
-			}
-			
-			System.out.print(token.getToken());
-			System.out.print(generateNewLine(token.getTokenClass()) ? "\n" : "");
-		}
-	}
-	
-	private static Node generate(int limit, Deque<TigerSymbol> symbolStack) {
+	public static Node generate(int limit, Deque<TigerSymbol> symbolStack) {
 		TigerSymbol symbol = symbolStack.pop();
 		
 		if(symbol instanceof TigerProductionRule) {
@@ -216,65 +183,6 @@ public class TigerSourceGenerator {
 		} else {
 			return new LeafNode(new TigerToken((TigerTokenClass)symbol, generateTokenString((TigerTokenClass)symbol), "", 0, 0));
 		}
-	}
-	
-	private static boolean printIndent(TigerProductionRule rule) {
-		switch(rule) {
-			case TYPEDECL:
-			case VARDECL:
-			case FUNCDECL:
-			case STMT:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private static boolean printIndent(TigerTokenClass tokenClass) {
-		switch(tokenClass) {
-			case ELSE:
-			case END:
-			case ENDIF:
-			case ENDDO:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private static boolean addIndent(TigerProductionRule token) {
-		switch(token) {
-			case DECLSEG:
-			case STMT:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private static boolean addWhitespace(TigerTokenClass tokenClass) {
-		switch(tokenClass) {
-			case COMMA:
-			case SEMICOLON:
-				return false;
-		}
-		
-		return true;
-	}
-	
-	private static boolean generateNewLine(TigerTokenClass token) {
-		switch(token) {
-			case LET:
-			case BEGIN:
-			case THEN:
-			case ELSE:
-			case DO:
-			case SEMICOLON:
-			case IN:
-				return true;
-		}
-		
-		return false;
 	}
 	
 	private static String generateTokenString(TigerTokenClass symbol) {

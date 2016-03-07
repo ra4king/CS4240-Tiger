@@ -3,6 +3,7 @@ package edu.cs4240.tiger.analyzer;
 import static edu.cs4240.tiger.util.Utils.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,7 +28,9 @@ public class TigerSymbolTable {
 	public TigerSymbolTable(RuleNode ast) throws TigerParseException {
 		this.ast = ast;
 		buildSymbolTable();
-		
+	}
+	
+	public void printSymbolTables() {
 		System.out.println("Types:");
 		for(String s : typeAliases.keySet()) {
 			System.out.println(s + " - " + typeAliases.get(s).toString());
@@ -61,6 +64,8 @@ public class TigerSymbolTable {
 		buildTypedecls((RuleNode)declseg.get(0));
 		buildVardecls((RuleNode)declseg.get(1));
 		buildFuncdecls((RuleNode)declseg.get(2));
+		
+		addSpecialFunctions();
 	}
 	
 	private void buildTypedecls(RuleNode typedecls) throws TigerParseException {
@@ -173,6 +178,16 @@ public class TigerSymbolTable {
 		return argumentTypes;
 	}
 	
+	public void addSpecialFunctions() {
+		final RuleNode INT_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.INT, "int", "", 0, 0)));
+		final RuleNode FLOAT_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.FLOAT, "float", "", 0, 0)));
+		final RuleNode BOOL_TYPE = new RuleNode(TigerProductionRule.TYPE, new LeafNode(new TigerToken(TigerTokenClass.BOOL, "bool", "", 0, 0)));
+		
+		functions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", INT_TYPE))));
+		functions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", FLOAT_TYPE))));
+		functions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", BOOL_TYPE))));
+	}
+	
 	private RuleNode getBaseType(RuleNode type) throws TigerParseException {
 		ensureValue(type.getValue(), TigerProductionRule.TYPE);
 		
@@ -182,6 +197,7 @@ public class TigerSymbolTable {
 			case ARRAY:
 				RuleNode fixed = new RuleNode(type);
 				fixed.getChildren().add(getBaseType((RuleNode)fixed.getChildren().remove(5)));
+				fixed.getChildren().add(2, new LeafNode(getLiteralType(((LeafNode)fixed.getChildren().remove(2)).getToken())));
 				return fixed;
 			default:
 				return type;
