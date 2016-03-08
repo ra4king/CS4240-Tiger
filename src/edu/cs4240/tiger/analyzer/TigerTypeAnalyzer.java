@@ -4,6 +4,8 @@ import static edu.cs4240.tiger.util.Utils.*;
 
 import java.util.HashMap;
 
+import edu.cs4240.tiger.analyzer.TigerType.TigerArrayType;
+import edu.cs4240.tiger.analyzer.TigerType.Type;
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser.LeafNode;
 import edu.cs4240.tiger.parser.TigerParser.Node;
@@ -15,78 +17,75 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class TigerTypeAnalyzer {
+	public static boolean isTypeCompatibleAssign(TigerType dest, TigerType src) {
+		return dest.equals(src) || (dest.equals(TigerType.FLOAT_TYPE) && src.equals(TigerType.INT_TYPE));
+	}
 	
-	public static RuleNode getNumexprType(RuleNode numexpr, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	public static TigerType getNumexprType(RuleNode numexpr, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		ensureValue(numexpr.getValue(), TigerProductionRule.NUMEXPR);
 		
-		RuleNode child = (RuleNode)numexpr.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.NUMEXPR) {
-			RuleNode leftTypeRule = getNumexprType(child, varTypes);
-			RuleNode rightTypeRule = getTermType((RuleNode)numexpr.getChildren().get(2), varTypes);
+		RuleNode leftChild = (RuleNode)numexpr.getChildren().get(0);
+		if(leftChild.getValue() == TigerProductionRule.NUMEXPR) {
+			RuleNode rightChild = (RuleNode)numexpr.getChildren().get(2);
 			
-			LeafNode leftType = (LeafNode)leftTypeRule.getChildren().get(0);
-			LeafNode rightType = (LeafNode)rightTypeRule.getChildren().get(0);
+			TigerType leftType = getNumexprType(leftChild, varTypes);
+			TigerType rightType = getTermType(rightChild, varTypes);
 			
-			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", leftType.getToken());
+			if(!TigerType.isNumericType(leftType)) {
+				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(leftChild));
 			}
 			
-			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", rightType.getToken());
+			if(!TigerType.isNumericType(rightType)) {
+				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(rightChild));
 			}
 			
-			if(leftType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return leftTypeRule;
+			if(leftType.equals(TigerType.FLOAT_TYPE)) {
+				return leftType;
 			}
 			
-			if(rightType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return rightTypeRule;
+			if(rightType.equals(TigerType.FLOAT_TYPE)) {
+				return rightType;
 			}
 			
-			return leftTypeRule;
+			return leftType;
 		} else {
-			return getTermType(child, varTypes);
+			return getTermType(leftChild, varTypes);
 		}
 	}
 	
-	private static RuleNode getTermType(RuleNode term, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	private static TigerType getTermType(RuleNode term, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		ensureValue(term.getValue(), TigerProductionRule.TERM);
 		
-		RuleNode child = (RuleNode)term.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.TERM) {
-			RuleNode leftTypeRule = getTermType(child, varTypes);
-			RuleNode rightTypeRule = getFactorType((RuleNode)term.getChildren().get(2), varTypes);
+		RuleNode leftChild = (RuleNode)term.getChildren().get(0);
+		if(leftChild.getValue() == TigerProductionRule.TERM) {
+			RuleNode rightChild = (RuleNode)term.getChildren().get(2);
 			
-			LeafNode leftType = (LeafNode)leftTypeRule.getChildren().get(0);
-			LeafNode rightType = (LeafNode)rightTypeRule.getChildren().get(0);
+			TigerType leftType = getTermType(leftChild, varTypes);
+			TigerType rightType = getFactorType(rightChild, varTypes);
 			
-			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", leftType.getToken());
+			if(!TigerType.isNumericType(leftType)) {
+				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(leftChild));
 			}
 			
-			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
-				throw new TigerParseException("Operator can only be applied on numeric types", rightType.getToken());
+			if(!TigerType.isNumericType(rightType)) {
+				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(rightChild));
 			}
 			
-			if(leftType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return leftTypeRule;
+			if(leftType.equals(TigerType.FLOAT_TYPE)) {
+				return leftType;
 			}
 			
-			if(rightType.getToken().getTokenClass() == TigerTokenClass.FLOAT) {
-				return rightTypeRule;
+			if(rightType.equals(TigerType.FLOAT_TYPE)) {
+				return rightType;
 			}
 			
-			return leftTypeRule;
+			return leftType;
 		} else {
-			return getFactorType(child, varTypes);
+			return getFactorType(leftChild, varTypes);
 		}
 	}
 	
-	private static RuleNode getFactorType(RuleNode factor, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	private static TigerType getFactorType(RuleNode factor, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		ensureValue(factor.getValue(), TigerProductionRule.FACTOR);
 		
 		Node first = factor.getChildren().get(0);
@@ -106,17 +105,17 @@ public class TigerTypeAnalyzer {
 			
 			switch(firstRule.getValue()) {
 				case CONST:
-					return new RuleNode(TigerProductionRule.TYPE, new LeafNode(getLiteralType(((LeafNode)firstRule.getChildren().get(0)).getToken())));
+					return TigerType.getLiteralType(((LeafNode)firstRule.getChildren().get(0)).getToken());
 				default:
 					throw new TigerParseException("Something went very wrong", getLeftmostLeaf(firstRule));
 			}
 		}
 	}
 	
-	public static RuleNode getIdOptOffsetType(RuleNode rule, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	public static TigerType getIdOptOffsetType(RuleNode rule, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		LeafNode id = (LeafNode)rule.getChildren().get(0);
 		
-		RuleNode idType = varTypes.get(id.getToken().getToken());
+		TigerType idType = varTypes.get(id.getToken().getToken());
 		
 		if(idType == null) {
 			throw new TigerParseException("Undeclared variable", id.getToken());
@@ -145,20 +144,20 @@ public class TigerTypeAnalyzer {
 			ensureValue(lbracket.getToken().getTokenClass(), TigerTokenClass.LBRACKET);
 			ensureValue(rbracket.getToken().getTokenClass(), TigerTokenClass.RBRACKET);
 			
-			RuleNode indexType = getNumexprType(numexpr, varTypes);
-			if(((LeafNode)indexType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.INT) {
+			TigerType indexType = getNumexprType(numexpr, varTypes);
+			if(!indexType.equals(TigerType.INT_TYPE)) {
 				throw new TigerParseException("Array index must be an integer type", getLeftmostLeaf(numexpr));
 			}
 			
-			if(((LeafNode)idType.getChildren().get(0)).getToken().getTokenClass() != TigerTokenClass.ARRAY) {
-				throw new TigerParseException("Cannot index into non-array type", getLeftmostLeaf(numexpr));
+			if(idType.type != Type.ARRAY) {
+				throw new TigerParseException("Cannot index into non-array type", lbracket.getToken());
 			}
 			
-			return (RuleNode)idType.getChildren().get(5);
+			return ((TigerArrayType)idType).subtype;
 		}
 	}
 	
-	public static void analyzeBoolexpr(RuleNode boolexpr, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	public static void analyzeBoolexpr(RuleNode boolexpr, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		ensureValue(boolexpr.getValue(), TigerProductionRule.BOOLEXPR);
 		
 		RuleNode child = (RuleNode)boolexpr.getChildren().get(0);
@@ -170,7 +169,7 @@ public class TigerTypeAnalyzer {
 		}
 	}
 	
-	private static void analyzeClause(RuleNode clause, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	private static void analyzeClause(RuleNode clause, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		ensureValue(clause.getValue(), TigerProductionRule.CLAUSE);
 		
 		RuleNode child = (RuleNode)clause.getChildren().get(0);
@@ -182,7 +181,7 @@ public class TigerTypeAnalyzer {
 		}
 	}
 	
-	private static void analyzePred(RuleNode pred, HashMap<String, RuleNode> varTypes) throws TigerParseException {
+	private static void analyzePred(RuleNode pred, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		ensureValue(pred.getValue(), TigerProductionRule.PRED);
 		
 		Node first = pred.getChildren().get(0);
@@ -191,7 +190,7 @@ public class TigerTypeAnalyzer {
 			
 			switch(firstLeaf.getToken().getTokenClass()) {
 				case ID:
-					if(!BOOL_TYPE.equals(varTypes.get(firstLeaf.getToken().getToken()))) {
+					if(!TigerType.BOOL_TYPE.equals(varTypes.get(firstLeaf.getToken().getToken()))) {
 						throw new TigerParseException("Not a boolean type", firstLeaf.getToken());
 					}
 					break;
@@ -209,18 +208,14 @@ public class TigerTypeAnalyzer {
 				throw new TigerParseException("Something went very wrong", getLeftmostLeaf(leftRule));
 			}
 			
-			RuleNode leftTypeRule = getNumexprType(leftRule, varTypes);
-			RuleNode rightTypeRule = getNumexprType(rightRule, varTypes);
-			LeafNode leftType = (LeafNode)leftTypeRule.getChildren().get(0);
-			LeafNode rightType = (LeafNode)rightTypeRule.getChildren().get(0);
+			TigerType leftType = getNumexprType(leftRule, varTypes);
+			TigerType rightType = getNumexprType(rightRule, varTypes);
 			
-			if(leftType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     leftType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
+			if(!TigerType.isNumericType(leftType)) {
 				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(leftRule));
 			}
 			
-			if(rightType.getToken().getTokenClass() != TigerTokenClass.INT &&
-			     rightType.getToken().getTokenClass() != TigerTokenClass.FLOAT) {
+			if(!TigerType.isNumericType(rightType)) {
 				throw new TigerParseException("Operator can only be applied on numeric types", getLeftmostLeaf(rightRule));
 			}
 		}

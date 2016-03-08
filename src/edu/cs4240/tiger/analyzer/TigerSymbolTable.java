@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import edu.cs4240.tiger.analyzer.TigerType.TigerArrayType;
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser.LeafNode;
 import edu.cs4240.tiger.parser.TigerParser.Node;
@@ -21,9 +22,9 @@ import edu.cs4240.tiger.util.Pair;
  */
 public class TigerSymbolTable {
 	private RuleNode ast;
-	private HashMap<String, RuleNode> typeAliases;
-	private HashMap<String, RuleNode> variables;
-	private HashMap<String, Pair<RuleNode, List<Pair<String, RuleNode>>>> functions;
+	private HashMap<String, TigerType> typeAliases;
+	private HashMap<String, TigerType> variables;
+	private HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> functions;
 	
 	public TigerSymbolTable(RuleNode ast) throws TigerParseException {
 		this.ast = ast;
@@ -47,11 +48,11 @@ public class TigerSymbolTable {
 		}
 	}
 	
-	public HashMap<String, RuleNode> getVariables() {
+	public HashMap<String, TigerType> getVariables() {
 		return variables;
 	}
 	
-	public HashMap<String, Pair<RuleNode, List<Pair<String, RuleNode>>>> getFunctions() {
+	public HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> getFunctions() {
 		return functions;
 	}
 	
@@ -77,8 +78,7 @@ public class TigerSymbolTable {
 		
 		RuleNode typedecl = (RuleNode)typedecls.getChildren().get(0);
 		TigerToken id = ((LeafNode)typedecl.getChildren().get(1)).getToken();
-		RuleNode type = (RuleNode)typedecl.getChildren().get(3);
-		getBaseType(type);
+		TigerType type = getBaseType((RuleNode)typedecl.getChildren().get(3));
 		
 		typeAliases.put(id.getToken(), type);
 		
@@ -94,14 +94,14 @@ public class TigerSymbolTable {
 		
 		RuleNode vardecl = (RuleNode)vardecls.getChildren().get(0);
 		RuleNode ids = (RuleNode)vardecl.getChildren().get(1);
-		RuleNode type = getBaseType((RuleNode)vardecl.getChildren().get(3));
+		TigerType type = getBaseType((RuleNode)vardecl.getChildren().get(3));
 		
 		buildIds(ids, type);
 		
 		buildVardecls((RuleNode)vardecls.getChildren().get(1));
 	}
 	
-	private void buildIds(RuleNode ids, RuleNode type) {
+	private void buildIds(RuleNode ids, TigerType type) {
 		ensureValue(ids.getValue(), TigerProductionRule.IDS);
 		
 		for(Node child : ids.getChildren()) {
@@ -128,7 +128,7 @@ public class TigerSymbolTable {
 		RuleNode params = (RuleNode)funcdecl.getChildren().get(3);
 		RuleNode optrettype = (RuleNode)funcdecl.getChildren().get(5);
 		
-		List<Pair<String, RuleNode>> argumentTypes;
+		List<Pair<String, TigerType>> argumentTypes;
 		
 		if(params.getChildren().size() == 1) {
 			argumentTypes = buildFuncArgs((RuleNode)params.getChildren().get(0));
@@ -137,7 +137,7 @@ public class TigerSymbolTable {
 		}
 		
 		if(optrettype.getChildren().size() != 0) {
-			RuleNode type = getBaseType((RuleNode)optrettype.getChildren().get(1));
+			TigerType type = getBaseType((RuleNode)optrettype.getChildren().get(1));
 			functions.put(id.getToken(), new Pair<>(type, argumentTypes));
 		} else {
 			functions.put(id.getToken(), new Pair<>(null, argumentTypes)); // null == void
@@ -146,10 +146,10 @@ public class TigerSymbolTable {
 		buildFuncdecls((RuleNode)funcdecls.getChildren().get(1));
 	}
 	
-	private List<Pair<String, RuleNode>> buildFuncArgs(RuleNode params) throws TigerParseException {
+	private List<Pair<String, TigerType>> buildFuncArgs(RuleNode params) throws TigerParseException {
 		ensureValue(params.getValue(), TigerProductionRule.NEPARAMS);
 		
-		ArrayList<Pair<String, RuleNode>> argumentTypes = new ArrayList<>();
+		ArrayList<Pair<String, TigerType>> argumentTypes = new ArrayList<>();
 		
 		for(Node child : params.getChildren()) {
 			if(child instanceof RuleNode) {
@@ -165,7 +165,7 @@ public class TigerSymbolTable {
 							throw new IllegalArgumentException("Expecting ID, received " + id.getTokenClass());
 						}
 						
-						RuleNode type = getBaseType((RuleNode)ruleNode.getChildren().get(2));
+						TigerType type = getBaseType((RuleNode)ruleNode.getChildren().get(2));
 						
 						argumentTypes.add(new Pair<>(id.getToken(), type));
 						break;
@@ -178,39 +178,26 @@ public class TigerSymbolTable {
 		return argumentTypes;
 	}
 	
-	public void addSpecialFunctions() {
-		functions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", INT_TYPE))));
-		functions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", FLOAT_TYPE))));
-		functions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", BOOL_TYPE))));
+	private void addSpecialFunctions() {
+		functions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
+		functions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
+		functions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", TigerType.BOOL_TYPE))));
 	}
 	
-	private RuleNode getBaseType(RuleNode type) throws TigerParseException {
-		ensureValue(type.getValue(), TigerProductionRule.TYPE);
+	private TigerType getBaseType(RuleNode typeNode) throws TigerParseException {
+		ensureValue(typeNode.getValue(), TigerProductionRule.TYPE);
 		
-		switch(((LeafNode)type.getChildren().get(0)).getToken().getTokenClass()) {
-			case ID:
-				return followAliases(type);
-			case ARRAY:
-				RuleNode fixed = new RuleNode(type);
-				fixed.getChildren().add(getBaseType((RuleNode)fixed.getChildren().remove(5)));
-				fixed.getChildren().add(2, new LeafNode(getLiteralType(((LeafNode)fixed.getChildren().remove(2)).getToken())));
-				return fixed;
-			default:
-				return type;
-		}
-	}
-	
-	private RuleNode followAliases(RuleNode type) throws TigerParseException {
-		ensureValue(type.getValue(), TigerProductionRule.TYPE);
-		
-		while(((LeafNode)type.getChildren().get(0)).getToken().getTokenClass() == TigerTokenClass.ID) {
-			RuleNode tmp = typeAliases.get(((LeafNode)type.getChildren().get(0)).getToken().getToken());
+		TigerToken token = ((LeafNode)typeNode.getChildren().get(0)).getToken();
+		if(token.getTokenClass() == TigerTokenClass.ARRAY) {
+			return new TigerArrayType(getBaseType((RuleNode)typeNode.getChildren().get(5)));
+		} else if(token.getTokenClass() == TigerTokenClass.ID) {
+			TigerType tmp = typeAliases.get(token.getToken());
 			if(tmp == null) {
-				throw new TigerParseException("Unknown type", ((LeafNode)type.getChildren().get(0)).getToken());
+				throw new TigerParseException("Unknown type", token);
 			}
-			type = tmp;
+			return tmp;
+		} else {
+			return TigerType.getLiteralType(token);
 		}
-		
-		return type;
 	}
 }

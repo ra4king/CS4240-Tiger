@@ -1,6 +1,8 @@
 let
-	type hello := int;
-	type world := float;
+	type wut := int;
+	type wat := float;
+	type hello := wut;
+	type world := wat;
 	
 	var a, b, c : hello := 9;
 	var d, e, f : world := 42.0;
@@ -21,7 +23,7 @@ let
 		a := k;
 		myFunc(3, 4);
 		
-		if(g & i | j | a < 100) then
+		if(g & i | j | a[4] < 100) then
 			for b := 0 to 9 do
 				printi(42);
 			enddo;
