@@ -22,12 +22,18 @@ public class Utils {
 			return null;
 		}
 		
-		Node first = node.getChildren().get(0);
-		if(first instanceof LeafNode) {
-			return ((LeafNode)first).getToken();
+		for(Node child : node.getChildren()) {
+			if(child instanceof LeafNode) {
+				return ((LeafNode)child).getToken();
+			}
+			
+			TigerToken childToken = getLeftmostLeaf((RuleNode)child);
+			if(childToken != null) {
+				return childToken;
+			}
 		}
 		
-		return getLeftmostLeaf((RuleNode)first);
+		return null;
 	}
 	
 	public static String stringify(int level, Node node) {

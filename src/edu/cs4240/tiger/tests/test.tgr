@@ -33,6 +33,14 @@ let
 		
 		if(g & i | j | a[4] < 100) then
 			for b := 0 to 9 do
+				if(b = 4) then
+					break;
+				endif;
+				
+				while(b < 9) do
+					break;
+				enddo;
+				
 				printi(42);
 			enddo;
 		endif;
