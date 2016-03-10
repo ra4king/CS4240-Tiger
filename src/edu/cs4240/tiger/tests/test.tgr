@@ -15,7 +15,15 @@ let
 	var wat : array[5] of array[5] of hello;
 	
 	func myFunc(arg1 : int, arg2 : world) : world begin
-		return h[4];
+		if arg1 = arg2 then
+			return h[4];
+		else
+			if arg1 = arg2 then
+				return 0;
+			else
+				return arg1 + arg1 + arg2 * 1000;
+			endif;
+		endif;
 	end;
 	
 	func test(a : array[10] of float) : int begin

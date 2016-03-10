@@ -28,7 +28,7 @@ public class TigerAnalyzer {
 	
 	public void run() throws TigerParseException {
 		symbolTable = new TigerSymbolTable(ast);
-
+		
 		analyzeFunctions();
 		analyzeProgramStatements();
 	}
@@ -44,64 +44,70 @@ public class TigerAnalyzer {
 		
 		RuleNode funcdecl = (RuleNode)funcdecls.getChildren().get(0);
 		Pair<TigerType, List<Pair<String, TigerType>>> funcInfo = symbolTable.getFunctions().get(((LeafNode)funcdecl.getChildren().get(1)).getToken().getToken());
-		if(!analyzeFunctionStmts(funcInfo, (RuleNode)funcdecl.getChildren().get(7)) && funcInfo.getKey() != null) {
-			throw new TigerParseException("Not all code paths return", ((LeafNode)funcdecl.getChildren().get(8)).getToken());
-		}
-		analyzeFunction((RuleNode)funcdecls.getChildren().get(1));
-	}
-	
-	private boolean analyzeFunctionStmts(Pair<TigerType, List<Pair<String, TigerType>>> funcInfo, RuleNode stmts) throws TigerParseException {
-		if(funcInfo == null) {
-			throw new IllegalStateException("funcInfo is null somehow...");
-		}
 		
 		HashMap<String, TigerType> funcVarTypes = new HashMap<>();
 		funcVarTypes.putAll(symbolTable.getVariables());
 		funcInfo.getValue().forEach((Pair<String, TigerType> p) -> funcVarTypes.put(p.getKey(), p.getValue()));
 		
-		RuleNode stmt = (RuleNode)((RuleNode)stmts.getChildren().get(0)).getChildren().get(0);
-		Node first = stmt.getChildren().get(0);
-		
-		boolean doesReturn = false;
-		
-		if(first instanceof LeafNode && ((LeafNode)first).getToken().getTokenClass() == TigerTokenClass.RETURN) {
-			TigerType returnType = getNumexprType((RuleNode)stmt.getChildren().get(1), funcVarTypes);
-			if(funcInfo.getKey() == null || !isTypeCompatibleAssign((funcInfo.getKey()), returnType)) {
-				throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
-			}
-			doesReturn = true;
-		} else {
-			analyzeStatement(stmt, funcVarTypes, funcInfo.getKey(), false);
+		if(!analyzeStatements((RuleNode)funcdecl.getChildren().get(7), funcVarTypes, funcInfo.getKey(), false) && funcInfo.getKey() != null) {
+			throw new TigerParseException("Not all code paths return", ((LeafNode)funcdecl.getChildren().get(8)).getToken());
 		}
-		
-		if(stmts.getChildren().size() > 1) {
-			doesReturn |= analyzeFunctionStmts(funcInfo, (RuleNode)stmts.getChildren().get(1));
-		}
-		
-		return doesReturn;
+		analyzeFunction((RuleNode)funcdecls.getChildren().get(1));
 	}
+
+
+//		RuleNode stmt = (RuleNode)((RuleNode)stmts.getChildren().get(0)).getChildren().get(0);
+//		Node first = stmt.getChildren().get(0);
+//		
+//		boolean doesReturn;
+//		
+//		if(first instanceof LeafNode && ((LeafNode)first).getToken().getTokenClass() == TigerTokenClass.RETURN) {
+//			TigerType returnType = getNumexprType((RuleNode)stmt.getChildren().get(1), funcVarTypes);
+//			if(funcInfo.getKey() == null || !isTypeCompatibleAssign((funcInfo.getKey()), returnType)) {
+//				throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
+//			}
+//			doesReturn = true;
+//		} else {
+//			doesReturn = analyzeStatement(stmt, funcVarTypes, funcInfo.getKey(), false);
+//		}
+//		
+//		if(stmts.getChildren().size() > 1) {
+//			if(doesReturn) {
+//				throw new TigerParseException("Dead code", getLeftmostLeaf((RuleNode)stmts.getChildren().get(1)));
+//			} else {
+//				doesReturn = analyzeFunctionStmts(funcInfo, (RuleNode)stmts.getChildren().get(1));
+//			}
+//		}
+//		
+//		return doesReturn;
 	
 	private void analyzeProgramStatements() throws TigerParseException {
 		analyzeStatements((RuleNode)ast.getChildren().get(3), symbolTable.getVariables(), null, false);
 	}
 	
-	private void analyzeStatements(RuleNode stmts, HashMap<String, TigerType> varTypes, TigerType returnValue, boolean insideLoop) throws TigerParseException {
+	private boolean analyzeStatements(RuleNode stmts, HashMap<String, TigerType> varTypes, TigerType returnValue, boolean insideLoop) throws TigerParseException {
 		ensureValue(stmts.getValue(), TigerProductionRule.STMTS);
 		
 		if(stmts.getChildren().size() == 0) {
-			return;
+			return false;
 		}
 		
 		RuleNode fullstmt = (RuleNode)stmts.getChildren().get(0);
 		ensureValue(fullstmt.getValue(), TigerProductionRule.FULLSTMT);
-		analyzeStatement((RuleNode)fullstmt.getChildren().get(0), varTypes, returnValue, insideLoop);
+		boolean doesReturn = analyzeStatement((RuleNode)fullstmt.getChildren().get(0), varTypes, returnValue, insideLoop);
 		
 		if(stmts.getChildren().size() > 1) {
-			analyzeStatements((RuleNode)stmts.getChildren().get(1), varTypes, returnValue, insideLoop);
+			if(doesReturn) {
+				throw new TigerParseException("Dead code", getLeftmostLeaf((RuleNode)stmts.getChildren().get(1)));
+			} else {
+				doesReturn = analyzeStatements((RuleNode)stmts.getChildren().get(1), varTypes, returnValue, insideLoop);
+			}
 		}
+		
+		return doesReturn;
 	}
 	
-	private void analyzeStatement(RuleNode stmt, HashMap<String, TigerType> varTypes, TigerType returnType, boolean insideLoop) throws TigerParseException {
+	private boolean analyzeStatement(RuleNode stmt, HashMap<String, TigerType> varTypes, TigerType returnType, boolean insideLoop) throws TigerParseException {
 		ensureValue(stmt.getValue(), TigerProductionRule.STMT);
 		
 		Node first = stmt.getChildren().get(0);
@@ -159,10 +165,11 @@ public class TigerAnalyzer {
 								throw new TigerParseException("Incompatible types", getLeftmostLeaf(numexpr));
 							}
 							
-							if(neexprs.getChildren().size() == 3)
+							if(neexprs.getChildren().size() == 3) {
 								neexprs = (RuleNode)neexprs.getChildren().get(2);
-							else
+							} else {
 								neexprs = null;
+							}
 						}
 					}
 					
@@ -176,18 +183,18 @@ public class TigerAnalyzer {
 			switch(firstLeaf.getToken().getTokenClass()) {
 				case IF:
 					analyzeBoolexpr((RuleNode)stmt.getChildren().get(1), varTypes);
-					analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, returnType, insideLoop);
+					boolean doesReturn = analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, returnType, insideLoop);
 					
 					if(((LeafNode)stmt.getChildren().get(4)).getToken().getTokenClass() == TigerTokenClass.ELSE) {
-						analyzeStatements((RuleNode)stmt.getChildren().get(5), varTypes, returnType, insideLoop);
+						doesReturn &= analyzeStatements((RuleNode)stmt.getChildren().get(5), varTypes, returnType, insideLoop);
+					} else {
+						doesReturn = false;
 					}
 					
-					break;
+					return doesReturn;
 				case WHILE:
 					analyzeBoolexpr((RuleNode)stmt.getChildren().get(1), varTypes);
-					analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, returnType, true);
-					
-					break;
+					return analyzeStatements((RuleNode)stmt.getChildren().get(3), varTypes, returnType, true);
 				case FOR:
 					TigerType idType = varTypes.get(((LeafNode)stmt.getChildren().get(1)).getToken().getToken());
 					if(idType == null) {
@@ -210,9 +217,7 @@ public class TigerAnalyzer {
 						throw new TigerParseException("Type of expression does not match type of iterating variable", getLeftmostLeaf((RuleNode)stmt.getChildren().get(5)));
 					}
 					
-					analyzeStatements((RuleNode)stmt.getChildren().get(7), varTypes, returnType, true);
-					
-					break;
+					return analyzeStatements((RuleNode)stmt.getChildren().get(7), varTypes, returnType, true);
 				case BREAK:
 					if(!insideLoop) {
 						throw new TigerParseException("Illegal break, not inside any loops", firstLeaf.getToken());
@@ -223,14 +228,18 @@ public class TigerAnalyzer {
 						throw new TigerParseException("Illegal return statement", firstLeaf.getToken());
 					}
 					
-					if(!isTypeCompatibleAssign(returnType, returnType)) {
+					TigerType type = getNumexprType((RuleNode)stmt.getChildren().get(1), varTypes);
+					
+					if(!isTypeCompatibleAssign(returnType, type)) {
 						throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
 					}
 					
-					break;
+					return true;
 				default:
 					throw new TigerParseException("Unexpected statement", firstLeaf.getToken());
 			}
 		}
+		
+		return false;
 	}
 }
