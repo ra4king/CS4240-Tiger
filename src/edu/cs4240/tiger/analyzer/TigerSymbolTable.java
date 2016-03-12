@@ -182,6 +182,9 @@ public class TigerSymbolTable {
 		functions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
 		functions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
 		functions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", TigerType.BOOL_TYPE))));
+		functions.put("readi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
+		functions.put("readf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));
+		functions.put("readb", new Pair<>(TigerType.BOOL_TYPE, Collections.emptyList()));
 	}
 	
 	private TigerType getBaseType(RuleNode typeNode) throws TigerParseException {

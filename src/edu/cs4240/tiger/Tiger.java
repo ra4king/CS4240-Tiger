@@ -3,8 +3,8 @@ package edu.cs4240.tiger;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Queue;
 
+import edu.cs4240.tiger.analyzer.TigerAnalyzer;
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser;
 import edu.cs4240.tiger.parser.TigerScanner;
@@ -16,7 +16,6 @@ import edu.cs4240.tiger.parser.TigerToken;
 public class Tiger {
 	private static void printUsage() {
 		System.out.println("Usage: java -jar parser.jar [--tokens] [--ast] sourceFile.tgr");
-		System.out.println("At least one of --tokens or --ast must be specified.");
 	}
 	
 	public static void main(String[] args) {
@@ -43,7 +42,7 @@ public class Tiger {
 			}
 		}
 		
-		if(source == null || (!printTokens && !printAST)) {
+		if(source == null) {
 			printUsage();
 			return;
 		}
@@ -51,6 +50,9 @@ public class Tiger {
 		TigerParser parser;
 		try {
 			parser = new TigerParser(new TigerScanner(new BufferedReader(new FileReader(source))));
+			
+			TigerAnalyzer analyzer = new TigerAnalyzer(parser.parse());
+			analyzer.run();
 		}
 		catch(IOException | TigerParseException exc) {
 			System.err.println("\n" + exc);
@@ -58,9 +60,7 @@ public class Tiger {
 		}
 		
 		if(printTokens) {
-			Queue<TigerToken> tokenQueue = parser.getTokenQueue();
-			for(TigerToken token; tokenQueue.size() > 0; ) {
-				token = tokenQueue.remove();
+			for(TigerToken token : parser.getTokens()) {
 				System.out.print(token.getToken() + " ");
 			}
 			System.out.println();

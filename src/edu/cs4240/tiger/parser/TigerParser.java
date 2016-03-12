@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -127,13 +128,13 @@ public class TigerParser {
 		symbolStack.push(TigerProductionRule.PROGRAM);
 	}
 	
-	public Queue<TigerToken> getTokenQueue() {
-		return new LinkedList<>(tokenQueue);
+	public List<TigerToken> getTokens() {
+		return Collections.unmodifiableList(new LinkedList<>(tokenQueue));
 	}
 	
 	public RuleNode parse() throws TigerParseException {
 		if(ast == null) {
-			ast = (RuleNode)parse(tokenQueue, symbolStack);
+			ast = (RuleNode)parse(new LinkedList<>(tokenQueue), symbolStack);
 			cleanupTails(ast);
 			cleanupRecursiveRules(ast);
 		}
