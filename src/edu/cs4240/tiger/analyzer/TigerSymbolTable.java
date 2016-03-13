@@ -25,6 +25,17 @@ public class TigerSymbolTable {
 	private HashMap<String, TigerType> typeAliases;
 	private HashMap<String, TigerType> variables;
 	private HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> functions;
+	public final static HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> builtInFunctions;
+	
+	static {
+		builtInFunctions = new HashMap<>();
+		builtInFunctions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
+		builtInFunctions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
+		builtInFunctions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", TigerType.BOOL_TYPE))));
+		builtInFunctions.put("readi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
+		builtInFunctions.put("readf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));
+		builtInFunctions.put("readb", new Pair<>(TigerType.BOOL_TYPE, Collections.emptyList()));
+	}
 	
 	public TigerSymbolTable(RuleNode ast) throws TigerParseException {
 		this.ast = ast;
@@ -66,7 +77,7 @@ public class TigerSymbolTable {
 		buildVardecls((RuleNode)declseg.get(1));
 		buildFuncdecls((RuleNode)declseg.get(2));
 		
-		addSpecialFunctions();
+		functions.putAll(builtInFunctions);
 	}
 	
 	private void buildTypedecls(RuleNode typedecls) throws TigerParseException {
@@ -145,6 +156,10 @@ public class TigerSymbolTable {
 		RuleNode params = (RuleNode)funcdecl.getChildren().get(3);
 		RuleNode optrettype = (RuleNode)funcdecl.getChildren().get(5);
 		
+		if(builtInFunctions.get(id.getToken()) != null) {
+			throw new TigerParseException("Cannot redeclare built-in function", id);
+		}
+		
 		if(functions.get(id.getToken()) != null) {
 			throw new TigerParseException("Function previously declared", id);
 		}
@@ -195,15 +210,6 @@ public class TigerSymbolTable {
 				}
 			}
 		}
-	}
-	
-	private void addSpecialFunctions() {
-		functions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
-		functions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
-		functions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", TigerType.BOOL_TYPE))));
-		functions.put("readi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
-		functions.put("readf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));
-		functions.put("readb", new Pair<>(TigerType.BOOL_TYPE, Collections.emptyList()));
 	}
 	
 	private TigerType getBaseType(RuleNode typeNode) throws TigerParseException {
