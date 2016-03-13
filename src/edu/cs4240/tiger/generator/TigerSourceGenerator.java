@@ -91,7 +91,7 @@ public class TigerSourceGenerator {
 		}
 		
 		if(depth == -1) {
-			depth = (int)(rng.nextDouble() * 20 + 5);
+			depth = rng.nextInt(20) + 5;
 		}
 		
 		specialTokenClasses = new HashMap<>();
@@ -155,7 +155,7 @@ public class TigerSourceGenerator {
 					if(production == null) {
 						int trycount = 3;
 						while(trycount-- > 0) {
-							int idx = (int)(rng.nextDouble() * rule.productions.size());
+							int idx = rng.nextInt(rule.productions.size());
 							production = rule.productions.get(idx);
 							
 							if(production.get(0) != TigerTokenClass.EPSILON) {
@@ -191,7 +191,7 @@ public class TigerSourceGenerator {
 		}
 		
 		if(symbol == TigerTokenClass.INTLIT) {
-			return String.valueOf((int)(rng.nextDouble() * 1000));
+			return String.valueOf(rng.nextInt(1000));
 		}
 		
 		if(symbol == TigerTokenClass.FLOATLIT) {
@@ -209,13 +209,13 @@ public class TigerSourceGenerator {
 	}
 	
 	private static char generateIDChar() {
-		switch((int)(rng.nextDouble() * 4)) {
+		switch(rng.nextInt(4)) {
 			case 0:
-				return (char)((rng.nextDouble() * ('z' - 'a')) + 'a');
+				return (char)(rng.nextInt('z' - 'a') + 'a');
 			case 1:
-				return Character.toUpperCase((char)((rng.nextDouble() * ('z' - 'a')) + 'a'));
+				return Character.toUpperCase((char)(rng.nextInt('z' - 'a') + 'a'));
 			case 2:
-				return (char)((rng.nextDouble() * ('9' - '0')) + '0');
+				return (char)(rng.nextInt('9' - '0') + '0');
 			default:
 				return '_';
 		}
@@ -242,7 +242,7 @@ public class TigerSourceGenerator {
 		}
 		
 		do {
-			int len = (int)(rng.nextDouble() * 5) + 3;
+			int len = rng.nextInt(5) + 3;
 			for(int i = 0; i < len; i++) {
 				id += generateIDChar();
 			}
