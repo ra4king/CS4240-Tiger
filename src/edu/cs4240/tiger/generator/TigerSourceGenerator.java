@@ -2,7 +2,6 @@ package edu.cs4240.tiger.generator;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -21,9 +20,6 @@ import edu.cs4240.tiger.util.Utils;
 public class TigerSourceGenerator {
 	private static final String version = "1.0.2";
 	
-	private static Random rng;
-	private static HashMap<TigerTokenClass, String> specialTokenClasses;
-	
 	private static void printUsage() {
 		System.out.println("Tiger Source Generator " + version + " by Roi Atalla\n");
 		System.out.println("Usage:");
@@ -39,6 +35,8 @@ public class TigerSourceGenerator {
 		int depth = -1;
 		long seed = System.nanoTime();
 		boolean verbose = false;
+		
+		Random rng = null;
 		
 		try {
 			for(int i = 0; i < args.length; i++) {
@@ -94,35 +92,11 @@ public class TigerSourceGenerator {
 			depth = rng.nextInt(20) + 5;
 		}
 		
-		specialTokenClasses = new HashMap<>();
-		specialTokenClasses.put(TigerTokenClass.EPSILON, "ϵ");
-		specialTokenClasses.put(TigerTokenClass.COMMA, ",");
-		specialTokenClasses.put(TigerTokenClass.COLON, ":");
-		specialTokenClasses.put(TigerTokenClass.SEMICOLON, ";");
-		specialTokenClasses.put(TigerTokenClass.LPAREN, "(");
-		specialTokenClasses.put(TigerTokenClass.RPAREN, ")");
-		specialTokenClasses.put(TigerTokenClass.LBRACKET, "[");
-		specialTokenClasses.put(TigerTokenClass.RBRACKET, "]");
-		specialTokenClasses.put(TigerTokenClass.DOT, ".");
-		specialTokenClasses.put(TigerTokenClass.PLUS, "+");
-		specialTokenClasses.put(TigerTokenClass.MINUS, "-");
-		specialTokenClasses.put(TigerTokenClass.MULT, "*");
-		specialTokenClasses.put(TigerTokenClass.DIV, "/");
-		specialTokenClasses.put(TigerTokenClass.EQUAL, "=");
-		specialTokenClasses.put(TigerTokenClass.NOTEQUAL, "<>");
-		specialTokenClasses.put(TigerTokenClass.LT, "<");
-		specialTokenClasses.put(TigerTokenClass.GT, ">");
-		specialTokenClasses.put(TigerTokenClass.LEQUAL, "<=");
-		specialTokenClasses.put(TigerTokenClass.GEQUAL, ">=");
-		specialTokenClasses.put(TigerTokenClass.AMP, "&");
-		specialTokenClasses.put(TigerTokenClass.PIPE, "|");
-		specialTokenClasses.put(TigerTokenClass.ASSIGN, ":=");
-		
 		Deque<TigerSymbol> symbolStack = new ArrayDeque<>();
 		symbolStack.add(TigerProductionRule.PROGRAM);
 		
 		long before = System.nanoTime();
-		Node program = generate(depth, symbolStack);
+		Node program = generate(rng, depth, symbolStack);
 		long time = System.nanoTime() - before;
 		
 		if(verbose) {
@@ -133,7 +107,7 @@ public class TigerSourceGenerator {
 		System.out.println(Utils.stringify(0, program));
 	}
 	
-	public static Node generate(int limit, Deque<TigerSymbol> symbolStack) {
+	public static Node generate(Random rng, int limit, Deque<TigerSymbol> symbolStack) {
 		TigerSymbol symbol = symbolStack.pop();
 		
 		if(symbol instanceof TigerProductionRule) {
@@ -172,7 +146,7 @@ public class TigerSourceGenerator {
 					}
 					
 					while(!newSymbolStack.isEmpty()) {
-						node.getChildren().add(generate(limit - 1, newSymbolStack));
+						node.getChildren().add(generate(rng, limit - 1, newSymbolStack));
 					}
 					
 					return node;
@@ -181,13 +155,13 @@ public class TigerSourceGenerator {
 				}
 			}
 		} else {
-			return new LeafNode(new TigerToken((TigerTokenClass)symbol, generateTokenString((TigerTokenClass)symbol), "", 0, 0));
+			return new LeafNode(new TigerToken((TigerTokenClass)symbol, generateTokenString(rng, (TigerTokenClass)symbol), "", 0, 0));
 		}
 	}
 	
-	private static String generateTokenString(TigerTokenClass symbol) {
+	private static String generateTokenString(Random rng, TigerTokenClass symbol) {
 		if(symbol == TigerTokenClass.ID) {
-			return generateID();
+			return generateID(rng);
 		}
 		
 		if(symbol == TigerTokenClass.INTLIT) {
@@ -200,7 +174,7 @@ public class TigerSourceGenerator {
 		
 		String token;
 		
-		token = specialTokenClasses.get(symbol);
+		token = Utils.specialTokenClassesToString.get(symbol);
 		if(token != null) {
 			return token;
 		}
@@ -208,7 +182,7 @@ public class TigerSourceGenerator {
 		return symbol.toString().replace("_", "").toLowerCase();
 	}
 	
-	private static char generateIDChar() {
+	private static char generateIDChar(Random rng) {
 		switch(rng.nextInt(4)) {
 			case 0:
 				return (char)(rng.nextInt('z' - 'a') + 'a');
@@ -221,7 +195,7 @@ public class TigerSourceGenerator {
 		}
 	}
 	
-	private static String generateID() {
+	private static String generateID(Random rng) {
 		String id = "";
 		
 		if(rng.nextBoolean()) {
@@ -231,12 +205,12 @@ public class TigerSourceGenerator {
 				id += "_";
 			
 			char c;
-			while((c = generateIDChar()) == '_') ;
+			while((c = generateIDChar(rng)) == '_') ;
 			
 			id += c;
 		} else {
 			char c;
-			while(Character.isDigit(c = generateIDChar()) || c == '_') ;
+			while(Character.isDigit(c = generateIDChar(rng)) || c == '_') ;
 			
 			id += c;
 		}
@@ -244,7 +218,7 @@ public class TigerSourceGenerator {
 		do {
 			int len = rng.nextInt(5) + 3;
 			for(int i = 0; i < len; i++) {
-				id += generateIDChar();
+				id += generateIDChar(rng);
 			}
 			
 			try {

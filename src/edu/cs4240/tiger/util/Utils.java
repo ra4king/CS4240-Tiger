@@ -1,5 +1,7 @@
 package edu.cs4240.tiger.util;
 
+import java.util.HashMap;
+
 import edu.cs4240.tiger.parser.TigerParser.LeafNode;
 import edu.cs4240.tiger.parser.TigerParser.Node;
 import edu.cs4240.tiger.parser.TigerParser.RuleNode;
@@ -11,6 +13,59 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class Utils {
+	public static final HashMap<TigerTokenClass, String> specialTokenClassesToString;
+	public static final HashMap<String, TigerTokenClass> specialTokenStringToClasses;
+	
+	static {
+		specialTokenClassesToString = new HashMap<>();
+		specialTokenClassesToString.put(TigerTokenClass.EPSILON, "ϵ");
+		specialTokenClassesToString.put(TigerTokenClass.COMMA, ",");
+		specialTokenClassesToString.put(TigerTokenClass.COLON, ":");
+		specialTokenClassesToString.put(TigerTokenClass.SEMICOLON, ";");
+		specialTokenClassesToString.put(TigerTokenClass.LPAREN, "(");
+		specialTokenClassesToString.put(TigerTokenClass.RPAREN, ")");
+		specialTokenClassesToString.put(TigerTokenClass.LBRACKET, "[");
+		specialTokenClassesToString.put(TigerTokenClass.RBRACKET, "]");
+		specialTokenClassesToString.put(TigerTokenClass.DOT, ".");
+		specialTokenClassesToString.put(TigerTokenClass.PLUS, "+");
+		specialTokenClassesToString.put(TigerTokenClass.MINUS, "-");
+		specialTokenClassesToString.put(TigerTokenClass.MULT, "*");
+		specialTokenClassesToString.put(TigerTokenClass.DIV, "/");
+		specialTokenClassesToString.put(TigerTokenClass.EQUAL, "=");
+		specialTokenClassesToString.put(TigerTokenClass.NOTEQUAL, "<>");
+		specialTokenClassesToString.put(TigerTokenClass.LT, "<");
+		specialTokenClassesToString.put(TigerTokenClass.GT, ">");
+		specialTokenClassesToString.put(TigerTokenClass.LEQUAL, "<=");
+		specialTokenClassesToString.put(TigerTokenClass.GEQUAL, ">=");
+		specialTokenClassesToString.put(TigerTokenClass.AMP, "&");
+		specialTokenClassesToString.put(TigerTokenClass.PIPE, "|");
+		specialTokenClassesToString.put(TigerTokenClass.ASSIGN, ":=");
+		
+		specialTokenStringToClasses = new HashMap<>();
+		specialTokenStringToClasses.put("ϵ", TigerTokenClass.EPSILON);
+		specialTokenStringToClasses.put(",", TigerTokenClass.COMMA);
+		specialTokenStringToClasses.put(":", TigerTokenClass.COLON);
+		specialTokenStringToClasses.put(";", TigerTokenClass.SEMICOLON);
+		specialTokenStringToClasses.put("(", TigerTokenClass.LPAREN);
+		specialTokenStringToClasses.put(")", TigerTokenClass.RPAREN);
+		specialTokenStringToClasses.put("[", TigerTokenClass.LBRACKET);
+		specialTokenStringToClasses.put("]", TigerTokenClass.RBRACKET);
+		specialTokenStringToClasses.put(".", TigerTokenClass.DOT);
+		specialTokenStringToClasses.put("+", TigerTokenClass.PLUS);
+		specialTokenStringToClasses.put("-", TigerTokenClass.MINUS);
+		specialTokenStringToClasses.put("*", TigerTokenClass.MULT);
+		specialTokenStringToClasses.put("/", TigerTokenClass.DIV);
+		specialTokenStringToClasses.put("=", TigerTokenClass.EQUAL);
+		specialTokenStringToClasses.put("<>", TigerTokenClass.NOTEQUAL);
+		specialTokenStringToClasses.put("<", TigerTokenClass.LT);
+		specialTokenStringToClasses.put(">", TigerTokenClass.GT);
+		specialTokenStringToClasses.put("<=", TigerTokenClass.LEQUAL);
+		specialTokenStringToClasses.put(">=", TigerTokenClass.GEQUAL);
+		specialTokenStringToClasses.put("&", TigerTokenClass.AMP);
+		specialTokenStringToClasses.put("|", TigerTokenClass.PIPE);
+		specialTokenStringToClasses.put(":=", TigerTokenClass.ASSIGN);
+	}
+	
 	public static <T> void ensureValue(T value, T expected) {
 		if(value != expected) {
 			throw new IllegalArgumentException("Expected " + expected + ", received " + value);

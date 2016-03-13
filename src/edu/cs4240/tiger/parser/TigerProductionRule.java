@@ -4,8 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
+import edu.cs4240.tiger.util.Utils;
 
 /**
  * @author Roi Atalla
@@ -57,8 +58,6 @@ public enum TigerProductionRule implements TigerSymbol {
 	
 	public final List<List<TigerSymbol>> productions = new ArrayList<>();
 	
-	private static HashMap<String, TigerTokenClass> specialTokenClasses = new HashMap<>();
-	
 	public static String printRule(TigerProductionRule rule, List<TigerSymbol> symbols) {
 		char arrow = '→';
 		char eps = 'ϵ';
@@ -69,13 +68,8 @@ public enum TigerProductionRule implements TigerSymbol {
 			s += " " + eps;
 		} else {
 			for(TigerSymbol c : symbols) {
-				if(c instanceof TigerTokenClass && specialTokenClasses.containsValue(c)) {
-					for(String token : specialTokenClasses.keySet()) {
-						if(specialTokenClasses.get(token) == c) {
-							s += " " + token;
-							break;
-						}
-					}
+				if(c instanceof TigerTokenClass && Utils.specialTokenClassesToString.containsKey(c)) {
+					s += " " + Utils.specialTokenClassesToString.get(c);
 				} else {
 					s += " " + c.toString().toLowerCase();
 				}
@@ -90,29 +84,6 @@ public enum TigerProductionRule implements TigerSymbol {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(TigerProductionRule.class.getResourceAsStream("ProductionRules.txt"), "UTF-8"));
 			
 			char arrow = '→';
-			
-			specialTokenClasses.put("ϵ", TigerTokenClass.EPSILON);
-			specialTokenClasses.put(",", TigerTokenClass.COMMA);
-			specialTokenClasses.put(":", TigerTokenClass.COLON);
-			specialTokenClasses.put(";", TigerTokenClass.SEMICOLON);
-			specialTokenClasses.put("(", TigerTokenClass.LPAREN);
-			specialTokenClasses.put(")", TigerTokenClass.RPAREN);
-			specialTokenClasses.put("[", TigerTokenClass.LBRACKET);
-			specialTokenClasses.put("]", TigerTokenClass.RBRACKET);
-			specialTokenClasses.put(".", TigerTokenClass.DOT);
-			specialTokenClasses.put("+", TigerTokenClass.PLUS);
-			specialTokenClasses.put("-", TigerTokenClass.MINUS);
-			specialTokenClasses.put("*", TigerTokenClass.MULT);
-			specialTokenClasses.put("/", TigerTokenClass.DIV);
-			specialTokenClasses.put("=", TigerTokenClass.EQUAL);
-			specialTokenClasses.put("<>", TigerTokenClass.NOTEQUAL);
-			specialTokenClasses.put("<", TigerTokenClass.LT);
-			specialTokenClasses.put(">", TigerTokenClass.GT);
-			specialTokenClasses.put("<=", TigerTokenClass.LEQUAL);
-			specialTokenClasses.put(">=", TigerTokenClass.GEQUAL);
-			specialTokenClasses.put("&", TigerTokenClass.AMP);
-			specialTokenClasses.put("|", TigerTokenClass.PIPE);
-			specialTokenClasses.put(":=", TigerTokenClass.ASSIGN);
 			
 			String s;
 			while((s = reader.readLine()) != null) {
@@ -140,7 +111,7 @@ public enum TigerProductionRule implements TigerSymbol {
 						continue;
 					}
 					
-					TigerTokenClass specialChar = specialTokenClasses.get(symbol);
+					TigerTokenClass specialChar = Utils.specialTokenStringToClasses.get(symbol);
 					if(specialChar != null) {
 						production.add(specialChar);
 						continue;
