@@ -149,12 +149,10 @@ public class TigerSymbolTable {
 			throw new TigerParseException("Function previously declared", id);
 		}
 		
-		List<Pair<String, TigerType>> argumentTypes;
+		ArrayList<Pair<String, TigerType>> argumentTypes = new ArrayList<>();
 		
 		if(params.getChildren().size() == 1) {
-			argumentTypes = buildFuncArgs((RuleNode)params.getChildren().get(0));
-		} else {
-			argumentTypes = new ArrayList<>();
+			buildFuncArgs((RuleNode)params.getChildren().get(0), argumentTypes);
 		}
 		
 		if(optrettype.getChildren().size() != 0) {
@@ -167,10 +165,8 @@ public class TigerSymbolTable {
 		buildFuncdecls((RuleNode)funcdecls.getChildren().get(1));
 	}
 	
-	private List<Pair<String, TigerType>> buildFuncArgs(RuleNode params) throws TigerParseException {
+	private void buildFuncArgs(RuleNode params, List<Pair<String, TigerType>> argumentTypes) throws TigerParseException {
 		ensureValue(params.getValue(), TigerProductionRule.NEPARAMS);
-		
-		ArrayList<Pair<String, TigerType>> argumentTypes = new ArrayList<>();
 		
 		for(Node child : params.getChildren()) {
 			if(child instanceof RuleNode) {
@@ -178,15 +174,19 @@ public class TigerSymbolTable {
 				
 				switch(ruleNode.getValue()) {
 					case NEPARAMS:
-						argumentTypes.addAll(buildFuncArgs((RuleNode)child));
+						buildFuncArgs((RuleNode)child, argumentTypes);
 						break;
 					case PARAM:
 						TigerToken id = ((LeafNode)ruleNode.getChildren().get(0)).getToken();
-						if(id.getTokenClass() != TigerTokenClass.ID) {
-							throw new IllegalArgumentException("Expecting ID, received " + id.getTokenClass());
-						}
+						ensureValue(id.getTokenClass(), TigerTokenClass.ID);
 						
 						TigerType type = getBaseType((RuleNode)ruleNode.getChildren().get(2));
+						
+						for(Pair<String, TigerType> pair : argumentTypes) {
+							if(pair.getKey().equals(id.getToken())) {
+								throw new TigerParseException("Argument previously declared", id);
+							}
+						}
 						
 						argumentTypes.add(new Pair<>(id.getToken(), type));
 						break;
@@ -195,8 +195,6 @@ public class TigerSymbolTable {
 				}
 			}
 		}
-		
-		return argumentTypes;
 	}
 	
 	private void addSpecialFunctions() {
