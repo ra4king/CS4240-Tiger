@@ -175,7 +175,7 @@ public class TigerAnalyzer {
 				case FOR:
 					TigerType idType = varTypes.get(((LeafNode)stmt.getChildren().get(1)).getToken().getToken());
 					if(idType == null) {
-						throw new TigerParseException("Undeclared variable", firstLeaf.getToken());
+						throw new TigerParseException("Undeclared variable", ((LeafNode)stmt.getChildren().get(1)).getToken());
 					}
 					
 					if(!idType.equals(TigerType.INT_TYPE)) {
@@ -210,7 +210,7 @@ public class TigerAnalyzer {
 					TigerType type = getNumexprType((RuleNode)stmt.getChildren().get(1), varTypes);
 					
 					if(!isTypeCompatibleAssign(returnType, type)) {
-						throw new TigerParseException("Type of returned expression does not match return type", ((LeafNode)first).getToken());
+						throw new TigerParseException("Type of returned expression does not match return type", getLeftmostLeaf((RuleNode)stmt.getChildren().get(1)));
 					}
 					
 					return new Pair<>(true, false);

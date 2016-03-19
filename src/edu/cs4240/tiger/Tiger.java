@@ -14,8 +14,15 @@ import edu.cs4240.tiger.parser.TigerToken;
  * @author Roi Atalla
  */
 public class Tiger {
+	private static final String VERSION = "1.0.1";
+	
 	private static void printUsage() {
+		System.out.println("Tiger Compiler v" + VERSION + " by Roi Atalla.\n");
 		System.out.println("Usage: java -jar parser.jar [--tokens] [--ast] sourceFile.tgr");
+		System.out.println("--tokens     prints a space-separated list of tokens");
+		System.out.println("--ast        prints s-expression of the AST");
+		System.out.println("--help  -h   prints this help message");
+		System.out.println();
 	}
 	
 	public static void main(String[] args) {
@@ -36,6 +43,10 @@ public class Tiger {
 				case "--ast":
 					printAST = true;
 					break;
+				case "-h":
+				case "--help":
+					printUsage();
+					return;
 				default:
 					source = s;
 					break;
@@ -54,8 +65,12 @@ public class Tiger {
 			TigerAnalyzer analyzer = new TigerAnalyzer(parser.parse());
 			analyzer.run();
 		}
-		catch(IOException | TigerParseException exc) {
-			System.err.println("\n" + exc);
+		catch(IOException exc) {
+			System.err.println("Failed to open file " + source);
+			return;
+		}
+		catch(TigerParseException exc) {
+			System.err.println(exc.toString());
 			return;
 		}
 		
@@ -71,7 +86,7 @@ public class Tiger {
 				System.out.println(parser.parse());
 			}
 			catch(TigerParseException exc) {
-				System.err.println("\n" + exc);
+				System.err.println(exc);
 			}
 		}
 	}
