@@ -15,6 +15,7 @@ public class TigerSourceGenerator {
 		System.out.println("Tiger Source Generator " + version + " by Roi Atalla\n");
 		System.out.println("Usage:");
 		System.out.println("-h,   --help      Prints this message.");
+		System.out.println("-c    --correct   Generates semantically correct code. By default generates absolute random code.");
 		System.out.println("-d N, --depth N   Set maximum rule depth. N must be a positive integer.");
 		System.out.println("                  If not specified, one is chosen randomly in range [5,25).");
 		System.out.println("-s L, --seed L    Set RNG seed value. L can be any long.");
@@ -25,6 +26,7 @@ public class TigerSourceGenerator {
 	public static void main(String[] args) {
 		int depth = -1;
 		long seed = System.nanoTime();
+		boolean correct = false;
 		boolean verbose = false;
 		
 		Random rng = null;
@@ -36,6 +38,10 @@ public class TigerSourceGenerator {
 					case "--help":
 						printUsage();
 						return;
+					case "-c":
+					case "--correct":
+						correct = true;
+						break;
 					case "-d":
 					case "--depth":
 						if(++i == args.length || depth != -1) {
@@ -89,7 +95,12 @@ public class TigerSourceGenerator {
 		}
 		
 		long before = System.nanoTime();
-		Node program = SemanticallyCorrectTigerGenerator.generate(rng, depth);
+		Node program;
+		if(correct) {
+			program = SemanticallyCorrectTigerGenerator.generate(rng, depth);
+		} else {
+			program = RandomTigerGenerator.generate(rng, depth);
+		}
 		long time = System.nanoTime() - before;
 		
 		System.out.printf(" in %.3f ms\n\n", time / 1e6);
