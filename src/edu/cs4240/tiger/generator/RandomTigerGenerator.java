@@ -49,10 +49,17 @@ public class RandomTigerGenerator {
 							int idx = rng.nextInt(rule.productions.size());
 							production = rule.productions.get(idx);
 							
-							if(production.get(0) != TigerTokenClass.EPSILON) {
+							// Rule 52 exception
+							if(rule == TigerProductionRule.PRED && production.get(0) == TigerTokenClass.LPAREN) {
+								trycount++;
+							} else if(production.get(0) != TigerTokenClass.EPSILON) {
 								break;
 							}
 						}
+					}
+					
+					if(production == null) {
+						continue;
 					}
 					
 					RuleNode node = new RuleNode(rule);
