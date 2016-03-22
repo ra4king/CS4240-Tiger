@@ -9,10 +9,10 @@ import edu.cs4240.tiger.util.Utils;
  * @author Roi Atalla
  */
 public class TigerSourceGenerator {
-	private static final String version = "1.1.1";
+	private static final String VERSION = "1.1.1";
 	
 	private static void printUsage() {
-		System.out.println("Tiger Source Generator " + version + " by Roi Atalla\n");
+		System.out.println("Tiger Source Generator v" + VERSION + " by Roi Atalla\n");
 		System.out.println("Usage:");
 		System.out.println("-h,   --help      Prints this message.");
 		System.out.println("-c    --correct   Generates semantically correct code. By default generates absolute random code.");
@@ -89,11 +89,6 @@ public class TigerSourceGenerator {
 			depth = rng.nextInt(10) + 5;
 		}
 		
-		if(!verbose) {
-			System.out.println("// Tiger Source Generator " + version + " by Roi Atalla");
-			System.out.printf("// Generated Tiger program with depth=%d and seed=%d", depth, seed);
-		}
-		
 		long before = System.nanoTime();
 		Node program;
 		if(correct) {
@@ -103,7 +98,10 @@ public class TigerSourceGenerator {
 		}
 		long time = System.nanoTime() - before;
 		
-		System.out.printf(" in %.3f ms\n\n", time / 1e6);
+		if(verbose) {
+			System.out.println("// Tiger Source Generator v" + VERSION + " by Roi Atalla");
+			System.out.printf("// Generated Tiger program with depth=%d and seed=%d in %.3f ms\n\n", depth, seed, time / 1e6);
+		}
 		
 		System.out.println(Utils.stringify(0, program));
 	}

@@ -51,8 +51,6 @@ public class SemanticallyCorrectTigerGenerator {
 		declsegNode.getChildren().add(generateVars(rng, limit - 1, typeAliases, varTypes));
 		declsegNode.getChildren().add(generateFuncs(rng, limit - 1, typeAliases, varTypes, funcTypes));
 		
-		System.out.print(" " + typeAliases + " " + varTypes + " " + funcTypes);
-		
 		return declsegNode;
 	}
 	
