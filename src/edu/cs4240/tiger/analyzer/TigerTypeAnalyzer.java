@@ -189,11 +189,11 @@ public class TigerTypeAnalyzer {
 			LeafNode firstLeaf = (LeafNode)first;
 			
 			switch(firstLeaf.getToken().getTokenClass()) {
-				case ID:
-					if(!TigerType.BOOL_TYPE.equals(varTypes.get(firstLeaf.getToken().getToken()))) {
-						throw new TigerParseException("Not a boolean type", firstLeaf.getToken());
-					}
-					break;
+//				case ID:
+//					if(!TigerType.BOOL_TYPE.equals(varTypes.get(firstLeaf.getToken().getToken()))) {
+//						throw new TigerParseException("Not a boolean type", firstLeaf.getToken());
+//					}
+//					break;
 				case LPAREN:
 					analyzeBoolexpr((RuleNode)pred.getChildren().get(1), varTypes);
 					break;

@@ -111,7 +111,6 @@ public class TigerParser {
 	
 	private RuleNode ast;
 	private Queue<TigerToken> tokenQueue;
-	private Deque<TigerSymbol> symbolStack;
 	
 	public TigerParser(TigerScanner scanner) throws IOException, TigerParseException {
 		tokenQueue = new LinkedList<>();
@@ -123,9 +122,10 @@ public class TigerParser {
 			}
 			tokenQueue.offer(token);
 		}
-		
-		symbolStack = new ArrayDeque<>();
-		symbolStack.push(TigerProductionRule.PROGRAM);
+	}
+	
+	public TigerParser(Queue<TigerToken> tokenQueue) {
+		this.tokenQueue = tokenQueue;
 	}
 	
 	public List<TigerToken> getTokens() {
@@ -134,6 +134,9 @@ public class TigerParser {
 	
 	public RuleNode parse() throws TigerParseException {
 		if(ast == null) {
+			ArrayDeque<TigerSymbol> symbolStack = new ArrayDeque<>();
+			symbolStack.push(TigerProductionRule.PROGRAM);
+			
 			ast = (RuleNode)parse(new LinkedList<>(tokenQueue), symbolStack);
 			cleanupTails(ast);
 			cleanupRecursiveRules(ast);

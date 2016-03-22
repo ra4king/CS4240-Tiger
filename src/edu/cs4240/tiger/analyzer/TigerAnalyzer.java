@@ -34,7 +34,9 @@ public class TigerAnalyzer {
 	}
 	
 	private void analyzeFunctions() throws TigerParseException {
-		analyzeFunction((RuleNode)((RuleNode)ast.getChildren().get(1)).getChildren().get(2));
+		if(((RuleNode)ast.getChildren().get(1)).getChildren().size() > 0) {
+			analyzeFunction((RuleNode)((RuleNode)ast.getChildren().get(1)).getChildren().get(2));
+		}
 	}
 	
 	private void analyzeFunction(RuleNode funcdecls) throws TigerParseException {

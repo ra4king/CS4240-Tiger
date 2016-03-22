@@ -164,6 +164,17 @@ public class Utils {
 	
 	private static boolean addWhitespace(TigerTokenClass tokenClass) {
 		switch(tokenClass) {
+			case LET:
+			case TYPE_:
+			case FUNC:
+			case VAR:
+			case IN:
+			case END:
+			case IF:
+			case WHILE:
+			case FOR:
+			case BREAK:
+			case RETURN:
 			case COMMA:
 			case SEMICOLON:
 				return false;

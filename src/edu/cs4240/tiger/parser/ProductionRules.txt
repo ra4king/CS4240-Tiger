@@ -5,7 +5,6 @@ typedecls → typedecl typedecls
 typedecl → type_ id := type ;
 type → int
 type → float
-type → bool
 type → id
 type → array [ intlit ] of type
 vardecls → ϵ
@@ -57,8 +56,6 @@ clause → pred clause_tail
 clause_tail → ϵ
 clause_tail → & clause
 pred → numexpr boolop numexpr
-pred → id
-pred → ( boolexpr )
 boolop → =
 boolop → <>
 boolop → <=
@@ -77,10 +74,8 @@ nonlinop → *
 nonlinop → /
 factor → const
 factor → id factor_tail
+factor → ( numexpr )
 factor_tail → ϵ
 factor_tail → [ numexpr ]
-factor → ( numexpr )
 const → intlit
 const → floatlit
-const → true
-const → false

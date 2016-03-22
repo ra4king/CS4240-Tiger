@@ -31,10 +31,8 @@ public class TigerSymbolTable {
 		builtInFunctions = new HashMap<>();
 		builtInFunctions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
 		builtInFunctions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
-		builtInFunctions.put("printb", new Pair<>(null, Collections.singletonList(new Pair<>("b", TigerType.BOOL_TYPE))));
 		builtInFunctions.put("readi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
 		builtInFunctions.put("readf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));
-		builtInFunctions.put("readb", new Pair<>(TigerType.BOOL_TYPE, Collections.emptyList()));
 	}
 	
 	public TigerSymbolTable(RuleNode ast) throws TigerParseException {
@@ -73,9 +71,11 @@ public class TigerSymbolTable {
 		functions = new HashMap<>();
 		
 		List<Node> declseg = ((RuleNode)ast.getChildren().get(1)).getChildren();
-		buildTypedecls((RuleNode)declseg.get(0));
-		buildVardecls((RuleNode)declseg.get(1));
-		buildFuncdecls((RuleNode)declseg.get(2));
+		if(declseg.size() > 0) {
+			buildTypedecls((RuleNode)declseg.get(0));
+			buildVardecls((RuleNode)declseg.get(1));
+			buildFuncdecls((RuleNode)declseg.get(2));
+		}
 		
 		functions.putAll(builtInFunctions);
 	}

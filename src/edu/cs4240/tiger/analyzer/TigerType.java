@@ -10,13 +10,11 @@ public class TigerType {
 	public enum Type {
 		INT,
 		FLOAT,
-		BOOL,
 		ARRAY
 	}
 	
 	public static final TigerType INT_TYPE = new TigerType(Type.INT);
 	public static final TigerType FLOAT_TYPE = new TigerType(Type.FLOAT);
-	public static final TigerType BOOL_TYPE = new TigerType(Type.BOOL);
 	
 	public final Type type;
 	
@@ -41,15 +39,17 @@ public class TigerType {
 		if(token.getTokenClass() == TigerTokenClass.FLOAT || token.getTokenClass() == TigerTokenClass.FLOATLIT) {
 			return FLOAT_TYPE;
 		}
-		if(token.getTokenClass() == TigerTokenClass.BOOL || token.getTokenClass() == TigerTokenClass.TRUE || token.getTokenClass() == TigerTokenClass.FALSE) {
-			return BOOL_TYPE;
-		}
 		
 		throw new IllegalArgumentException("Argument is not a literal.");
 	}
 	
 	public static boolean isNumericType(TigerType type) {
 		return type.equals(TigerType.INT_TYPE) || type.equals(TigerType.FLOAT_TYPE);
+	}
+	
+	@Override
+	public String toString() {
+		return type.toString();
 	}
 	
 	public static class TigerArrayType extends TigerType {
@@ -68,6 +68,11 @@ public class TigerType {
 			}
 			
 			return false;
+		}
+		
+		@Override
+		public String toString() {
+			return super.toString() + " of " + subtype.toString();
 		}
 	}
 }

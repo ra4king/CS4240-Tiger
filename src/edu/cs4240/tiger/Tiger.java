@@ -61,9 +61,6 @@ public class Tiger {
 		TigerParser parser;
 		try {
 			parser = new TigerParser(new TigerScanner(new BufferedReader(new FileReader(source))));
-			
-			TigerAnalyzer analyzer = new TigerAnalyzer(parser.parse());
-			analyzer.run();
 		}
 		catch(IOException exc) {
 			System.err.println("Failed to open file " + source);
@@ -86,8 +83,16 @@ public class Tiger {
 				System.out.println(parser.parse());
 			}
 			catch(TigerParseException exc) {
-				System.err.println(exc);
+				System.err.println(exc.toString());
 			}
+		}
+		
+		try {
+			TigerAnalyzer analyzer = new TigerAnalyzer(parser.parse());
+			analyzer.run();
+		}
+		catch(TigerParseException exc) {
+			System.err.println(exc.toString());
 		}
 	}
 }
