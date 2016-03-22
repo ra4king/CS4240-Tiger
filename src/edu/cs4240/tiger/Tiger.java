@@ -14,7 +14,7 @@ import edu.cs4240.tiger.parser.TigerToken;
  * @author Roi Atalla
  */
 public class Tiger {
-	private static final String VERSION = "1.0.1";
+	private static final String VERSION = "1.0.2";
 	
 	private static void printUsage() {
 		System.out.println("Tiger Compiler v" + VERSION + " by Roi Atalla.\n");
