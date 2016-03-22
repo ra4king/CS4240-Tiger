@@ -9,7 +9,7 @@ import edu.cs4240.tiger.util.Utils;
  * @author Roi Atalla
  */
 public class TigerSourceGenerator {
-	private static final String VERSION = "1.1.1";
+	private static final String VERSION = "1.1.2";
 	
 	private static void printUsage() {
 		System.out.println("Tiger Source Generator v" + VERSION + " by Roi Atalla\n");
