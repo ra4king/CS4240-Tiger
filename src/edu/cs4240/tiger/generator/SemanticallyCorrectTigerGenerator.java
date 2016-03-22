@@ -470,7 +470,7 @@ public class SemanticallyCorrectTigerGenerator {
 		RuleNode numexprNode = new RuleNode(TigerProductionRule.NUMEXPR);
 		
 		if(limit > 0 && TigerType.isNumericType(exprType) && notSoFairBoolean(rng)) {
-			Node subNumexprNode = generateNumexpr(rng, limit - 1, exprType, varTypes);
+			Node subNumexprNode = generateNumexpr(rng, limit / 2, exprType, varTypes);
 			if(subNumexprNode == null) {
 				return null;
 			}
@@ -484,7 +484,7 @@ public class SemanticallyCorrectTigerGenerator {
 			}
 		}
 		
-		Node termNode = generateTerm(rng, limit - 1, exprType, varTypes);
+		Node termNode = generateTerm(rng, limit / 2, exprType, varTypes);
 		if(termNode == null) {
 			return null;
 		}
@@ -498,7 +498,7 @@ public class SemanticallyCorrectTigerGenerator {
 		RuleNode termNode = new RuleNode(TigerProductionRule.TERM);
 		
 		if(limit > 0 && TigerType.isNumericType(exprType) && notSoFairBoolean(rng)) {
-			Node subTermNode = generateTerm(rng, limit - 1, exprType, varTypes);
+			Node subTermNode = generateTerm(rng, limit / 2, exprType, varTypes);
 			if(subTermNode == null) {
 				return null;
 			}
@@ -512,7 +512,7 @@ public class SemanticallyCorrectTigerGenerator {
 			}
 		}
 		
-		Node factorNode = generateFactor(rng, limit - 1, exprType, varTypes);
+		Node factorNode = generateFactor(rng, limit / 2, exprType, varTypes);
 		if(factorNode == null) {
 			return null;
 		}
@@ -574,12 +574,12 @@ public class SemanticallyCorrectTigerGenerator {
 				
 				if(!TigerTypeAnalyzer.isTypeCompatibleAssign(exprType, varTypes.get(id))) {
 					factorNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.LBRACKET)));
-					factorNode.getChildren().add(generateNumexpr(rng, limit - 1, TigerType.INT_TYPE, varTypes));
+					factorNode.getChildren().add(generateNumexpr(rng, limit / 2, TigerType.INT_TYPE, varTypes));
 					factorNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.RBRACKET)));
 				}
 			} else if(limit > 0 && chosenRule.get(0) == TigerTokenClass.LPAREN) {
 				factorNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.LPAREN)));
-				factorNode.getChildren().add(generateNumexpr(rng, limit - 1, exprType, varTypes));
+				factorNode.getChildren().add(generateNumexpr(rng, limit / 2, exprType, varTypes));
 				factorNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.RPAREN)));
 			} else {
 				continue;
@@ -595,11 +595,11 @@ public class SemanticallyCorrectTigerGenerator {
 		RuleNode boolexprNode = new RuleNode(TigerProductionRule.BOOLEXPR);
 		
 		if(limit > 0 && notSoFairBoolean(rng)) {
-			boolexprNode.getChildren().add(generateBoolexpr(rng, limit - 1, varTypes));
+			boolexprNode.getChildren().add(generateBoolexpr(rng, limit / 2, varTypes));
 			boolexprNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.PIPE)));
 		}
 		
-		boolexprNode.getChildren().add(generateClause(rng, limit - 1, varTypes));
+		boolexprNode.getChildren().add(generateClause(rng, limit / 2, varTypes));
 		
 		return boolexprNode;
 	}
@@ -608,11 +608,11 @@ public class SemanticallyCorrectTigerGenerator {
 		RuleNode clauseNode = new RuleNode(TigerProductionRule.CLAUSE);
 		
 		if(limit > 0 && notSoFairBoolean(rng)) {
-			clauseNode.getChildren().add(generateClause(rng, limit - 1, varTypes));
+			clauseNode.getChildren().add(generateClause(rng, limit / 2, varTypes));
 			clauseNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.AMP)));
 		}
 		
-		clauseNode.getChildren().add(generatePred(rng, limit - 1, varTypes));
+		clauseNode.getChildren().add(generatePred(rng, limit / 2, varTypes));
 		
 		return clauseNode;
 	}
@@ -623,10 +623,10 @@ public class SemanticallyCorrectTigerGenerator {
 		TigerType type1 = rng.nextBoolean() ? TigerType.INT_TYPE : TigerType.FLOAT_TYPE;
 		TigerType type2 = rng.nextBoolean() ? TigerType.INT_TYPE : TigerType.FLOAT_TYPE;
 		
-		predNode.getChildren().add(generateNumexpr(rng, limit - 1, type1, varTypes));
+		predNode.getChildren().add(generateNumexpr(rng, limit / 2, type1, varTypes));
 		TigerTokenClass chosenBoolop = (TigerTokenClass)TigerProductionRule.BOOLOP.productions.get(rng.nextInt(TigerProductionRule.BOOLOP.productions.size())).get(0);
 		predNode.getChildren().add(new RuleNode(TigerProductionRule.BOOLOP, new LeafNode(tokenify(chosenBoolop))));
-		predNode.getChildren().add(generateNumexpr(rng, limit - 1, type2, varTypes));
+		predNode.getChildren().add(generateNumexpr(rng, limit / 2, type2, varTypes));
 		
 		return predNode;
 	}
