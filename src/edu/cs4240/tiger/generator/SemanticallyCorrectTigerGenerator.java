@@ -28,17 +28,17 @@ import edu.cs4240.tiger.util.Utils;
 public class SemanticallyCorrectTigerGenerator {
 	public static Node generate(Random rng, int limit) {
 		RuleNode program = new RuleNode(TigerProductionRule.PROGRAM);
-		program.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.LET, "let", "", 0, 0)));
+		program.getChildren().add(new LeafNode(tokenify(TigerTokenClass.LET)));
 		
 		HashMap<String, TigerType> varTypes = new HashMap<>();
 		HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> funcTypes = new HashMap<>();
 		program.getChildren().add(generateDeclseg(rng, limit, varTypes, funcTypes));
 		
-		program.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.IN, "in", "", 0, 0)));
+		program.getChildren().add(new LeafNode(tokenify(TigerTokenClass.IN)));
 		
 		program.getChildren().add(generateStatements(rng, limit, null, false, varTypes, funcTypes).getKey());
 		
-		program.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.END, "end", "", 0, 0)));
+		program.getChildren().add(new LeafNode(tokenify(TigerTokenClass.END)));
 		
 		return program;
 	}

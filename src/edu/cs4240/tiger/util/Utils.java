@@ -178,9 +178,9 @@ public class Utils {
 			case COMMA:
 			case SEMICOLON:
 				return false;
+			default:
+				return true;
 		}
-		
-		return true;
 	}
 	
 	private static boolean generateNewLine(TigerTokenClass token) {
@@ -193,8 +193,8 @@ public class Utils {
 			case SEMICOLON:
 			case IN:
 				return true;
+			default:
+				return false;
 		}
-		
-		return false;
 	}
 }
