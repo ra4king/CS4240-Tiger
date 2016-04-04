@@ -41,6 +41,9 @@ ALU: (DR SR1 SR2/Imm)
 	EQ[I]i/f
 	NEQ[I]i/f
 
+Special:
+	ITOF DRf SRi
+
 Memory:
 	LDi/f DR Name
 	LDIi/f DR Imm

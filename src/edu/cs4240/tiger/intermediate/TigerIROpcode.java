@@ -43,6 +43,8 @@ public enum TigerIROpcode {
 	NEQIi(ParamType.REGISTERi, ParamType.REGISTERi, ParamType.IMMEDIATEi),
 	NEQIf(ParamType.REGISTERi, ParamType.REGISTERf, ParamType.IMMEDIATEf),
 	
+	ITOF(ParamType.REGISTERf, ParamType.REGISTERi),
+	
 	LDi(ParamType.REGISTERi, ParamType.LABEL),
 	LDf(ParamType.REGISTERf, ParamType.LABEL),
 	LDIi(ParamType.REGISTERi, ParamType.IMMEDIATEi),

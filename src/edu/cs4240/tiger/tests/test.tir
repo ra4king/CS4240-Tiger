@@ -11,6 +11,23 @@
 	LDi $i10 y
 	MULIi $i11 $i10 3
 	RET $i11
+	
+.FUNC gross x y z a b c
+	LDi $i13 x
+	LDf $f0 y
+	LDi $i14 z
+	LDf $f1 a
+	LDi $i15 b
+	LDf $f2 c
+	
+	ADDi $i16 $i13 $i14
+	ADDi $i16 $i16 $i15
+	ADDf $f3 $f0 $f1
+	ADDf $f3 $f3 $f2
+	
+	ITOF $f4 $i16
+	ADDf $f4 $f4 $f3
+	RET $f4
 
 .FUNC main
 	LDi $i0 i
@@ -31,3 +48,14 @@ skip:
 	CALL printi $i1
 	CALL_RET test $i9 $i1
 	CALL printi $i9
+
+	LDIi $i0 1
+	LDIi $i1 2
+	LDIi $i2 3
+	LDIf $f0 4.5
+	LDIf $f1 5.5
+	LDIf $f2 10.1
+	CALL_RET gross $f5 $i0 $f0 $i1 $f1 $i2 $f2
+	CALL printf $f5
+
+	RET

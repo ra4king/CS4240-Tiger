@@ -24,22 +24,24 @@ public class Memory {
 		System.out.print("Int vars: ");
 		System.out.println(intVars);
 		
-		System.out.print("Float vars: ");
+		System.out.print("\nFloat vars: ");
 		System.out.println(floatVars);
 		
-		System.out.println("Int memory:");
+		System.out.println("\nInt memory:");
 		for(int i = 0, currAddr = 0; i < intArrays.size(); i++) {
 			for(int j = 0; j < intArrays.get(i).length; j++, currAddr++) {
 				System.out.println(currAddr + ": " + intArrays.get(i)[j]);
 			}
 		}
 		
-		System.out.println("Float memory:");
+		System.out.println("\nFloat memory:");
 		for(int i = 0, currAddr = 0; i < floatArrays.size(); i++) {
 			for(int j = 0; j < floatArrays.get(i).length; j++, currAddr++) {
 				System.out.println(currAddr + ": " + floatArrays.get(i)[j]);
 			}
 		}
+		
+		System.out.println();
 	}
 	
 	public void addIntVar(String name, int value) {

@@ -37,7 +37,7 @@ public class TigerIRInstruction {
 	public String toString() {
 		String s = "[" + opcode.toString();
 		for(Pair<String, ParamType> pair : params) {
-			s += ", " + pair;
+			s += ", " + pair.getKey();
 		}
 		return s + "]";
 	}

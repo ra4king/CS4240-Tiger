@@ -160,497 +160,507 @@ public class TigerInterpreter {
 		
 		boolean keepRunning = true;
 		
-		while(keepRunning) {
-			if(currentPC >= instructions.size()) {
-				break;
-			}
-			
-			TigerIRInstruction currInstr = instructions.get(currentPC++);
-			List<Pair<String, ParamType>> params = currInstr.getParams();
-			
-			try {
-				switch(currInstr.getOpcode()) {
-					case ADDi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 + src2);
-						break;
-					}
-					case ADDIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 + src2);
-						break;
-					}
-					case ADDf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						floatRegs.put(params.get(0).getKey(), src1 + src2);
-						break;
-					}
-					case ADDIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						floatRegs.put(params.get(0).getKey(), src1 + src2);
-						break;
-					}
-					
-					case SUBi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 - src2);
-						break;
-					}
-					case SUBIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 - src2);
-						break;
-					}
-					case SUBf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						floatRegs.put(params.get(0).getKey(), src1 - src2);
-						break;
-					}
-					case SUBIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						floatRegs.put(params.get(0).getKey(), src1 - src2);
-						break;
-					}
-					
-					case MULi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 * src2);
-						break;
-					}
-					case MULIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 * src2);
-						break;
-					}
-					case MULf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						floatRegs.put(params.get(0).getKey(), src1 * src2);
-						break;
-					}
-					case MULIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						floatRegs.put(params.get(0).getKey(), src1 * src2);
-						break;
-					}
-					
-					case DIVi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 / src2);
-						break;
-					}
-					case DIVIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 / src2);
-						break;
-					}
-					case DIVf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						floatRegs.put(params.get(0).getKey(), src1 / src2);
-						break;
-					}
-					case DIVIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						floatRegs.put(params.get(0).getKey(), src1 / src2);
-						break;
-					}
-					
-					case AND: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 & src2);
-						break;
-					}
-					case ANDI: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 & src2);
-						break;
-					}
-					
-					case OR: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 | src2);
-						break;
-					}
-					case ORI: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 | src2);
-						break;
-					}
-					
-					case GTi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
-						break;
-					}
-					case GTIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
-						break;
-					}
-					case GTf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
-						break;
-					}
-					case GTIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
-						break;
-					}
-					
-					case GEQi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
-						break;
-					}
-					case GEQIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
-						break;
-					}
-					case GEQf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
-						break;
-					}
-					case GEQIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
-						break;
-					}
-					
-					case EQi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
-						break;
-					}
-					case EQIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
-						break;
-					}
-					case EQf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
-						break;
-					}
-					case EQIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
-						break;
-					}
-					
-					case NEQi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = getRegValue(params.get(2).getKey(), intRegs);
-						intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
-						break;
-					}
-					case NEQIi: {
-						int src1 = getRegValue(params.get(1).getKey(), intRegs);
-						int src2 = Integer.parseInt(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
-						break;
-					}
-					case NEQf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = getRegValue(params.get(2).getKey(), floatRegs);
-						intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
-						break;
-					}
-					case NEQIf: {
-						float src1 = getRegValue(params.get(1).getKey(), floatRegs);
-						float src2 = Float.parseFloat(params.get(2).getKey());
-						intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
-						break;
-					}
-					
-					case LDi: {
-						int value;
-						Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
-						if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
-							try {
-								value = (Integer)context.getValue().get(params.get(1).getKey());
-							}
-							catch(ClassCastException exc) {
-								throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
-							}
-						} else {
-							value = memory.loadInt(params.get(1).getKey());
+		try {
+			while(keepRunning) {
+				if(currentPC >= instructions.size()) {
+					break;
+				}
+				
+				TigerIRInstruction currInstr = instructions.get(currentPC++);
+				List<Pair<String, ParamType>> params = currInstr.getParams();
+				
+				try {
+					switch(currInstr.getOpcode()) {
+						case ADDi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 + src2);
+							break;
 						}
-						
-						intRegs.put(params.get(0).getKey(), value);
-						break;
-					}
-					case LDf: {
-						float value;
-						Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
-						if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
-							try {
-								value = (Float)context.getValue().get(params.get(1).getKey());
-							}
-							catch(ClassCastException exc) {
-								throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
-							}
-						} else {
-							value = memory.loadFloat(params.get(1).getKey());
+						case ADDIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 + src2);
+							break;
 						}
-						
-						floatRegs.put(params.get(0).getKey(), value);
-						break;
-					}
-					case LDIi: {
-						intRegs.put(params.get(0).getKey(), Integer.parseInt(params.get(1).getKey()));
-						break;
-					}
-					case LDIf: {
-						floatRegs.put(params.get(0).getKey(), Float.parseFloat(params.get(1).getKey()));
-						break;
-					}
-					case LDRi: {
-						intRegs.put(params.get(0).getKey(), memory.loadInt(getRegValue(params.get(1).getKey(), intRegs)));
-						break;
-					}
-					case LDRf: {
-						floatRegs.put(params.get(0).getKey(), memory.loadFloat(getRegValue(params.get(1).getKey(), intRegs)));
-						break;
-					}
-					
-					case STi: {
-						int value = getRegValue(params.get(0).getKey(), intRegs);
-						Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
-						if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
-							if(context.getValue().get(params.get(1).getKey()).getClass() != Integer.class) {
-								throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
-							}
-							context.getValue().put(params.get(1).getKey(), value);
-						} else {
-							memory.storeInt(params.get(1).getKey(), value);
+						case ADDf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							floatRegs.put(params.get(0).getKey(), src1 + src2);
+							break;
 						}
-						break;
-					}
-					case STRi: {
-						memory.storeInt(getRegValue(params.get(1).getKey(), intRegs), getRegValue(params.get(0).getKey(), intRegs));
-						break;
-					}
-					case STf: {
-						float value = getRegValue(params.get(0).getKey(), intRegs);
-						Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
-						if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
-							if(context.getValue().get(params.get(1).getKey()).getClass() != Float.class) {
-								throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
-							}
-							context.getValue().put(params.get(1).getKey(), value);
-						} else {
-							memory.storeFloat(params.get(1).getKey(), value);
-						}
-						break;
-					}
-					case STRf: {
-						memory.storeFloat(getRegValue(params.get(1).getKey(), intRegs), getRegValue(params.get(0).getKey(), floatRegs));
-						break;
-					}
-					
-					case BRZ: {
-						int src = getRegValue(params.get(0).getKey(), intRegs);
-						if(src == 0) {
-							if(!labels.containsKey(params.get(1).getKey())) {
-								throw new IllegalArgumentException("Invalid label '" + params.get(1).getKey() + "'");
-							}
-							
-							currentPC = labels.get(params.get(1).getKey());
-						}
-						break;
-					}
-					case BRNZ: {
-						int src = getRegValue(params.get(0).getKey(), intRegs);
-						if(src != 0) {
-							if(!labels.containsKey(params.get(1).getKey())) {
-								throw new IllegalArgumentException("Invalid label '" + params.get(1).getKey() + "'");
-							}
-							
-							currentPC = labels.get(params.get(1).getKey());
-						}
-						break;
-					}
-					case BR: {
-						if(!labels.containsKey(params.get(0).getKey())) {
-							throw new IllegalArgumentException("Invalid label '" + params.get(0).getKey() + "'");
-						}
-						
-						currentPC = labels.get(params.get(0).getKey());
-						break;
-					}
-					
-					case CALL: {
-						switch(params.get(0).getKey()) {
-							case "printi":
-								if(params.size() != 2) {
-									throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 1, got " + (params.size() - 1));
-								}
-								System.out.println("printi: " + getRegValue(params.get(1).getKey(), intRegs));
-								break;
-							case "printf":
-								if(params.size() != 2) {
-									throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 1, got " + (params.size() - 1));
-								}
-								System.out.println("printf: " + getRegValue(params.get(1).getKey(), floatRegs));
-								break;
-							default:
-								if(!functions.containsKey(params.get(0).getKey())) {
-									throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
-								}
-								
-								Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
-								if(func.getKey().size() != params.size() - 1) {
-									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
-									                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 1));
-								}
-								
-								HashMap<String, Number> funcArgs = new HashMap<>();
-								for(int i = 0; i < func.getKey().size(); i++) {
-									if(params.get(i + 1).getValue() == ParamType.REGISTERi) {
-										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), intRegs));
-									} else {
-										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), floatRegs));
-									}
-								}
-								stack.push(new Pair<>(new Pair<>(currentPC, null), funcArgs));
-								currentPC = func.getValue();
-								break;
-						}
-						break;
-					}
-					case CALL_RET: {
-						switch(params.get(0).getKey()) {
-							case "readi":
-								if(params.size() != 2) {
-									throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 0, got " + (params.size() - 2));
-								}
-								System.out.print("readi: ");
-								if(!stdin.hasNextInt()) {
-									throw new IllegalStateException("Type mismatch, readi expected integer");
-								}
-								
-								intRegs.put(params.get(1).getKey(), stdin.nextInt());
-								break;
-							case "readf":
-								if(params.size() != 2) {
-									throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 0, got " + (params.size() - 2));
-								}
-								System.out.print("readf: ");
-								if(!stdin.hasNextFloat()) {
-									throw new IllegalStateException("Type mismatch, readf expected float");
-								}
-								
-								floatRegs.put(params.get(1).getKey(), stdin.nextFloat());
-								break;
-							default:
-								if(!functions.containsKey(params.get(0).getKey())) {
-									throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
-								}
-								
-								Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
-								if(func.getKey().size() != params.size() - 2) {
-									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
-									                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 2));
-								}
-								
-								HashMap<String, Number> funcArgs = new HashMap<>();
-								for(int i = 0; i < func.getKey().size(); i++) {
-									if(params.get(i + 2).getValue() == ParamType.REGISTERi) {
-										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), intRegs));
-									} else {
-										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), floatRegs));
-									}
-								}
-								stack.push(new Pair<>(new Pair<>(currentPC, params.get(1).getKey()), funcArgs));
-								currentPC = func.getValue();
-								break;
-						}
-						break;
-					}
-					case RET: {
-						if(stack.size() == 0) {
-							keepRunning = false;
+						case ADDIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							floatRegs.put(params.get(0).getKey(), src1 + src2);
 							break;
 						}
 						
-						Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.pop();
-						if(context.getKey().getValue() == null && params.size() == 1) {
-							throw new IllegalArgumentException("Function has no return value");
+						case SUBi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 - src2);
+							break;
+						}
+						case SUBIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 - src2);
+							break;
+						}
+						case SUBf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							floatRegs.put(params.get(0).getKey(), src1 - src2);
+							break;
+						}
+						case SUBIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							floatRegs.put(params.get(0).getKey(), src1 - src2);
+							break;
 						}
 						
-						if(context.getKey().getValue() != null && params.size() == 0) {
-							throw new IllegalArgumentException("Expected return value");
+						case MULi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 * src2);
+							break;
+						}
+						case MULIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 * src2);
+							break;
+						}
+						case MULf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							floatRegs.put(params.get(0).getKey(), src1 * src2);
+							break;
+						}
+						case MULIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							floatRegs.put(params.get(0).getKey(), src1 * src2);
+							break;
 						}
 						
-						if(params.size() == 1) {
-							if(context.getKey().getValue().charAt(1) == 'i') {
-								if(params.get(0).getValue() != ParamType.REGISTERi) {
-									throw new IllegalArgumentException("Type mismatch on return value");
+						case DIVi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 / src2);
+							break;
+						}
+						case DIVIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 / src2);
+							break;
+						}
+						case DIVf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							floatRegs.put(params.get(0).getKey(), src1 / src2);
+							break;
+						}
+						case DIVIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							floatRegs.put(params.get(0).getKey(), src1 / src2);
+							break;
+						}
+						
+						case AND: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 & src2);
+							break;
+						}
+						case ANDI: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 & src2);
+							break;
+						}
+						
+						case OR: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 | src2);
+							break;
+						}
+						case ORI: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 | src2);
+							break;
+						}
+						
+						case GTi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
+							break;
+						}
+						case GTIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
+							break;
+						}
+						case GTf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
+							break;
+						}
+						case GTIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 > src2 ? 1 : 0);
+							break;
+						}
+						
+						case GEQi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
+							break;
+						}
+						case GEQIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
+							break;
+						}
+						case GEQf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
+							break;
+						}
+						case GEQIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 >= src2 ? 1 : 0);
+							break;
+						}
+						
+						case EQi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
+							break;
+						}
+						case EQIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
+							break;
+						}
+						case EQf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
+							break;
+						}
+						case EQIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 == src2 ? 1 : 0);
+							break;
+						}
+						
+						case NEQi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
+							break;
+						}
+						case NEQIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
+							break;
+						}
+						case NEQf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
+							break;
+						}
+						case NEQIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 != src2 ? 1 : 0);
+							break;
+						}
+						
+						case ITOF: {
+							floatRegs.put(params.get(0).getKey(), (float)getRegValue(params.get(1).getKey(), intRegs));
+							break;
+						}
+						
+						case LDi: {
+							int value;
+							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
+							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
+								try {
+									value = (Integer)context.getValue().get(params.get(1).getKey());
 								}
-								intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
+								catch(ClassCastException exc) {
+									throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
+								}
 							} else {
-								if(params.get(0).getValue() != ParamType.REGISTERf) {
-									throw new IllegalArgumentException("Type mismatch on return value");
-								}
-								floatRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), floatRegs));
+								value = memory.loadInt(params.get(1).getKey());
 							}
+							
+							intRegs.put(params.get(0).getKey(), value);
+							break;
+						}
+						case LDf: {
+							float value;
+							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
+							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
+								try {
+									value = (Float)context.getValue().get(params.get(1).getKey());
+								}
+								catch(ClassCastException exc) {
+									throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
+								}
+							} else {
+								value = memory.loadFloat(params.get(1).getKey());
+							}
+							
+							floatRegs.put(params.get(0).getKey(), value);
+							break;
+						}
+						case LDIi: {
+							intRegs.put(params.get(0).getKey(), Integer.parseInt(params.get(1).getKey()));
+							break;
+						}
+						case LDIf: {
+							floatRegs.put(params.get(0).getKey(), Float.parseFloat(params.get(1).getKey()));
+							break;
+						}
+						case LDRi: {
+							intRegs.put(params.get(0).getKey(), memory.loadInt(getRegValue(params.get(1).getKey(), intRegs)));
+							break;
+						}
+						case LDRf: {
+							floatRegs.put(params.get(0).getKey(), memory.loadFloat(getRegValue(params.get(1).getKey(), intRegs)));
+							break;
 						}
 						
-						currentPC = context.getKey().getKey();
-						break;
+						case STi: {
+							int value = getRegValue(params.get(0).getKey(), intRegs);
+							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
+							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
+								if(context.getValue().get(params.get(1).getKey()).getClass() != Integer.class) {
+									throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
+								}
+								context.getValue().put(params.get(1).getKey(), value);
+							} else {
+								memory.storeInt(params.get(1).getKey(), value);
+							}
+							break;
+						}
+						case STRi: {
+							memory.storeInt(getRegValue(params.get(1).getKey(), intRegs), getRegValue(params.get(0).getKey(), intRegs));
+							break;
+						}
+						case STf: {
+							float value = getRegValue(params.get(0).getKey(), intRegs);
+							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
+							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
+								if(context.getValue().get(params.get(1).getKey()).getClass() != Float.class) {
+									throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
+								}
+								context.getValue().put(params.get(1).getKey(), value);
+							} else {
+								memory.storeFloat(params.get(1).getKey(), value);
+							}
+							break;
+						}
+						case STRf: {
+							memory.storeFloat(getRegValue(params.get(1).getKey(), intRegs), getRegValue(params.get(0).getKey(), floatRegs));
+							break;
+						}
+						
+						case BRZ: {
+							int src = getRegValue(params.get(0).getKey(), intRegs);
+							if(src == 0) {
+								if(!labels.containsKey(params.get(1).getKey())) {
+									throw new IllegalArgumentException("Invalid label '" + params.get(1).getKey() + "'");
+								}
+								
+								currentPC = labels.get(params.get(1).getKey());
+							}
+							break;
+						}
+						case BRNZ: {
+							int src = getRegValue(params.get(0).getKey(), intRegs);
+							if(src != 0) {
+								if(!labels.containsKey(params.get(1).getKey())) {
+									throw new IllegalArgumentException("Invalid label '" + params.get(1).getKey() + "'");
+								}
+								
+								currentPC = labels.get(params.get(1).getKey());
+							}
+							break;
+						}
+						case BR: {
+							if(!labels.containsKey(params.get(0).getKey())) {
+								throw new IllegalArgumentException("Invalid label '" + params.get(0).getKey() + "'");
+							}
+							
+							currentPC = labels.get(params.get(0).getKey());
+							break;
+						}
+						
+						case CALL: {
+							switch(params.get(0).getKey()) {
+								case "printi":
+									if(params.size() != 2) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 1, got " + (params.size() - 1));
+									}
+									System.out.println("printi: " + getRegValue(params.get(1).getKey(), intRegs));
+									break;
+								case "printf":
+									if(params.size() != 2) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 1, got " + (params.size() - 1));
+									}
+									System.out.println("printf: " + getRegValue(params.get(1).getKey(), floatRegs));
+									break;
+								default:
+									if(!functions.containsKey(params.get(0).getKey())) {
+										throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
+									}
+									
+									Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
+									if(func.getKey().size() != params.size() - 1) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
+										                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 1));
+									}
+									
+									HashMap<String, Number> funcArgs = new HashMap<>();
+									for(int i = 0; i < func.getKey().size(); i++) {
+										if(params.get(i + 1).getValue() == ParamType.REGISTERi) {
+											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), intRegs));
+										} else {
+											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), floatRegs));
+										}
+									}
+									stack.push(new Pair<>(new Pair<>(currentPC, null), funcArgs));
+									currentPC = func.getValue();
+									break;
+							}
+							break;
+						}
+						case CALL_RET: {
+							switch(params.get(0).getKey()) {
+								case "readi":
+									if(params.size() != 2) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 0, got " + (params.size() - 2));
+									}
+									System.out.print("readi: ");
+									if(!stdin.hasNextInt()) {
+										throw new IllegalStateException("Type mismatch, readi expected integer");
+									}
+									
+									intRegs.put(params.get(1).getKey(), stdin.nextInt());
+									break;
+								case "readf":
+									if(params.size() != 2) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 0, got " + (params.size() - 2));
+									}
+									System.out.print("readf: ");
+									if(!stdin.hasNextFloat()) {
+										throw new IllegalStateException("Type mismatch, readf expected float");
+									}
+									
+									floatRegs.put(params.get(1).getKey(), stdin.nextFloat());
+									break;
+								default:
+									if(!functions.containsKey(params.get(0).getKey())) {
+										throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
+									}
+									
+									Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
+									if(func.getKey().size() != params.size() - 2) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
+										                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 2));
+									}
+									
+									HashMap<String, Number> funcArgs = new HashMap<>();
+									for(int i = 0; i < func.getKey().size(); i++) {
+										if(params.get(i + 2).getValue() == ParamType.REGISTERi) {
+											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), intRegs));
+										} else {
+											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), floatRegs));
+										}
+									}
+									stack.push(new Pair<>(new Pair<>(currentPC, params.get(1).getKey()), funcArgs));
+									currentPC = func.getValue();
+									break;
+							}
+							break;
+						}
+						case RET: {
+							if(stack.size() == 0) {
+								keepRunning = false;
+								break;
+							}
+							
+							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.pop();
+							if(context.getKey().getValue() == null && params.size() == 1) {
+								throw new IllegalArgumentException("Function has no return value");
+							}
+							
+							if(context.getKey().getValue() != null && params.size() == 0) {
+								throw new IllegalArgumentException("Expected return value");
+							}
+							
+							if(params.size() == 1) {
+								if(context.getKey().getValue().charAt(1) == 'i') {
+									if(params.get(0).getValue() != ParamType.REGISTERi) {
+										throw new IllegalArgumentException("Type mismatch on return value");
+									}
+									intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
+								} else {
+									if(params.get(0).getValue() != ParamType.REGISTERf) {
+										throw new IllegalArgumentException("Type mismatch on return value");
+									}
+									floatRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), floatRegs));
+								}
+							}
+							
+							currentPC = context.getKey().getKey();
+							break;
+						}
 					}
 				}
+				catch(Exception exc) {
+					throw new IllegalStateException("Error on line " + currInstr.getLineNumber() + ": " + exc.getMessage(), exc);
+				}
 			}
-			catch(Exception exc) {
-				throw new IllegalStateException("Error on line " + currInstr.getLineNumber() + ": " + exc.getMessage(), exc);
+		}
+		finally {
+			System.out.println("\nInt regs:");
+			for(String s : intRegs.keySet()) {
+				System.out.println(s + ": " + intRegs.get(s));
 			}
+			
+			System.out.println("\nFloat regs:");
+			for(String s : floatRegs.keySet()) {
+				System.out.println(s + ": " + floatRegs.get(s));
+			}
+			
+			System.out.println();
+			
+			memory.printMemory();
 		}
-		
-		System.out.println("\nInt regs:");
-		for(String s : intRegs.keySet()) {
-			System.out.println(s + ": " + intRegs.get(s));
-		}
-		
-		System.out.println("\nFloat regs:");
-		for(String s : floatRegs.keySet()) {
-			System.out.println(s + ": " + intRegs.get(s));
-		}
-		
-		memory.printMemory();
 	}
 	
 	private static <T> T getRegValue(String name, HashMap<String, T> regs) {
