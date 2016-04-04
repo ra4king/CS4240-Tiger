@@ -14,7 +14,8 @@
 
 .FUNC main
 	LDi $i0 i
-	ADDIi $i1 $i0 38
+	LDIi $i1 38
+	ADDi $i1 $i0 $i1
 	
 	LDi $i2 arr
 	ADDIi $i3 $i2 2

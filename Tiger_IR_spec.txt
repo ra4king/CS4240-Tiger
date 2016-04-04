@@ -29,7 +29,7 @@ Directives:
 	.ARRAYf Name int [int [int [...]]]
 	.FUNC Label [argName1 [argName2 [...]]]
 
-ALU: (DR SR1 SR2/imm)
+ALU: (DR SR1 SR2/Imm)
 	ADD[I]i/f
 	SUB[I]i/f
 	MUL[I]i/f
@@ -43,6 +43,7 @@ ALU: (DR SR1 SR2/imm)
 
 Memory:
 	LDi/f DR Name
+	LDIi/f DR Imm
 	LDRi/f DR AR
 	STi/f SR Name
 	STRi/f SR AR

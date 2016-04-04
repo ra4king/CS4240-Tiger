@@ -149,7 +149,7 @@ public class TigerInterpreter {
 	}
 	
 	public void run() {
-		Scanner scanner = new Scanner(System.in);
+		Scanner stdin = new Scanner(System.in);
 		
 		HashMap<String, Integer> intRegs = new HashMap<>();
 		HashMap<String, Float> floatRegs = new HashMap<>();
@@ -413,10 +413,6 @@ public class TigerInterpreter {
 						intRegs.put(params.get(0).getKey(), value);
 						break;
 					}
-					case LDRi: {
-						intRegs.put(params.get(0).getKey(), memory.loadInt(getRegValue(params.get(1).getKey(), intRegs)));
-						break;
-					}
 					case LDf: {
 						float value;
 						Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
@@ -432,6 +428,18 @@ public class TigerInterpreter {
 						}
 						
 						floatRegs.put(params.get(0).getKey(), value);
+						break;
+					}
+					case LDIi: {
+						intRegs.put(params.get(0).getKey(), Integer.parseInt(params.get(1).getKey()));
+						break;
+					}
+					case LDIf: {
+						floatRegs.put(params.get(0).getKey(), Float.parseFloat(params.get(1).getKey()));
+						break;
+					}
+					case LDRi: {
+						intRegs.put(params.get(0).getKey(), memory.loadInt(getRegValue(params.get(1).getKey(), intRegs)));
 						break;
 					}
 					case LDRf: {
@@ -551,14 +559,22 @@ public class TigerInterpreter {
 									throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 0, got " + (params.size() - 2));
 								}
 								System.out.print("readi: ");
-								intRegs.put(params.get(1).getKey(), scanner.nextInt());
+								if(!stdin.hasNextInt()) {
+									throw new IllegalStateException("Type mismatch, readi expected integer");
+								}
+								
+								intRegs.put(params.get(1).getKey(), stdin.nextInt());
 								break;
 							case "readf":
 								if(params.size() != 2) {
 									throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 0, got " + (params.size() - 2));
 								}
 								System.out.print("readf: ");
-								floatRegs.put(params.get(1).getKey(), scanner.nextFloat());
+								if(!stdin.hasNextFloat()) {
+									throw new IllegalStateException("Type mismatch, readf expected float");
+								}
+								
+								floatRegs.put(params.get(1).getKey(), stdin.nextFloat());
 								break;
 							default:
 								if(!functions.containsKey(params.get(0).getKey())) {

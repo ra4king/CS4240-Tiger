@@ -45,6 +45,8 @@ public enum TigerIROpcode {
 	
 	LDi(ParamType.REGISTERi, ParamType.LABEL),
 	LDf(ParamType.REGISTERf, ParamType.LABEL),
+	LDIi(ParamType.REGISTERi, ParamType.IMMEDIATEi),
+	LDIf(ParamType.REGISTERf, ParamType.IMMEDIATEf),
 	LDRi(ParamType.REGISTERi, ParamType.REGISTERi),
 	LDRf(ParamType.REGISTERf, ParamType.REGISTERi),
 	STi(ParamType.REGISTERi, ParamType.LABEL),
