@@ -1,0 +1,32 @@
+.VARi i 4
+.ARRAYi arr 3 5
+
+.FUNC test x
+	LDi $i6 x
+	ADDIi $i7 $i6 10
+	CALL_RET test2 $i8 $i7
+	RET $i8
+
+.FUNC test2 y
+	LDi $i10 y
+	MULIi $i11 $i10 3
+	RET $i11
+
+.FUNC main
+	LDi $i0 i
+	ADDIi $i1 $i0 38
+	
+	LDi $i2 arr
+	ADDIi $i3 $i2 2
+	LDRi $i4 $i3
+	STRi $i1 $i4
+	
+	CALL_RET readi $i12
+	BRZ $i12 skip
+	
+	ADDIi $i1 $i1 1
+	
+skip:
+	CALL printi $i1
+	CALL_RET test $i9 $i1
+	CALL printi $i9

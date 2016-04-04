@@ -17,7 +17,7 @@ import edu.cs4240.tiger.util.Utils;
 /**
  * @author Roi Atalla
  */
-public class RandomTigerGenerator {
+public class TigerRandomGenerator {
 	public static Node generate(Random rng, int limit) {
 		Deque<TigerSymbol> symbolStack = new ArrayDeque<>();
 		symbolStack.add(TigerProductionRule.PROGRAM);

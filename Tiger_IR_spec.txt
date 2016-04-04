@@ -1,0 +1,56 @@
+Tiger IR Layout:
+
+.......... \
+.......... | Variable declarations (optional): .VARi/f, .ARRAYi/f
+.......... /
+.......... \
+.......... | Function declarations (optional): .FUNC
+.......... | 
+.FUNC main | A main function must be provided
+	...... | No arguments, no return value.
+	RET    |
+.......... |
+.......... /
+
+
+Notes:
+	- Anything within brackets [] is optional
+	- DR = Destination Register
+	- SR = Source Register
+	- AR = Address Register
+	- Only names can be loaded
+	- Only labels can be jumped to
+	- Variables default to 0/0.0 when no value is given
+
+Directives:
+	.VARi Name [int]
+	.VARf Name [float]
+	.ARRAYi Name int [int [int [...]]]
+	.ARRAYf Name int [int [int [...]]]
+	.FUNC Label [argName1 [argName2 [...]]]
+
+ALU: (DR SR1 SR2/imm)
+	ADD[I]i/f
+	SUB[I]i/f
+	MUL[I]i/f
+	DIV[I]i/f
+	AND[I]
+	OR[I]
+	GT[I]i/f
+	GEQ[I]i/f
+	EQ[I]i/f
+	NEQ[I]i/f
+
+Memory:
+	LDi/f DR Name
+	LDRi/f DR AR
+	STi/f SR Name
+	STRi/f SR AR
+
+Control:
+	BRZ SR Label
+	BRNZ Sr Label
+	BR Label
+	CALL Label [SR1 [SR2 [...]]]
+	CALL_RET Label DR [SR1 [SR2 [...]]]
+	RET [SR]

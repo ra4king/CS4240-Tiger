@@ -92,9 +92,9 @@ public class TigerSourceGenerator {
 		long before = System.nanoTime();
 		Node program;
 		if(correct) {
-			program = SemanticallyCorrectTigerGenerator.generate(rng, depth);
+			program = TigerSemanticallyCorrectGenerator.generate(rng, depth);
 		} else {
-			program = RandomTigerGenerator.generate(rng, depth);
+			program = TigerRandomGenerator.generate(rng, depth);
 		}
 		long time = System.nanoTime() - before;
 		

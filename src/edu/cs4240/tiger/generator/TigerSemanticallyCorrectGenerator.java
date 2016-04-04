@@ -25,7 +25,7 @@ import edu.cs4240.tiger.util.Utils;
 /**
  * @author Roi Atalla
  */
-public class SemanticallyCorrectTigerGenerator {
+public class TigerSemanticallyCorrectGenerator {
 	public static Node generate(Random rng, int limit) {
 		RuleNode program = new RuleNode(TigerProductionRule.PROGRAM);
 		program.getChildren().add(new LeafNode(tokenify(TigerTokenClass.LET)));
