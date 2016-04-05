@@ -49,19 +49,21 @@ public enum TigerIROpcode {
 	LDf(ParamType.REGISTERf, ParamType.LABEL),
 	LDIi(ParamType.REGISTERi, ParamType.IMMEDIATEi),
 	LDIf(ParamType.REGISTERf, ParamType.IMMEDIATEf),
-	LDRi(ParamType.REGISTERi, ParamType.REGISTERi),
-	LDRf(ParamType.REGISTERf, ParamType.REGISTERi),
+	LDRi(ParamType.REGISTERi, ParamType.REGISTERi, ParamType.OPT_IMMi),
+	LDRf(ParamType.REGISTERf, ParamType.REGISTERi, ParamType.OPT_IMMi),
 	STi(ParamType.REGISTERi, ParamType.LABEL),
 	STf(ParamType.REGISTERf, ParamType.LABEL),
-	STRi(ParamType.REGISTERi, ParamType.REGISTERi),
-	STRf(ParamType.REGISTERf, ParamType.REGISTERi),
+	STRi(ParamType.REGISTERi, ParamType.REGISTERi, ParamType.OPT_IMMi),
+	STRf(ParamType.REGISTERf, ParamType.REGISTERi, ParamType.OPT_IMMi),
 	
 	BRZ(ParamType.REGISTERi, ParamType.LABEL),
 	BRNZ(ParamType.REGISTERi, ParamType.LABEL),
 	BR(ParamType.LABEL),
 	CALL(ParamType.LABEL, ParamType.OPT_MORE_REGISTERS),
 	CALL_RET(ParamType.LABEL, ParamType.REGISTER, ParamType.OPT_MORE_REGISTERS),
-	RET(ParamType.OPT_REGISTER);
+	RET(),
+	RETi(ParamType.REGISTERi),
+	RETf(ParamType.REGISTERf);
 	
 	public final ParamType[] paramTypes;
 	
@@ -70,13 +72,13 @@ public enum TigerIROpcode {
 	}
 	
 	public enum ParamType {
+		REGISTER(Pattern.compile("^\\$[if](\\d+)$")),
 		REGISTERi(Pattern.compile("^\\$i(\\d+)$")),
 		REGISTERf(Pattern.compile("^\\$f(\\d+)$")),
 		IMMEDIATEi(Pattern.compile("^(\\d+)$")),
 		IMMEDIATEf(Pattern.compile("^(\\d+\\.\\d*)$")),
-		REGISTER(null),
-		OPT_REGISTER(null),
 		OPT_MORE_REGISTERS(null),
+		OPT_IMMi(null),
 		LABEL(Pattern.compile("^([A-Za-z_]\\w*)$"));
 		
 		public Pattern pattern;

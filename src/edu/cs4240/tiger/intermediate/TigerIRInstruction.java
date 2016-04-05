@@ -54,7 +54,7 @@ public class TigerIRInstruction {
 				for(int i = 0; i < op.paramTypes.length; i++) {
 					ParamType paramType = op.paramTypes[i];
 					
-					if(paramType == ParamType.OPT_MORE_REGISTERS || paramType == ParamType.OPT_REGISTER || paramType == ParamType.REGISTER) {
+					if(paramType == ParamType.OPT_MORE_REGISTERS) {
 						while(++i < inst.length) {
 							String s = inst[i];
 							lastI = i;
@@ -62,36 +62,28 @@ public class TigerIRInstruction {
 							Matcher matcher = ParamType.REGISTERi.pattern.matcher(s);
 							if(matcher.matches()) {
 								params.add(new Pair<>(s, ParamType.REGISTERi));
-								
-								if(paramType == ParamType.OPT_REGISTER) {
-									break;
-								}
-								
-								if(paramType == ParamType.REGISTER) {
-									i--;
-									break;
-								}
-								
 								continue;
 							}
 							
 							matcher = ParamType.REGISTERf.pattern.matcher(s);
 							if(matcher.matches()) {
 								params.add(new Pair<>(s, ParamType.REGISTERf));
-								
-								if(paramType == ParamType.OPT_REGISTER) {
-									break;
-								}
-								
-								if(paramType == ParamType.REGISTER) {
-									i--;
-									break;
-								}
-								
 								continue;
 							}
 							
 							throw new IllegalArgumentException("Invalid parameter '" + s + "' for instruction " + op);
+						}
+					} else if(paramType == ParamType.OPT_IMMi) {
+						if(i + 1 < inst.length) {
+							String s = inst[i + 1];
+							lastI = i + 1;
+							
+							Matcher matcher = ParamType.IMMEDIATEi.pattern.matcher(s);
+							if(matcher.matches()) {
+								params.add(new Pair<>(s, paramType));
+							} else {
+								throw new IllegalArgumentException("Invalid parameter '" + s + "' for instruction " + op);
+							}
 						}
 					} else if(i + 1 >= inst.length) {
 						throw new IllegalArgumentException("Not enough parameters for instruction " + op);

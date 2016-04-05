@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import edu.cs4240.tiger.intermediate.TigerIRInstruction;
+import edu.cs4240.tiger.intermediate.TigerIROpcode;
 import edu.cs4240.tiger.intermediate.TigerIROpcode.ParamType;
 import edu.cs4240.tiger.util.Pair;
 
@@ -51,6 +52,10 @@ public class TigerInterpreter {
 							throw new IllegalArgumentException("Variable declarations come before functions");
 						}
 						
+						if(memory.containsIntVar(parts[1])) {
+							throw new IllegalArgumentException("Variable already declared: '" + parts[1] + "'");
+						}
+						
 						if(parts.length == 2) {
 							memory.addIntVar(parts[1], 0);
 						} else if(parts.length == 3) {
@@ -62,6 +67,10 @@ public class TigerInterpreter {
 					case ".VARf":
 						if(functions.size() > 0) {
 							throw new IllegalArgumentException("Variable declarations come before functions");
+						}
+						
+						if(memory.containsFloatVar(parts[1])) {
+							throw new IllegalArgumentException("Variable already declared: '" + parts[1] + "'");
 						}
 						
 						if(parts.length == 2) {
@@ -88,8 +97,16 @@ public class TigerInterpreter {
 						}
 						
 						if(parts[0].equals(".ARRAYi")) {
+							if(memory.containsIntArray(parts[1])) {
+								throw new IllegalArgumentException("Array already declared: '" + parts[1] + "'");
+							}
+							
 							memory.addIntArray(parts[1], sizes);
 						} else {
+							if(memory.containsFloatArray(parts[1])) {
+								throw new IllegalArgumentException("Array already declared: '" + parts[1] + "'");
+							}
+							
 							memory.addFloatArray(parts[1], sizes);
 						}
 						
@@ -445,11 +462,13 @@ public class TigerInterpreter {
 							break;
 						}
 						case LDRi: {
-							intRegs.put(params.get(0).getKey(), memory.loadInt(getRegValue(params.get(1).getKey(), intRegs)));
+							int offset = params.size() == 3 ? Integer.parseInt(params.get(2).getKey()) : 0;
+							intRegs.put(params.get(0).getKey(), memory.loadInt(getRegValue(params.get(1).getKey(), intRegs) + offset));
 							break;
 						}
 						case LDRf: {
-							floatRegs.put(params.get(0).getKey(), memory.loadFloat(getRegValue(params.get(1).getKey(), intRegs)));
+							int offset = params.size() == 3 ? Integer.parseInt(params.get(2).getKey()) : 0;
+							floatRegs.put(params.get(0).getKey(), memory.loadFloat(getRegValue(params.get(1).getKey(), intRegs) + offset));
 							break;
 						}
 						
@@ -466,10 +485,6 @@ public class TigerInterpreter {
 							}
 							break;
 						}
-						case STRi: {
-							memory.storeInt(getRegValue(params.get(1).getKey(), intRegs), getRegValue(params.get(0).getKey(), intRegs));
-							break;
-						}
 						case STf: {
 							float value = getRegValue(params.get(0).getKey(), intRegs);
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
@@ -483,8 +498,14 @@ public class TigerInterpreter {
 							}
 							break;
 						}
+						case STRi: {
+							int offset = params.size() == 3 ? Integer.parseInt(params.get(2).getKey()) : 0;
+							memory.storeInt(getRegValue(params.get(1).getKey(), intRegs) + offset, getRegValue(params.get(0).getKey(), intRegs));
+							break;
+						}
 						case STRf: {
-							memory.storeFloat(getRegValue(params.get(1).getKey(), intRegs), getRegValue(params.get(0).getKey(), floatRegs));
+							int offset = params.size() == 3 ? Integer.parseInt(params.get(2).getKey()) : 0;
+							memory.storeFloat(getRegValue(params.get(1).getKey(), intRegs) + offset, getRegValue(params.get(0).getKey(), floatRegs));
 							break;
 						}
 						
@@ -564,6 +585,7 @@ public class TigerInterpreter {
 									if(params.size() != 2) {
 										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 0, got " + (params.size() - 2));
 									}
+									
 									System.out.print("readi: ");
 									if(!stdin.hasNextInt()) {
 										throw new IllegalStateException("Type mismatch, readi expected integer");
@@ -575,6 +597,7 @@ public class TigerInterpreter {
 									if(params.size() != 2) {
 										throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 0, got " + (params.size() - 2));
 									}
+									
 									System.out.print("readf: ");
 									if(!stdin.hasNextFloat()) {
 										throw new IllegalStateException("Type mismatch, readf expected float");
@@ -614,26 +637,36 @@ public class TigerInterpreter {
 							}
 							
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.pop();
-							if(context.getKey().getValue() == null && params.size() == 1) {
-								throw new IllegalArgumentException("Function has no return value");
-							}
-							
-							if(context.getKey().getValue() != null && params.size() == 0) {
+							if(context.getKey().getValue() != null) {
 								throw new IllegalArgumentException("Expected return value");
 							}
 							
-							if(params.size() == 1) {
-								if(context.getKey().getValue().charAt(1) == 'i') {
-									if(params.get(0).getValue() != ParamType.REGISTERi) {
-										throw new IllegalArgumentException("Type mismatch on return value");
-									}
-									intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
-								} else {
-									if(params.get(0).getValue() != ParamType.REGISTERf) {
-										throw new IllegalArgumentException("Type mismatch on return value");
-									}
-									floatRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), floatRegs));
+							currentPC = context.getKey().getKey();
+							break;
+						}
+						case RETi:
+						case RETf: {
+							if(stack.size() == 0) {
+								throw new IllegalArgumentException("Cannot return value from main");
+							}
+							
+							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.pop();
+							if(context.getKey().getValue() == null) {
+								throw new IllegalArgumentException("Function has no return value");
+							}
+							
+							if(currInstr.getOpcode() == TigerIROpcode.RETi) {
+								if(context.getKey().getValue().charAt(1) != 'i') {
+									throw new IllegalArgumentException("Type mismatch on return value, callsite expected float");
 								}
+								
+								intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
+							} else {
+								if(context.getKey().getValue().charAt(1) != 'f') {
+									throw new IllegalArgumentException("Type mismatch on return value, callsite expected int");
+								}
+								
+								floatRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), floatRegs));
 							}
 							
 							currentPC = context.getKey().getKey();

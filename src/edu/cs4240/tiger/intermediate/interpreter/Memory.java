@@ -96,6 +96,22 @@ public class Memory {
 		return currAddr;
 	}
 	
+	public boolean containsIntVar(String name) {
+		return intVars.containsKey(name);
+	}
+	
+	public boolean containsFloatVar(String name) {
+		return floatVars.containsKey(name);
+	}
+	
+	public boolean containsIntArray(String name) {
+		return containsIntVar(name);
+	}
+	
+	public boolean containsFloatArray(String name) {
+		return containsFloatVar(name);
+	}
+	
 	public int loadInt(int address) {
 		for(int[] arr : intArrays) {
 			if(address >= arr.length) {
