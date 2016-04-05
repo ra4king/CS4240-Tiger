@@ -31,10 +31,6 @@
 	RETf $f4
 	
 .FUNC weird
-	LDIi $i5 3
-	LDIi $i6 2
-	LDIi $i7 1
-	
 	LDIi $i8 2
 	
 	LDi $i0 arr2
@@ -43,24 +39,24 @@ LOOP:
 	BRZ $i8 END
 	LDRi $i1 $i0
 	
+	LDIi $i9 3
+	LDIi $i5 3
+	
+LOOP2:
+	BRZ $i9 END2
+	
 	LDRi $i2 $i1
 	STRi $i5 $i2 0
 	STRi $i5 $i2 1
 	STRi $i5 $i2 2
 	STRi $i5 $i2 3
 	
-	LDRi $i2 $i1 1
-	STRi $i6 $i2 0
-	STRi $i6 $i2 1
-	STRi $i6 $i2 2
-	STRi $i6 $i2 3
-    
-    LDRi $i2 $i1 2
-	STRi $i7 $i2 0
-	STRi $i7 $i2 1
-	STRi $i7 $i2 2
-	STRi $i7 $i2 3
-	
+	ADDIi $i1 $i1 1
+	SUBIi $i9 $i9 1
+	SUBIi $i5 $i5 1
+	BR LOOP2
+
+END2:
 	ADDIi $i0 $i0 1
 	SUBIi $i8 $i8 1
 	BR LOOP
@@ -82,7 +78,6 @@ END:
 	BRZ $i12 skip
 	
 	ADDIi $i1 $i1 1
-	RET
 	
 skip:
 	CALL printi $i1
