@@ -46,11 +46,18 @@ LOOP2:
 	BRZ $i9 END2
 	
 	LDRi $i2 $i1
-	STRi $i5 $i2 0
-	STRi $i5 $i2 1
-	STRi $i5 $i2 2
-	STRi $i5 $i2 3
 	
+	LDIi $i6 4
+LOOP3:
+	BRZ $i6 END3
+	
+	STRi $i5 $i2
+	
+	ADDIi $i2 $i2 1
+	SUBIi $i6 $i6 1
+	BR LOOP3
+	
+END3:
 	ADDIi $i1 $i1 1
 	SUBIi $i9 $i9 1
 	SUBIi $i5 $i5 1
