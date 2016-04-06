@@ -5,13 +5,13 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Random;
 
-import edu.cs4240.tiger.parser.TigerParser.LeafNode;
-import edu.cs4240.tiger.parser.TigerParser.Node;
-import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerSymbol;
 import edu.cs4240.tiger.parser.TigerToken;
 import edu.cs4240.tiger.parser.TigerTokenClass;
+import edu.cs4240.tiger.parser.node.LeafNode;
+import edu.cs4240.tiger.parser.node.Node;
+import edu.cs4240.tiger.parser.node.RuleNode;
 import edu.cs4240.tiger.util.Utils;
 
 /**

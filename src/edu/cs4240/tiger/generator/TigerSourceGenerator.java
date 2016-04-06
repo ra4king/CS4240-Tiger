@@ -2,7 +2,7 @@ package edu.cs4240.tiger.generator;
 
 import java.util.Random;
 
-import edu.cs4240.tiger.parser.TigerParser.Node;
+import edu.cs4240.tiger.parser.node.Node;
 import edu.cs4240.tiger.util.Utils;
 
 /**

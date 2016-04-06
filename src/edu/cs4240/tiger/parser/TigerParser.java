@@ -3,7 +3,6 @@ package edu.cs4240.tiger.parser;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
@@ -13,102 +12,15 @@ import java.util.List;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
+import edu.cs4240.tiger.parser.node.LeafNode;
+import edu.cs4240.tiger.parser.node.Node;
+import edu.cs4240.tiger.parser.node.RuleNode;
 import edu.cs4240.tiger.util.Pair;
 
 /**
  * @author Roi Atalla
  */
 public class TigerParser {
-	public interface Node {
-	}
-	
-	public static class RuleNode implements Node {
-		private TigerProductionRule value;
-		private List<Node> children;
-		
-		public RuleNode() {
-			this((TigerProductionRule)null);
-		}
-		
-		public RuleNode(RuleNode node) {
-			this.value = node.value;
-			this.children = new ArrayList<>(node.children);
-		}
-		
-		public RuleNode(TigerProductionRule value, Node... children) {
-			this.value = value;
-			this.children = new ArrayList<>(Arrays.asList(children));
-		}
-		
-		public TigerProductionRule getValue() {
-			return value;
-		}
-		
-		public void setValue(TigerProductionRule value) {
-			this.value = value;
-		}
-		
-		public List<Node> getChildren() {
-			return children;
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof RuleNode) {
-				RuleNode r = (RuleNode)o;
-				
-				return this.value == r.getValue() && this.children.equals(r.children);
-			}
-			
-			return false;
-		}
-		
-		@Override
-		public String toString() {
-			if(children.size() == 0) {
-				return value.toString().toLowerCase();
-			}
-			
-			String s = "(" + value.toString().toLowerCase();
-			for(Node child : children) {
-				s += " " + child.toString();
-			}
-			s += ")";
-			return s;
-		}
-	}
-	
-	public static class LeafNode implements Node {
-		private TigerToken token;
-		
-		public LeafNode() {
-		}
-		
-		public LeafNode(TigerToken token) {
-			this.token = token;
-		}
-		
-		public TigerToken getToken() {
-			return token;
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-			if(o instanceof LeafNode) {
-				LeafNode l = (LeafNode)o;
-				
-				return this.token.getTokenClass() == l.getToken().getTokenClass() && this.token.getToken().equals(l.getToken().getToken());
-			}
-			
-			return false;
-		}
-		
-		@Override
-		public String toString() {
-			return token.getToken();
-		}
-	}
-	
 	private RuleNode ast;
 	private Queue<TigerToken> tokenQueue;
 	

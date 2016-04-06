@@ -10,8 +10,8 @@ import java.util.List;
 import edu.cs4240.tiger.analyzer.TigerAnalyzer;
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerParser;
-import edu.cs4240.tiger.parser.TigerParser.RuleNode;
 import edu.cs4240.tiger.parser.TigerScanner;
+import edu.cs4240.tiger.parser.node.RuleNode;
 
 /**
  * @author Roi Atalla
