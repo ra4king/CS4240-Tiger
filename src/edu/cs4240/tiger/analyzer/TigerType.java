@@ -7,26 +7,26 @@ import edu.cs4240.tiger.parser.TigerTokenClass;
  * @author Roi Atalla
  */
 public class TigerType {
-	public enum Type {
+	public enum BaseType {
 		INT,
 		FLOAT,
 		ARRAY
 	}
 	
-	public static final TigerType INT_TYPE = new TigerType(Type.INT);
-	public static final TigerType FLOAT_TYPE = new TigerType(Type.FLOAT);
+	public static final TigerType INT_TYPE = new TigerType(BaseType.INT);
+	public static final TigerType FLOAT_TYPE = new TigerType(BaseType.FLOAT);
 	
-	public final Type type;
+	public final BaseType baseType;
 	
-	public TigerType(Type type) {
-		this.type = type;
+	public TigerType(BaseType baseType) {
+		this.baseType = baseType;
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if(o instanceof TigerType) {
 			TigerType t = (TigerType)o;
-			return t.type == this.type;
+			return t.baseType == this.baseType;
 		}
 		
 		return false;
@@ -49,22 +49,24 @@ public class TigerType {
 	
 	@Override
 	public String toString() {
-		return type.toString();
+		return baseType.toString();
 	}
 	
 	public static class TigerArrayType extends TigerType {
-		public final TigerType subtype;
+		public final TigerType subType;
+		public final int size;
 		
-		public TigerArrayType(TigerType subtype) {
-			super(Type.ARRAY);
-			this.subtype = subtype;
+		public TigerArrayType(TigerType subType, int size) {
+			super(BaseType.ARRAY);
+			this.subType = subType;
+			this.size = size;
 		}
 		
 		@Override
 		public boolean equals(Object o) {
 			if(o instanceof TigerArrayType) {
 				TigerArrayType t = (TigerArrayType)o;
-				return t.type == this.type && t.subtype.equals(this.subtype);
+				return t.baseType == this.baseType && t.subType.equals(this.subType);
 			}
 			
 			return false;
@@ -72,7 +74,7 @@ public class TigerType {
 		
 		@Override
 		public String toString() {
-			return super.toString() + " of " + subtype.toString();
+			return super.toString() + "[" + size + "] of " + subType.toString();
 		}
 	}
 }

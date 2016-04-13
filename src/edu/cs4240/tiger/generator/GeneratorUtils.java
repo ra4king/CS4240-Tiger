@@ -16,19 +16,6 @@ public class GeneratorUtils {
 		return String.format("%.3f", rng.nextDouble() * 1000);
 	}
 	
-	private static char generateIDChar(Random rng) {
-		switch(rng.nextInt(4)) {
-			case 0:
-				return (char)(rng.nextInt('z' - 'a') + 'a');
-			case 1:
-				return Character.toUpperCase((char)(rng.nextInt('z' - 'a') + 'a'));
-			case 2:
-				return (char)(rng.nextInt('9' - '0') + '0');
-			default:
-				return '_';
-		}
-	}
-	
 	public static String generateID(Random rng) {
 		String id = "";
 		
@@ -72,5 +59,18 @@ public class GeneratorUtils {
 		} while(true);
 		
 		return id;
+	}
+	
+	private static char generateIDChar(Random rng) {
+		switch(rng.nextInt(4)) {
+			case 0:
+				return (char)(rng.nextInt('z' - 'a') + 'a');
+			case 1:
+				return Character.toUpperCase((char)(rng.nextInt('z' - 'a') + 'a'));
+			case 2:
+				return (char)(rng.nextInt('9' - '0') + '0');
+			default:
+				return '_';
+		}
 	}
 }

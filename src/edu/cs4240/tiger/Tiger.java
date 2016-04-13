@@ -73,7 +73,7 @@ public class Tiger {
 		
 		if(printTokens) {
 			for(TigerToken token : parser.getTokens()) {
-				System.out.print(token.getToken() + " ");
+				System.out.print(token.getTokenString() + " ");
 			}
 			System.out.println();
 		}

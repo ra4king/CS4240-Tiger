@@ -4,8 +4,8 @@ import static edu.cs4240.tiger.util.Utils.*;
 
 import java.util.HashMap;
 
+import edu.cs4240.tiger.analyzer.TigerType.BaseType;
 import edu.cs4240.tiger.analyzer.TigerType.TigerArrayType;
-import edu.cs4240.tiger.analyzer.TigerType.Type;
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerTokenClass;
@@ -22,10 +22,10 @@ public class TigerTypeAnalyzer {
 	}
 	
 	public static TigerType getNumexprType(RuleNode numexpr, HashMap<String, TigerType> varTypes) throws TigerParseException {
-		ensureValue(numexpr.getValue(), TigerProductionRule.NUMEXPR);
+		ensureValue(numexpr.getRule(), TigerProductionRule.NUMEXPR);
 		
 		RuleNode leftChild = (RuleNode)numexpr.getChildren().get(0);
-		if(leftChild.getValue() == TigerProductionRule.NUMEXPR) {
+		if(leftChild.getRule() == TigerProductionRule.NUMEXPR) {
 			RuleNode rightChild = (RuleNode)numexpr.getChildren().get(2);
 			
 			TigerType leftType = getNumexprType(leftChild, varTypes);
@@ -54,10 +54,10 @@ public class TigerTypeAnalyzer {
 	}
 	
 	private static TigerType getTermType(RuleNode term, HashMap<String, TigerType> varTypes) throws TigerParseException {
-		ensureValue(term.getValue(), TigerProductionRule.TERM);
+		ensureValue(term.getRule(), TigerProductionRule.TERM);
 		
 		RuleNode leftChild = (RuleNode)term.getChildren().get(0);
-		if(leftChild.getValue() == TigerProductionRule.TERM) {
+		if(leftChild.getRule() == TigerProductionRule.TERM) {
 			RuleNode rightChild = (RuleNode)term.getChildren().get(2);
 			
 			TigerType leftType = getTermType(leftChild, varTypes);
@@ -86,7 +86,7 @@ public class TigerTypeAnalyzer {
 	}
 	
 	private static TigerType getFactorType(RuleNode factor, HashMap<String, TigerType> varTypes) throws TigerParseException {
-		ensureValue(factor.getValue(), TigerProductionRule.FACTOR);
+		ensureValue(factor.getRule(), TigerProductionRule.FACTOR);
 		
 		Node first = factor.getChildren().get(0);
 		if(first instanceof LeafNode) {
@@ -103,7 +103,7 @@ public class TigerTypeAnalyzer {
 		} else {
 			RuleNode firstRule = (RuleNode)first;
 			
-			switch(firstRule.getValue()) {
+			switch(firstRule.getRule()) {
 				case CONST:
 					return TigerType.getLiteralType(((LeafNode)firstRule.getChildren().get(0)).getToken());
 				default:
@@ -115,7 +115,7 @@ public class TigerTypeAnalyzer {
 	public static TigerType getIdOptOffsetType(RuleNode rule, HashMap<String, TigerType> varTypes) throws TigerParseException {
 		LeafNode id = (LeafNode)rule.getChildren().get(0);
 		
-		TigerType idType = varTypes.get(id.getToken().getToken());
+		TigerType idType = varTypes.get(id.getToken().getTokenString());
 		
 		if(idType == null) {
 			throw new TigerParseException("Undeclared variable", id.getToken());
@@ -149,19 +149,19 @@ public class TigerTypeAnalyzer {
 				throw new TigerParseException("Array index must be an integer type", getLeftmostLeaf(numexpr));
 			}
 			
-			if(idType.type != Type.ARRAY) {
+			if(idType.baseType != BaseType.ARRAY) {
 				throw new TigerParseException("Cannot index into non-array type", lbracket.getToken());
 			}
 			
-			return ((TigerArrayType)idType).subtype;
+			return ((TigerArrayType)idType).subType;
 		}
 	}
 	
 	public static void analyzeBoolexpr(RuleNode boolexpr, HashMap<String, TigerType> varTypes) throws TigerParseException {
-		ensureValue(boolexpr.getValue(), TigerProductionRule.BOOLEXPR);
+		ensureValue(boolexpr.getRule(), TigerProductionRule.BOOLEXPR);
 		
 		RuleNode child = (RuleNode)boolexpr.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.BOOLEXPR) {
+		if(child.getRule() == TigerProductionRule.BOOLEXPR) {
 			analyzeBoolexpr(child, varTypes);
 			analyzeClause((RuleNode)boolexpr.getChildren().get(2), varTypes);
 		} else {
@@ -170,10 +170,10 @@ public class TigerTypeAnalyzer {
 	}
 	
 	private static void analyzeClause(RuleNode clause, HashMap<String, TigerType> varTypes) throws TigerParseException {
-		ensureValue(clause.getValue(), TigerProductionRule.CLAUSE);
+		ensureValue(clause.getRule(), TigerProductionRule.CLAUSE);
 		
 		RuleNode child = (RuleNode)clause.getChildren().get(0);
-		if(child.getValue() == TigerProductionRule.CLAUSE) {
+		if(child.getRule() == TigerProductionRule.CLAUSE) {
 			analyzeClause(child, varTypes);
 			analyzePred((RuleNode)clause.getChildren().get(2), varTypes);
 		} else {
@@ -182,7 +182,7 @@ public class TigerTypeAnalyzer {
 	}
 	
 	private static void analyzePred(RuleNode pred, HashMap<String, TigerType> varTypes) throws TigerParseException {
-		ensureValue(pred.getValue(), TigerProductionRule.PRED);
+		ensureValue(pred.getRule(), TigerProductionRule.PRED);
 		
 		Node first = pred.getChildren().get(0);
 		if(first instanceof LeafNode) {
@@ -190,8 +190,8 @@ public class TigerTypeAnalyzer {
 			
 			switch(firstLeaf.getToken().getTokenClass()) {
 //				case ID:
-//					if(!TigerType.BOOL_TYPE.equals(varTypes.get(firstLeaf.getToken().getToken()))) {
-//						throw new TigerParseException("Not a boolean type", firstLeaf.getToken());
+//					if(!TigerType.BOOL_TYPE.equals(varTypes.get(firstLeaf.getTokenString().getTokenString()))) {
+//						throw new TigerParseException("Not a boolean type", firstLeaf.getTokenString());
 //					}
 //					break;
 				case LPAREN:
@@ -204,7 +204,7 @@ public class TigerTypeAnalyzer {
 			RuleNode leftRule = (RuleNode)first;
 			RuleNode rightRule = (RuleNode)pred.getChildren().get(2);
 			
-			if(leftRule.getValue() != TigerProductionRule.NUMEXPR) {
+			if(leftRule.getRule() != TigerProductionRule.NUMEXPR) {
 				throw new TigerParseException("Something went very wrong", getLeftmostLeaf(leftRule));
 			}
 			

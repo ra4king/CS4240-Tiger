@@ -26,11 +26,11 @@ public class TigerToken {
 		this.tokenClass = tokenClass;
 	}
 	
-	public String getToken() {
+	public String getTokenString() {
 		return token;
 	}
 	
-	public void setToken(String token) {
+	public void setTokenString(String token) {
 		this.token = token;
 	}
 	

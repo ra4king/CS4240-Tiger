@@ -3,7 +3,7 @@ package edu.cs4240.tiger.generator;
 import java.util.Random;
 
 import edu.cs4240.tiger.parser.node.Node;
-import edu.cs4240.tiger.util.Utils;
+import edu.cs4240.tiger.util.StringifyTigerAST;
 
 /**
  * @author Roi Atalla
@@ -103,6 +103,6 @@ public class TigerSourceGenerator {
 			System.out.printf("// Generated Tiger program with depth=%d and seed=%d in %.3f ms\n\n", depth, seed, time / 1e6);
 		}
 		
-		System.out.println(Utils.stringify(0, program));
+		System.out.println(StringifyTigerAST.stringifyAST(program));
 	}
 }

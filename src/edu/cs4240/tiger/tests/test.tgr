@@ -7,8 +7,6 @@ let
 	var a, b, c : hello := 9;
 	var d, e, f : world := 42.0;
 	
-	var g, i, j : bool := false;
-	
 	var h : array[10] of hello;
 	var k : array[10] of float;
 	
@@ -31,7 +29,7 @@ let
 		a := k;
 		myFunc(3, 4);
 		
-		if(g & i | j | a[4] < 100) then
+		if(a[4] < 100) then
 			for b := 0 to 9 do
 				if(b = 4) then
 					break;
@@ -66,10 +64,6 @@ let
 		
 		printi(2);
 		return 2;
-	end;
-	
-	func printi() begin
-		h[4] := 10000;
 	end;
 in
 	h[4] := h[4];

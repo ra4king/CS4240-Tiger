@@ -40,8 +40,8 @@ public class TigerParseException extends Exception {
 		if(line == null)
 			return getMessage();
 		
-		String s = getMessage() + " on line " + lineNum + ", index " + indexNum + ": ";
-		int len = s.length() + indexNum;
+		String s = "\n" + getMessage() + " on line " + lineNum + ", index " + indexNum + ": ";
+		int len = s.length() - 1 + indexNum;
 		
 		String trimmed = line.trim();
 		len -= line.indexOf(trimmed);

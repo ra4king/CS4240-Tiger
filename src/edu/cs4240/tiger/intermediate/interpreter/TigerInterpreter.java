@@ -101,13 +101,13 @@ public class TigerInterpreter {
 								throw new IllegalArgumentException("Array already declared: '" + parts[1] + "'");
 							}
 							
-							memory.addIntArray(parts[1], sizes);
+							memory.addArray(parts[1], sizes, true);
 						} else {
 							if(memory.containsFloatArray(parts[1])) {
 								throw new IllegalArgumentException("Array already declared: '" + parts[1] + "'");
 							}
 							
-							memory.addFloatArray(parts[1], sizes);
+							memory.addArray(parts[1], sizes, false);
 						}
 						
 						break;
@@ -288,26 +288,26 @@ public class TigerInterpreter {
 							break;
 						}
 						
-						case AND: {
+						case ANDi: {
 							int src1 = getRegValue(params.get(1).getKey(), intRegs);
 							int src2 = getRegValue(params.get(2).getKey(), intRegs);
 							intRegs.put(params.get(0).getKey(), src1 & src2);
 							break;
 						}
-						case ANDI: {
+						case ANDIi: {
 							int src1 = getRegValue(params.get(1).getKey(), intRegs);
 							int src2 = Integer.parseInt(params.get(2).getKey());
 							intRegs.put(params.get(0).getKey(), src1 & src2);
 							break;
 						}
 						
-						case OR: {
+						case ORi: {
 							int src1 = getRegValue(params.get(1).getKey(), intRegs);
 							int src2 = getRegValue(params.get(2).getKey(), intRegs);
 							intRegs.put(params.get(0).getKey(), src1 | src2);
 							break;
 						}
-						case ORI: {
+						case ORIi: {
 							int src1 = getRegValue(params.get(1).getKey(), intRegs);
 							int src2 = Integer.parseInt(params.get(2).getKey());
 							intRegs.put(params.get(0).getKey(), src1 | src2);
@@ -486,7 +486,7 @@ public class TigerInterpreter {
 							break;
 						}
 						case STf: {
-							float value = getRegValue(params.get(0).getKey(), intRegs);
+							float value = getRegValue(params.get(0).getKey(), floatRegs);
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
 							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
 								if(context.getValue().get(params.get(1).getKey()).getClass() != Float.class) {
@@ -496,6 +496,14 @@ public class TigerInterpreter {
 							} else {
 								memory.storeFloat(params.get(1).getKey(), value);
 							}
+							break;
+						}
+						case STIi: {
+							memory.storeInt(params.get(1).getKey(), Integer.parseInt(params.get(0).getKey()));
+							break;
+						}
+						case STIf: {
+							memory.storeFloat(params.get(1).getKey(), Float.parseFloat(params.get(0).getKey()));
 							break;
 						}
 						case STRi: {
@@ -651,22 +659,20 @@ public class TigerInterpreter {
 							}
 							
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.pop();
-							if(context.getKey().getValue() == null) {
-								throw new IllegalArgumentException("Function has no return value");
-							}
-							
-							if(currInstr.getOpcode() == TigerIROpcode.RETi) {
-								if(context.getKey().getValue().charAt(1) != 'i') {
-									throw new IllegalArgumentException("Type mismatch on return value, callsite expected float");
+							if(context.getKey().getValue() != null) {
+								if(currInstr.getOpcode() == TigerIROpcode.RETi) {
+									if(context.getKey().getValue().charAt(1) != 'i') {
+										throw new IllegalArgumentException("Type mismatch on return value, callsite expected float");
+									}
+									
+									intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
+								} else {
+									if(context.getKey().getValue().charAt(1) != 'f') {
+										throw new IllegalArgumentException("Type mismatch on return value, callsite expected int");
+									}
+									
+									floatRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), floatRegs));
 								}
-								
-								intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
-							} else {
-								if(context.getKey().getValue().charAt(1) != 'f') {
-									throw new IllegalArgumentException("Type mismatch on return value, callsite expected int");
-								}
-								
-								floatRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), floatRegs));
 							}
 							
 							currentPC = context.getKey().getKey();

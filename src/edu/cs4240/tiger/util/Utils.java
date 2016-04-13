@@ -2,7 +2,6 @@ package edu.cs4240.tiger.util;
 
 import java.util.HashMap;
 
-import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerToken;
 import edu.cs4240.tiger.parser.TigerTokenClass;
 import edu.cs4240.tiger.parser.node.LeafNode;
@@ -29,8 +28,8 @@ public class Utils {
 		specialTokenClassesToString.put(TigerTokenClass.DOT, ".");
 		specialTokenClassesToString.put(TigerTokenClass.PLUS, "+");
 		specialTokenClassesToString.put(TigerTokenClass.MINUS, "-");
-		specialTokenClassesToString.put(TigerTokenClass.MULT, "*");
-		specialTokenClassesToString.put(TigerTokenClass.DIV, "/");
+		specialTokenClassesToString.put(TigerTokenClass.STAR, "*");
+		specialTokenClassesToString.put(TigerTokenClass.FWSLASH, "/");
 		specialTokenClassesToString.put(TigerTokenClass.EQUAL, "=");
 		specialTokenClassesToString.put(TigerTokenClass.NOTEQUAL, "<>");
 		specialTokenClassesToString.put(TigerTokenClass.LT, "<");
@@ -53,8 +52,8 @@ public class Utils {
 		specialTokenStringToClasses.put(".", TigerTokenClass.DOT);
 		specialTokenStringToClasses.put("+", TigerTokenClass.PLUS);
 		specialTokenStringToClasses.put("-", TigerTokenClass.MINUS);
-		specialTokenStringToClasses.put("*", TigerTokenClass.MULT);
-		specialTokenStringToClasses.put("/", TigerTokenClass.DIV);
+		specialTokenStringToClasses.put("*", TigerTokenClass.STAR);
+		specialTokenStringToClasses.put("/", TigerTokenClass.FWSLASH);
 		specialTokenStringToClasses.put("=", TigerTokenClass.EQUAL);
 		specialTokenStringToClasses.put("<>", TigerTokenClass.NOTEQUAL);
 		specialTokenStringToClasses.put("<", TigerTokenClass.LT);
@@ -89,112 +88,5 @@ public class Utils {
 		}
 		
 		return null;
-	}
-	
-	public static String stringify(int level, Node node) {
-		String s = "";
-		
-		if(node instanceof RuleNode) {
-			RuleNode ruleNode = (RuleNode)node;
-			
-			if(addIndent(ruleNode.getValue())) {
-				level += 1;
-			}
-			
-			if(printIndent(ruleNode.getValue())) {
-				for(int i = 0; i < level; i++) {
-					s += "   ";
-				}
-			}
-			
-			for(Node child : ruleNode.getChildren()) {
-				s += stringify(level, child);
-			}
-		} else if(((LeafNode)node).getToken().getTokenClass() != TigerTokenClass.EPSILON) {
-			TigerToken token = ((LeafNode)node).getToken();
-			
-			if(printIndent(token.getTokenClass())) {
-				for(int i = 0; i < level; i++) {
-					s += "   ";
-				}
-			} else if(addWhitespace(token.getTokenClass())) {
-				s += " ";
-			}
-			
-			s += token.getToken();
-			s += generateNewLine(token.getTokenClass()) ? "\n" : "";
-		}
-		
-		return s;
-	}
-	
-	private static boolean printIndent(TigerProductionRule rule) {
-		switch(rule) {
-			case TYPEDECL:
-			case VARDECL:
-			case FUNCDECL:
-			case STMT:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private static boolean printIndent(TigerTokenClass tokenClass) {
-		switch(tokenClass) {
-			case ELSE:
-			case END:
-			case ENDIF:
-			case ENDDO:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private static boolean addIndent(TigerProductionRule token) {
-		switch(token) {
-			case DECLSEG:
-			case STMT:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	private static boolean addWhitespace(TigerTokenClass tokenClass) {
-		switch(tokenClass) {
-			case LET:
-			case TYPE_:
-			case FUNC:
-			case VAR:
-			case IN:
-			case END:
-			case IF:
-			case WHILE:
-			case FOR:
-			case BREAK:
-			case RETURN:
-			case COMMA:
-			case SEMICOLON:
-				return false;
-			default:
-				return true;
-		}
-	}
-	
-	private static boolean generateNewLine(TigerTokenClass token) {
-		switch(token) {
-			case LET:
-			case BEGIN:
-			case THEN:
-			case ELSE:
-			case DO:
-			case SEMICOLON:
-			case IN:
-				return true;
-			default:
-				return false;
-		}
 	}
 }

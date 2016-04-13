@@ -23,8 +23,8 @@ import edu.cs4240.tiger.util.Pair;
 public class TigerSymbolTable {
 	private RuleNode ast;
 	private HashMap<String, TigerType> typeAliases;
-	private HashMap<String, TigerType> variables;
-	private HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> functions;
+	private HashMap<String, Pair<TigerType, String>> variables; // HashMap<Name, Pair<Type, @Nullable InitValue>>
+	private HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> functions; // HashMap<Name, Pair<@Nullable ReturnType, List<Pair<ArgName, ArgType>>>>
 	public final static HashMap<String, Pair<TigerType, List<Pair<String, TigerType>>>> builtInFunctions;
 	
 	static {
@@ -57,7 +57,7 @@ public class TigerSymbolTable {
 		}
 	}
 	
-	public HashMap<String, TigerType> getVariables() {
+	public HashMap<String, Pair<TigerType, String>> getVariables() {
 		return variables;
 	}
 	
@@ -81,7 +81,7 @@ public class TigerSymbolTable {
 	}
 	
 	private void buildTypedecls(RuleNode typedecls) throws TigerParseException {
-		ensureValue(typedecls.getValue(), TigerProductionRule.TYPEDECLS);
+		ensureValue(typedecls.getRule(), TigerProductionRule.TYPEDECLS);
 		
 		if(typedecls.getChildren().size() == 0) {
 			return;
@@ -91,17 +91,17 @@ public class TigerSymbolTable {
 		TigerToken id = ((LeafNode)typedecl.getChildren().get(1)).getToken();
 		TigerType type = getBaseType((RuleNode)typedecl.getChildren().get(3));
 		
-		if(typeAliases.get(id.getToken()) != null) {
+		if(typeAliases.get(id.getTokenString()) != null) {
 			throw new TigerParseException("Type previously declared", id);
 		}
 		
-		typeAliases.put(id.getToken(), type);
+		typeAliases.put(id.getTokenString(), type);
 		
 		buildTypedecls((RuleNode)typedecls.getChildren().get(1));
 	}
 	
 	private void buildVardecls(RuleNode vardecls) throws TigerParseException {
-		ensureValue(vardecls.getValue(), TigerProductionRule.VARDECLS);
+		ensureValue(vardecls.getRule(), TigerProductionRule.VARDECLS);
 		
 		if(vardecls.getChildren().size() == 0) {
 			return;
@@ -111,41 +111,46 @@ public class TigerSymbolTable {
 		RuleNode ids = (RuleNode)vardecl.getChildren().get(1);
 		TigerType type = getBaseType((RuleNode)vardecl.getChildren().get(3));
 		
-		buildIds(ids, type);
+		String initValue = "";
 		
 		RuleNode optinit = (RuleNode)vardecl.getChildren().get(4);
 		if(optinit.getChildren().size() > 0) {
 			TigerToken constToken = ((LeafNode)((RuleNode)optinit.getChildren().get(1)).getChildren().get(0)).getToken();
+			TigerType literalType = TigerType.getLiteralType(constToken);
 			
-			if(!TigerTypeAnalyzer.isTypeCompatibleAssign(type, TigerType.getLiteralType(constToken))) {
+			if(!TigerTypeAnalyzer.isTypeCompatibleAssign(type, literalType)) {
 				throw new TigerParseException("Incompatible types", constToken);
 			}
+			
+			initValue = constToken.getTokenString();
 		}
+		
+		buildIds(ids, type, initValue);
 		
 		buildVardecls((RuleNode)vardecls.getChildren().get(1));
 	}
 	
-	private void buildIds(RuleNode ids, TigerType type) throws TigerParseException {
-		ensureValue(ids.getValue(), TigerProductionRule.IDS);
+	private void buildIds(RuleNode ids, TigerType type, String initValue) throws TigerParseException {
+		ensureValue(ids.getRule(), TigerProductionRule.IDS);
 		
 		for(Node child : ids.getChildren()) {
 			if(child instanceof RuleNode) {
-				buildIds((RuleNode)child, type);
+				buildIds((RuleNode)child, type, initValue);
 			} else {
 				TigerToken token = ((LeafNode)child).getToken();
 				if(token.getTokenClass() == TigerTokenClass.ID) {
-					if(variables.get(token.getToken()) != null) {
+					if(variables.get(token.getTokenString()) != null) {
 						throw new TigerParseException("Variable previously declared", token);
 					}
 					
-					variables.put(token.getToken(), type);
+					variables.put(token.getTokenString(), new Pair<>(type, initValue));
 				}
 			}
 		}
 	}
 	
 	private void buildFuncdecls(RuleNode funcdecls) throws TigerParseException {
-		ensureValue(funcdecls.getValue(), TigerProductionRule.FUNCDECLS);
+		ensureValue(funcdecls.getRule(), TigerProductionRule.FUNCDECLS);
 		
 		if(funcdecls.getChildren().size() == 0) {
 			return;
@@ -156,11 +161,11 @@ public class TigerSymbolTable {
 		RuleNode params = (RuleNode)funcdecl.getChildren().get(3);
 		RuleNode optrettype = (RuleNode)funcdecl.getChildren().get(5);
 		
-		if(builtInFunctions.get(id.getToken()) != null) {
+		if(builtInFunctions.get(id.getTokenString()) != null) {
 			throw new TigerParseException("Cannot redeclare built-in function", id);
 		}
 		
-		if(functions.get(id.getToken()) != null) {
+		if(functions.get(id.getTokenString()) != null) {
 			throw new TigerParseException("Function previously declared", id);
 		}
 		
@@ -172,22 +177,22 @@ public class TigerSymbolTable {
 		
 		if(optrettype.getChildren().size() != 0) {
 			TigerType type = getBaseType((RuleNode)optrettype.getChildren().get(1));
-			functions.put(id.getToken(), new Pair<>(type, argumentTypes));
+			functions.put(id.getTokenString(), new Pair<>(type, argumentTypes));
 		} else {
-			functions.put(id.getToken(), new Pair<>(null, argumentTypes)); // null == void
+			functions.put(id.getTokenString(), new Pair<>(null, argumentTypes)); // null == void
 		}
 		
 		buildFuncdecls((RuleNode)funcdecls.getChildren().get(1));
 	}
 	
 	private void buildFuncArgs(RuleNode params, List<Pair<String, TigerType>> argumentTypes) throws TigerParseException {
-		ensureValue(params.getValue(), TigerProductionRule.NEPARAMS);
+		ensureValue(params.getRule(), TigerProductionRule.NEPARAMS);
 		
 		for(Node child : params.getChildren()) {
 			if(child instanceof RuleNode) {
 				RuleNode ruleNode = (RuleNode)child;
 				
-				switch(ruleNode.getValue()) {
+				switch(ruleNode.getRule()) {
 					case NEPARAMS:
 						buildFuncArgs((RuleNode)child, argumentTypes);
 						break;
@@ -198,28 +203,29 @@ public class TigerSymbolTable {
 						TigerType type = getBaseType((RuleNode)ruleNode.getChildren().get(2));
 						
 						for(Pair<String, TigerType> pair : argumentTypes) {
-							if(pair.getKey().equals(id.getToken())) {
+							if(pair.getKey().equals(id.getTokenString())) {
 								throw new TigerParseException("Argument previously declared", id);
 							}
 						}
 						
-						argumentTypes.add(new Pair<>(id.getToken(), type));
+						argumentTypes.add(new Pair<>(id.getTokenString(), type));
 						break;
 					default:
-						throw new IllegalArgumentException("Expecting NEPARAMS or PARAM, received " + ruleNode.getValue());
+						throw new IllegalArgumentException("Expecting NEPARAMS or PARAM, received " + ruleNode.getRule());
 				}
 			}
 		}
 	}
 	
 	private TigerType getBaseType(RuleNode typeNode) throws TigerParseException {
-		ensureValue(typeNode.getValue(), TigerProductionRule.TYPE);
+		ensureValue(typeNode.getRule(), TigerProductionRule.TYPE);
 		
 		TigerToken token = ((LeafNode)typeNode.getChildren().get(0)).getToken();
 		if(token.getTokenClass() == TigerTokenClass.ARRAY) {
-			return new TigerArrayType(getBaseType((RuleNode)typeNode.getChildren().get(5)));
+			int size = Integer.parseInt(((LeafNode)typeNode.getChildren().get(2)).getToken().getTokenString());
+			return new TigerArrayType(getBaseType((RuleNode)typeNode.getChildren().get(5)), size);
 		} else if(token.getTokenClass() == TigerTokenClass.ID) {
-			TigerType tmp = typeAliases.get(token.getToken());
+			TigerType tmp = typeAliases.get(token.getTokenString());
 			if(tmp == null) {
 				throw new TigerParseException("Unknown type", token);
 			}

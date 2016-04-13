@@ -24,7 +24,7 @@ public class LeafNode implements Node {
 		if(o instanceof LeafNode) {
 			LeafNode l = (LeafNode)o;
 			
-			return this.token.getTokenClass() == l.getToken().getTokenClass() && this.token.getToken().equals(l.getToken().getToken());
+			return this.token.getTokenClass() == l.getToken().getTokenClass() && this.token.getTokenString().equals(l.getToken().getTokenString());
 		}
 		
 		return false;
@@ -32,6 +32,6 @@ public class LeafNode implements Node {
 	
 	@Override
 	public String toString() {
-		return token.getToken();
+		return token.getTokenString();
 	}
 }

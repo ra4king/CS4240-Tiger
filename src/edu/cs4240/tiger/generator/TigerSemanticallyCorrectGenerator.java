@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.cs4240.tiger.analyzer.TigerType;
+import edu.cs4240.tiger.analyzer.TigerType.BaseType;
 import edu.cs4240.tiger.analyzer.TigerType.TigerArrayType;
-import edu.cs4240.tiger.analyzer.TigerType.Type;
 import edu.cs4240.tiger.analyzer.TigerTypeAnalyzer;
 import edu.cs4240.tiger.parser.TigerProductionRule;
 import edu.cs4240.tiger.parser.TigerSymbol;
@@ -92,14 +92,14 @@ public class TigerSemanticallyCorrectGenerator {
 			vardeclNode.getChildren().add(typePair.getKey());
 			
 			RuleNode optinitNode = new RuleNode(TigerProductionRule.OPTINIT);
-			if(typePair.getValue().type != Type.ARRAY && notSoFairBoolean(rng)) {
+			if(typePair.getValue().baseType != BaseType.ARRAY && notSoFairBoolean(rng)) {
 				optinitNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.ASSIGN)));
 				
 				RuleNode constNode = new RuleNode(TigerProductionRule.CONST);
 				
-				if(typePair.getValue().type == Type.INT) {
+				if(typePair.getValue().baseType == BaseType.INT) {
 					constNode.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.INTLIT, GeneratorUtils.generateIntlit(rng), "", 0, 0)));
-				} else if(typePair.getValue().type == Type.FLOAT) {
+				} else if(typePair.getValue().baseType == BaseType.FLOAT) {
 					if(rng.nextBoolean()) {
 						constNode.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.INTLIT, GeneratorUtils.generateIntlit(rng), "", 0, 0)));
 					} else {
@@ -156,9 +156,9 @@ public class TigerSemanticallyCorrectGenerator {
 //				do {
 //					typePair = generateType(rng, typeAliases);
 //					
-//					if(typePair.getValue().type == Type.ARRAY) {
+//					if(typePair.getRule().type == Type.ARRAY) {
 //						for(TigerType type : varTypes.values()) {
-//							if(typePair.getValue().equals(type)) {
+//							if(typePair.getRule().equals(type)) {
 //								chooseAgain = false;
 //								break;
 //							}
@@ -229,7 +229,7 @@ public class TigerSemanticallyCorrectGenerator {
 		do {
 			Pair<RuleNode, TigerType> typePair = generateType(rng, typeAliases);
 			
-			if(typePair.getValue().type == Type.ARRAY) {
+			if(typePair.getValue().baseType == BaseType.ARRAY) {
 				for(TigerType type : varTypes.values()) {
 					if(typePair.getValue().equals(type)) {
 						return typePair;
@@ -395,7 +395,7 @@ public class TigerSemanticallyCorrectGenerator {
 						break;
 					}
 					case FOR:
-						Set<String> ints = varTypes.keySet().stream().filter(s -> varTypes.get(s).type == Type.INT).collect(Collectors.toSet());
+						Set<String> ints = varTypes.keySet().stream().filter(s -> varTypes.get(s).baseType == BaseType.INT).collect(Collectors.toSet());
 						if(ints.size() == 0) {
 							continue;
 						}
@@ -455,11 +455,11 @@ public class TigerSemanticallyCorrectGenerator {
 		lvalueNode.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.ID, id, "", 0, 0)));
 		
 		RuleNode optoffset = new RuleNode(TigerProductionRule.OPTOFFSET);
-		if(type.type == Type.ARRAY && limit > 0 && notSoFairBoolean(rng)) {
+		if(type.baseType == BaseType.ARRAY && limit > 0 && notSoFairBoolean(rng)) {
 			optoffset.getChildren().add(new LeafNode(tokenify(TigerTokenClass.LBRACKET)));
 			optoffset.getChildren().add(generateNumexpr(rng, limit - 1, TigerType.INT_TYPE, varTypes));
 			optoffset.getChildren().add(new LeafNode(tokenify(TigerTokenClass.RBRACKET)));
-			type = ((TigerArrayType)type).subtype;
+			type = ((TigerArrayType)type).subType;
 		}
 		
 		lvalueNode.getChildren().add(optoffset);
@@ -506,9 +506,9 @@ public class TigerSemanticallyCorrectGenerator {
 			termNode.getChildren().add(subTermNode);
 			
 			if(rng.nextBoolean()) {
-				termNode.getChildren().add(new RuleNode(TigerProductionRule.NONLINOP, new LeafNode(tokenify(TigerTokenClass.MULT))));
+				termNode.getChildren().add(new RuleNode(TigerProductionRule.NONLINOP, new LeafNode(tokenify(TigerTokenClass.STAR))));
 			} else {
-				termNode.getChildren().add(new RuleNode(TigerProductionRule.NONLINOP, new LeafNode(tokenify(TigerTokenClass.DIV))));
+				termNode.getChildren().add(new RuleNode(TigerProductionRule.NONLINOP, new LeafNode(tokenify(TigerTokenClass.FWSLASH))));
 			}
 		}
 		
@@ -532,10 +532,10 @@ public class TigerSemanticallyCorrectGenerator {
 			List<TigerSymbol> chosenRule = TigerProductionRule.FACTOR.productions.get(rng.nextInt(TigerProductionRule.FACTOR.productions.size()));
 			
 			if(tryCount == -1 || chosenRule.get(0) == TigerProductionRule.CONST) {
-				if(exprType.type == Type.INT) {
+				if(exprType.baseType == BaseType.INT) {
 					LeafNode intlit = new LeafNode(new TigerToken(TigerTokenClass.INTLIT, GeneratorUtils.generateIntlit(rng), "", 0, 0));
 					factorNode.getChildren().add(new RuleNode(TigerProductionRule.CONST, intlit));
-				} else if(exprType.type == Type.FLOAT) {
+				} else if(exprType.baseType == BaseType.FLOAT) {
 					if(rng.nextBoolean()) {
 						LeafNode intlit = new LeafNode(new TigerToken(TigerTokenClass.INTLIT, GeneratorUtils.generateIntlit(rng), "", 0, 0));
 						factorNode.getChildren().add(new RuleNode(TigerProductionRule.CONST, intlit));
@@ -553,8 +553,8 @@ public class TigerSemanticallyCorrectGenerator {
 					
 					if(TigerTypeAnalyzer.isTypeCompatibleAssign(exprType, idType)) {
 						idsSet.add(id);
-					} else if(idType.type == Type.ARRAY) {
-						if(TigerTypeAnalyzer.isTypeCompatibleAssign(exprType, ((TigerArrayType)idType).subtype)) {
+					} else if(idType.baseType == BaseType.ARRAY) {
+						if(TigerTypeAnalyzer.isTypeCompatibleAssign(exprType, ((TigerArrayType)idType).subType)) {
 							idsSet.add(id);
 						}
 					}
@@ -658,9 +658,11 @@ public class TigerSemanticallyCorrectGenerator {
 		} while(chosenType.get(0) == TigerTokenClass.ID && typeAliases.size() == 0);
 		
 		if(chosenType.get(0) == TigerTokenClass.ARRAY) {
+			String size = GeneratorUtils.generateIntlit(rng);
+			
 			typeNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.ARRAY)));
 			typeNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.LBRACKET)));
-			typeNode.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.INTLIT, GeneratorUtils.generateIntlit(rng), "", 0, 0)));
+			typeNode.getChildren().add(new LeafNode(new TigerToken(TigerTokenClass.INTLIT, size, "", 0, 0)));
 			typeNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.RBRACKET)));
 			typeNode.getChildren().add(new LeafNode(tokenify(TigerTokenClass.OF)));
 			
@@ -668,7 +670,7 @@ public class TigerSemanticallyCorrectGenerator {
 			
 			typeNode.getChildren().add(subTypeNode.getKey());
 			
-			return new Pair<>(typeNode, new TigerArrayType(subTypeNode.getValue()));
+			return new Pair<>(typeNode, new TigerArrayType(subTypeNode.getValue(), Integer.parseInt(size)));
 		} else if(chosenType.get(0) == TigerTokenClass.ID) {
 			String idTypeName = chooseRandomKey(rng, typeAliases.keySet());
 			TigerType idType = typeAliases.get(idTypeName);

@@ -10,7 +10,7 @@ import edu.cs4240.tiger.parser.TigerProductionRule;
  * @author Roi Atalla
  */
 public class RuleNode implements Node {
-	private TigerProductionRule value;
+	private TigerProductionRule rule;
 	private List<Node> children;
 	
 	public RuleNode() {
@@ -18,21 +18,21 @@ public class RuleNode implements Node {
 	}
 	
 	public RuleNode(RuleNode node) {
-		this.value = node.value;
+		this.rule = node.rule;
 		this.children = new ArrayList<>(node.children);
 	}
 	
-	public RuleNode(TigerProductionRule value, Node... children) {
-		this.value = value;
+	public RuleNode(TigerProductionRule rule, Node... children) {
+		this.rule = rule;
 		this.children = new ArrayList<>(Arrays.asList(children));
 	}
 	
-	public TigerProductionRule getValue() {
-		return value;
+	public TigerProductionRule getRule() {
+		return rule;
 	}
 	
-	public void setValue(TigerProductionRule value) {
-		this.value = value;
+	public void setRule(TigerProductionRule rule) {
+		this.rule = rule;
 	}
 	
 	public List<Node> getChildren() {
@@ -44,7 +44,7 @@ public class RuleNode implements Node {
 		if(o instanceof RuleNode) {
 			RuleNode r = (RuleNode)o;
 			
-			return this.value == r.getValue() && this.children.equals(r.children);
+			return this.rule == r.getRule() && this.children.equals(r.children);
 		}
 		
 		return false;
@@ -53,10 +53,10 @@ public class RuleNode implements Node {
 	@Override
 	public String toString() {
 		if(children.size() == 0) {
-			return value.toString().toLowerCase();
+			return rule.toString().toLowerCase();
 		}
 		
-		String s = "(" + value.toString().toLowerCase();
+		String s = "(" + rule.toString().toLowerCase();
 		for(Node child : children) {
 			s += " " + child.toString();
 		}

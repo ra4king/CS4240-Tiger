@@ -52,48 +52,37 @@ public class Memory {
 		floatVars.put(name, value);
 	}
 	
-	public void addIntArray(String name, int[] sizes) {
-		intVars.put(name, addIntArray(sizes, 0));
+	public void addArray(String name, int[] sizes, boolean allocateInt) {
+		intVars.put(name, addArray(sizes, 0, allocateInt));
 	}
 	
-	private int addIntArray(int[] sizes, int sizesIdx) {
-		int currAddr = 0;
-		for(int[] a : intArrays) {
-			currAddr += a.length;
-		}
-		
-		int[] arr = new int[sizes[sizesIdx]];
-		intArrays.add(arr);
-		
-		if(sizesIdx + 1 < sizes.length) {
-			for(int i = 0; i < arr.length; i++) {
-				arr[i] = addIntArray(sizes, sizesIdx + 1);
+	private int addArray(int[] sizes, int sizesIdx, boolean allocateInt) {
+		if(sizesIdx + 1 < sizes.length || allocateInt) {
+			int currAddr = 0;
+			for(int[] a : intArrays) {
+				currAddr += a.length;
 			}
-		}
-		
-		return currAddr;
-	}
-	
-	public void addFloatArray(String name, int[] sizes) {
-		intVars.put(name, addFloatArray(sizes, 0));
-	}
-	
-	private int addFloatArray(int[] sizes, int sizesIdx) {
-		int currAddr = 0;
-		for(float[] a : floatArrays) {
-			currAddr += a.length;
-		}
-		
-		float[] arr = new float[sizes[sizesIdx]];
-		floatArrays.add(arr);
-		
-		if(sizesIdx + 1 < sizes.length) {
-			for(int i = 0; i < arr.length; i++) {
-				arr[i] = addFloatArray(sizes, sizesIdx + 1);
+			
+			int[] arr = new int[sizes[sizesIdx]];
+			intArrays.add(arr);
+			
+			if(sizesIdx + 1 < sizes.length) {
+				for(int i = 0; i < arr.length; i++) {
+					arr[i] = addArray(sizes, sizesIdx + 1, allocateInt);
+				}
 			}
+			
+			return currAddr;
+		} else {
+			int currAddr = 0;
+			for(float[] a : floatArrays) {
+				currAddr += a.length;
+			}
+			
+			floatArrays.add(new float[sizes[sizesIdx]]);
+			
+			return currAddr;
 		}
-		
-		return currAddr;
 	}
 	
 	public boolean containsIntVar(String name) {

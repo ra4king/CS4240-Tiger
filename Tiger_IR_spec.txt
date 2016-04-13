@@ -7,7 +7,7 @@ Tiger IR Layout:
 .......... | Function declarations (optional): .FUNC
 .......... | 
 .FUNC main | A main function must be provided
-	...... | No arguments, no return value.
+	...... | No arguments, no return rule.
 	RET    |
 .......... |
 .......... /
@@ -20,7 +20,7 @@ Notes:
 	- AR = Address Register
 	- Only names can be loaded
 	- Only labels can be jumped to
-	- Variables default to 0/0.0 when no value is given
+	- Variables default to 0/0.0 when no rule is given
 
 Directives:
 	.VARi Name [int]
@@ -28,6 +28,7 @@ Directives:
 	.ARRAYi Name int [int [int [...]]]
 	.ARRAYf Name int [int [int [...]]]
 	.FUNC Label [argName1 [argName2 [...]]]
+	Label:
 
 ALU: (DR SR1 SR2/Imm)
 	ADD[I]i/f
@@ -49,6 +50,7 @@ Memory:
 	LDIi/f DR Imm
 	LDRi/f DR AR
 	STi/f SR Name
+	STIi/f Imm Name
 	STRi/f SR AR
 
 Control:
@@ -57,4 +59,5 @@ Control:
 	BR Label
 	CALL Label [SR1 [SR2 [...]]]
 	CALL_RET Label DR [SR1 [SR2 [...]]]
-	RET [SR]
+	RET
+	RETi/f [SR]

@@ -68,7 +68,7 @@ public class TigerParser {
 					RuleNode childRule = (RuleNode)child;
 					cleanupTails(childRule);
 					
-					if(childRule.getValue().toString().endsWith("_TAIL")) {
+					if(childRule.getRule().toString().endsWith("_TAIL")) {
 						ruleNode.getChildren().remove(i);
 						
 						for(int j = 0; j < childRule.getChildren().size(); j++) {
@@ -99,18 +99,18 @@ public class TigerParser {
 	}
 	
 	private void cleanupRecursiveRule(RuleNode ruleNode, RuleNode childRule, TigerProductionRule parent, TigerProductionRule child) throws TigerParseException {
-		if(ruleNode.getValue() != parent && childRule.getValue() == parent) {
+		if(ruleNode.getRule() != parent && childRule.getRule() == parent) {
 			while(true) {
 				if(childRule.getChildren().size() == 3) {
 					RuleNode rightExpr = (RuleNode)childRule.getChildren().remove(2);
 					Node op = childRule.getChildren().remove(1);
 					RuleNode leftExpr = (RuleNode)childRule.getChildren().remove(0);
 					
-					if(leftExpr.getValue() == child) {
+					if(leftExpr.getRule() == child) {
 						leftExpr = new RuleNode(parent, leftExpr);
 					}
 					
-					if(rightExpr.getValue() == child) {
+					if(rightExpr.getRule() == child) {
 						childRule.getChildren().add(0, leftExpr);
 						childRule.getChildren().add(1, op);
 						childRule.getChildren().add(2, rightExpr);
@@ -190,14 +190,14 @@ public class TigerParser {
 			} else if(token == null) {
 				throw new TigerParseException("Unexpected end-of-file.");
 			} else {
-				throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
+				throw new TigerParseException("Unexpected token '" + token.getTokenString() + "'", token);
 			}
 		} else if(token == null) {
 			throw new TigerParseException("Unexpected end-of-file. Expected token " + symbol);
 		} else if(symbol == token.getTokenClass()) {
 			return new LeafNode(tokenQueue.remove());
 		} else {
-			throw new TigerParseException("Unexpected token '" + token.getToken() + "'", token);
+			throw new TigerParseException("Unexpected token '" + token.getTokenString() + "'", token);
 		}
 	}
 	

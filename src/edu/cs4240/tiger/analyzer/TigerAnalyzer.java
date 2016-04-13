@@ -5,6 +5,7 @@ import static edu.cs4240.tiger.util.Utils.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import edu.cs4240.tiger.parser.TigerParseException;
 import edu.cs4240.tiger.parser.TigerProductionRule;
@@ -33,6 +34,10 @@ public class TigerAnalyzer {
 		analyzeProgramStatements();
 	}
 	
+	public TigerSymbolTable getSymbolTable() {
+		return symbolTable;
+	}
+	
 	private void analyzeFunctions() throws TigerParseException {
 		if(((RuleNode)ast.getChildren().get(1)).getChildren().size() > 0) {
 			analyzeFunction((RuleNode)((RuleNode)ast.getChildren().get(1)).getChildren().get(2));
@@ -45,10 +50,9 @@ public class TigerAnalyzer {
 		}
 		
 		RuleNode funcdecl = (RuleNode)funcdecls.getChildren().get(0);
-		Pair<TigerType, List<Pair<String, TigerType>>> funcInfo = symbolTable.getFunctions().get(((LeafNode)funcdecl.getChildren().get(1)).getToken().getToken());
+		Pair<TigerType, List<Pair<String, TigerType>>> funcInfo = symbolTable.getFunctions().get(((LeafNode)funcdecl.getChildren().get(1)).getToken().getTokenString());
 		
-		HashMap<String, TigerType> funcVarTypes = new HashMap<>();
-		funcVarTypes.putAll(symbolTable.getVariables());
+		HashMap<String, TigerType> funcVarTypes = getVarTypes();
 		funcInfo.getValue().forEach((Pair<String, TigerType> p) -> funcVarTypes.put(p.getKey(), p.getValue()));
 		
 		if(!analyzeStatements((RuleNode)funcdecl.getChildren().get(7), funcVarTypes, funcInfo.getKey(), false).getKey() && funcInfo.getKey() != null) {
@@ -57,19 +61,25 @@ public class TigerAnalyzer {
 		analyzeFunction((RuleNode)funcdecls.getChildren().get(1));
 	}
 	
+	private HashMap<String, TigerType> getVarTypes() {
+		HashMap<String, TigerType> varTypes = new HashMap<>();
+		varTypes.putAll(symbolTable.getVariables().keySet().stream().collect(Collectors.toMap(s -> s, s -> symbolTable.getVariables().get(s).getKey())));
+		return varTypes;
+	}
+	
 	private void analyzeProgramStatements() throws TigerParseException {
-		analyzeStatements((RuleNode)ast.getChildren().get(3), symbolTable.getVariables(), null, false);
+		analyzeStatements((RuleNode)ast.getChildren().get(3), getVarTypes(), null, false);
 	}
 	
 	private Pair<Boolean, Boolean> analyzeStatements(RuleNode stmts, HashMap<String, TigerType> varTypes, TigerType returnValue, boolean insideLoop) throws TigerParseException {
-		ensureValue(stmts.getValue(), TigerProductionRule.STMTS);
+		ensureValue(stmts.getRule(), TigerProductionRule.STMTS);
 		
 		if(stmts.getChildren().size() == 0) {
 			return new Pair<>(false, false);
 		}
 		
 		RuleNode fullstmt = (RuleNode)stmts.getChildren().get(0);
-		ensureValue(fullstmt.getValue(), TigerProductionRule.FULLSTMT);
+		ensureValue(fullstmt.getRule(), TigerProductionRule.FULLSTMT);
 		Pair<Boolean, Boolean> doesReturn = analyzeStatement((RuleNode)fullstmt.getChildren().get(0), varTypes, returnValue, insideLoop);
 		
 		if(stmts.getChildren().size() > 1) {
@@ -84,13 +94,13 @@ public class TigerAnalyzer {
 	}
 	
 	private Pair<Boolean, Boolean> analyzeStatement(RuleNode stmt, HashMap<String, TigerType> varTypes, TigerType returnType, boolean insideLoop) throws TigerParseException {
-		ensureValue(stmt.getValue(), TigerProductionRule.STMT);
+		ensureValue(stmt.getRule(), TigerProductionRule.STMT);
 		
 		Node first = stmt.getChildren().get(0);
 		if(first instanceof RuleNode) {
 			RuleNode firstRule = (RuleNode)first;
 			
-			switch(firstRule.getValue()) {
+			switch(firstRule.getRule()) {
 				case LVALUE:
 					TigerType lvalueType = getIdOptOffsetType((RuleNode)stmt.getChildren().get(0), varTypes);
 					TigerType numexprType = getNumexprType((RuleNode)stmt.getChildren().get(2), varTypes);
@@ -102,7 +112,7 @@ public class TigerAnalyzer {
 					break;
 				case OPTSTORE:
 					TigerToken functionToken = ((LeafNode)stmt.getChildren().get(1)).getToken();
-					Pair<TigerType, List<Pair<String, TigerType>>> function = symbolTable.getFunctions().get(functionToken.getToken());
+					Pair<TigerType, List<Pair<String, TigerType>>> function = symbolTable.getFunctions().get(functionToken.getTokenString());
 					
 					RuleNode optstore = (RuleNode)stmt.getChildren().get(0);
 					if(optstore.getChildren().size() > 0) {
@@ -151,7 +161,7 @@ public class TigerAnalyzer {
 					
 					break;
 				default:
-					throw new TigerParseException("Expected LVALUE or OPTSTORE, received " + firstRule.getValue());
+					throw new TigerParseException("Expected LVALUE or OPTSTORE, received " + firstRule.getRule());
 			}
 		} else {
 			LeafNode firstLeaf = (LeafNode)first;
@@ -175,7 +185,7 @@ public class TigerAnalyzer {
 					bodyReturns.setValue(false);
 					return bodyReturns;
 				case FOR:
-					TigerType idType = varTypes.get(((LeafNode)stmt.getChildren().get(1)).getToken().getToken());
+					TigerType idType = varTypes.get(((LeafNode)stmt.getChildren().get(1)).getToken().getTokenString());
 					if(idType == null) {
 						throw new TigerParseException("Undeclared variable", ((LeafNode)stmt.getChildren().get(1)).getToken());
 					}
