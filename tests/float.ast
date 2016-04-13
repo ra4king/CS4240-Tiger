@@ -1,1 +1,0 @@
-(program let (declseg typedecls (vardecls (vardecl var (ids a) : (type float) optinit ;) vardecls) funcdecls) in (stmts (fullstmt (stmt (lvalue a optoffset) := (numexpr (term (factor (const 1.5))))) ;) (stmts (fullstmt (stmt optstore printf ( (numexprs (neexprs (numexpr (term (factor a))))) )) ;))) end)
