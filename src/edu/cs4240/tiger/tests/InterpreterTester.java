@@ -11,6 +11,6 @@ import edu.cs4240.tiger.intermediate.interpreter.TigerInterpreter;
  */
 public class InterpreterTester {
 	public static void main(String[] args) throws IOException {
-		new TigerInterpreter(Files.readAllLines(Paths.get(System.getProperty("user.dir"), "src/edu/cs4240/tiger/tests/test.tir"))).run();
+		new TigerInterpreter(Files.readAllLines(Paths.get(System.getProperty("user.dir"), "src/edu/cs4240/tiger/tests/test.tir"))).run(true);
 	}
 }

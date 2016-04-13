@@ -163,7 +163,7 @@ public class TigerIRGenerator {
 					ir.add(loopLabel + ":");
 					
 					Pair<String, ParamType> condReg = generateBoolexpr((RuleNode)stmt.getChildren().get(1), names, ir);
-					ir.add("BRZ " + condReg + " " + endLabel);
+					ir.add("BRZ " + condReg.getKey() + " " + endLabel);
 					
 					generateStatements((RuleNode)stmt.getChildren().get(3), names, endLabel, ir);
 					
@@ -553,7 +553,7 @@ public class TigerIRGenerator {
 			case GT:
 				return "GT";
 			case GEQUAL:
-				return "LT";
+				return "GEQ";
 		}
 		
 		throw new IllegalArgumentException("Invalid boolop " + leafNode.getToken());

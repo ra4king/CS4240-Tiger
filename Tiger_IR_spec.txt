@@ -48,10 +48,11 @@ Special:
 Memory:
 	LDi/f DR Name
 	LDIi/f DR Imm
-	LDRi/f DR AR
+	LDRi/f DR AR OptOff
 	STi/f SR Name
 	STIi/f Imm Name
-	STRi/f SR AR
+	STRi/f SR AR OptOff
+	STRIi/f Imm AR OptOff
 
 Control:
 	BRZ SR Label

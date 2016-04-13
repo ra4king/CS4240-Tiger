@@ -102,11 +102,13 @@ public class Memory {
 	}
 	
 	public int loadInt(int address) {
-		for(int[] arr : intArrays) {
-			if(address >= arr.length) {
-				address -= arr.length;
-			} else {
-				return arr[address];
+		if(address >= 0) {
+			for(int[] arr : intArrays) {
+				if(address >= arr.length) {
+					address -= arr.length;
+				} else {
+					return arr[address];
+				}
 			}
 		}
 		
@@ -122,11 +124,13 @@ public class Memory {
 	}
 	
 	public float loadFloat(int address) {
-		for(float[] arr : floatArrays) {
-			if(address >= arr.length) {
-				address -= arr.length;
-			} else {
-				return arr[address];
+		if(address >= 0) {
+			for(float[] arr : floatArrays) {
+				if(address >= arr.length) {
+					address -= arr.length;
+				} else {
+					return arr[address];
+				}
 			}
 		}
 		
@@ -142,12 +146,14 @@ public class Memory {
 	}
 	
 	public void storeInt(int address, int value) {
-		for(int[] arr : intArrays) {
-			if(address >= arr.length) {
-				address -= arr.length;
-			} else {
-				arr[address] = value;
-				return;
+		if(address >= 0) {
+			for(int[] arr : intArrays) {
+				if(address >= arr.length) {
+					address -= arr.length;
+				} else {
+					arr[address] = value;
+					return;
+				}
 			}
 		}
 		
@@ -164,12 +170,14 @@ public class Memory {
 	}
 	
 	public void storeFloat(int address, float value) {
-		for(float[] arr : floatArrays) {
-			if(address >= arr.length) {
-				address -= arr.length;
-			} else {
-				arr[address] = value;
-				return;
+		if(address >= 0) {
+			for(float[] arr : floatArrays) {
+				if(address >= arr.length) {
+					address -= arr.length;
+				} else {
+					arr[address] = value;
+					return;
+				}
 			}
 		}
 		

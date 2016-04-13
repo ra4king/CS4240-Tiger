@@ -57,6 +57,8 @@ public enum TigerIROpcode {
 	STIf(ParamType.IMMEDIATEf, ParamType.LABEL),
 	STRi(ParamType.REGISTERi, ParamType.REGISTERi, ParamType.OPT_IMMi),
 	STRf(ParamType.REGISTERf, ParamType.REGISTERi, ParamType.OPT_IMMi),
+	STRIi(ParamType.IMMEDIATEi, ParamType.REGISTERi, ParamType.OPT_IMMi),
+	STRIf(ParamType.IMMEDIATEf, ParamType.REGISTERi, ParamType.OPT_IMMi),
 	
 	BRZ(ParamType.REGISTERi, ParamType.LABEL),
 	BRNZ(ParamType.REGISTERi, ParamType.LABEL),

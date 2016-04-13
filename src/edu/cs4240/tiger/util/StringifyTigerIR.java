@@ -11,7 +11,6 @@ public class StringifyTigerIR {
 		
 		int line = 1;
 		for(String s : ir) {
-			stringified += line++ + ":\t";
 			if(s.charAt(0) != '.' && s.indexOf(':') == -1) {
 				stringified += "\t";
 			}

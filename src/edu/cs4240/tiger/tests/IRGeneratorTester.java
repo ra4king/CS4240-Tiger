@@ -27,6 +27,6 @@ public class IRGeneratorTester {
 		
 		System.out.println(StringifyTigerIR.stringifyIR(ir));
 		TigerInterpreter interpreter = new TigerInterpreter(ir);
-		interpreter.run();
+		interpreter.run(true);
 	}
 }

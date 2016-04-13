@@ -28,11 +28,6 @@ public class TigerInterpreter {
 		labels = new HashMap<>();
 		instructions = new ArrayList<>();
 		parse(input);
-		
-		System.out.println(functions);
-		System.out.println(labels);
-		System.out.println(instructions);
-		System.out.println();
 	}
 	
 	private void parse(List<String> input) {
@@ -165,7 +160,14 @@ public class TigerInterpreter {
 		}
 	}
 	
-	public void run() {
+	public void run(boolean printDebug) {
+		if(printDebug) {
+			System.out.println(functions);
+			System.out.println(labels);
+			System.out.println(instructions);
+			System.out.println();
+		}
+		
 		Scanner stdin = new Scanner(System.in);
 		
 		HashMap<String, Integer> intRegs = new HashMap<>();
@@ -177,11 +179,15 @@ public class TigerInterpreter {
 		
 		boolean keepRunning = true;
 		
+		int totalCycles = 0;
+		
 		try {
 			while(keepRunning) {
 				if(currentPC >= instructions.size()) {
 					break;
 				}
+				
+				totalCycles++;
 				
 				TigerIRInstruction currInstr = instructions.get(currentPC++);
 				List<Pair<String, ParamType>> params = currInstr.getParams();
@@ -516,6 +522,16 @@ public class TigerInterpreter {
 							memory.storeFloat(getRegValue(params.get(1).getKey(), intRegs) + offset, getRegValue(params.get(0).getKey(), floatRegs));
 							break;
 						}
+						case STRIi: {
+							int offset = params.size() == 3 ? Integer.parseInt(params.get(2).getKey()) : 0;
+							memory.storeInt(getRegValue(params.get(1).getKey(), intRegs) + offset, Integer.parseInt(params.get(0).getKey()));
+							break;
+						}
+						case STRIf: {
+							int offset = params.size() == 3 ? Integer.parseInt(params.get(2).getKey()) : 0;
+							memory.storeFloat(getRegValue(params.get(1).getKey(), intRegs) + offset, Float.parseFloat(params.get(0).getKey()));
+							break;
+						}
 						
 						case BRZ: {
 							int src = getRegValue(params.get(0).getKey(), intRegs);
@@ -661,11 +677,11 @@ public class TigerInterpreter {
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.pop();
 							if(context.getKey().getValue() != null) {
 								if(currInstr.getOpcode() == TigerIROpcode.RETi) {
-									if(context.getKey().getValue().charAt(1) != 'i') {
-										throw new IllegalArgumentException("Type mismatch on return value, callsite expected float");
+									if(context.getKey().getValue().charAt(1) == 'i') {
+										intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
+									} else {
+										floatRegs.put(context.getKey().getValue(), (float)getRegValue(params.get(0).getKey(), intRegs));
 									}
-									
-									intRegs.put(context.getKey().getValue(), getRegValue(params.get(0).getKey(), intRegs));
 								} else {
 									if(context.getKey().getValue().charAt(1) != 'f') {
 										throw new IllegalArgumentException("Type mismatch on return value, callsite expected int");
@@ -686,19 +702,23 @@ public class TigerInterpreter {
 			}
 		}
 		finally {
-			System.out.println("\nInt regs:");
-			for(String s : intRegs.keySet()) {
-				System.out.println(s + ": " + intRegs.get(s));
+			if(printDebug) {
+				System.out.println("\nRuntime took " + totalCycles + " cycles.");
+				
+				System.out.println("\nInt regs:");
+				for(String s : intRegs.keySet()) {
+					System.out.println(s + ": " + intRegs.get(s));
+				}
+				
+				System.out.println("\nFloat regs:");
+				for(String s : floatRegs.keySet()) {
+					System.out.println(s + ": " + floatRegs.get(s));
+				}
+				
+				System.out.println();
+				
+				memory.printMemory();
 			}
-			
-			System.out.println("\nFloat regs:");
-			for(String s : floatRegs.keySet()) {
-				System.out.println(s + ": " + floatRegs.get(s));
-			}
-			
-			System.out.println();
-			
-			memory.printMemory();
 		}
 	}
 	
