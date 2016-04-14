@@ -19,7 +19,7 @@ import edu.cs4240.tiger.util.StringifyTigerIR;
  * @author Roi Atalla
  */
 public class Tiger {
-	private static final String VERSION = "1.0.2";
+	private static final String VERSION = "1.1";
 	
 	private static void printUsage() {
 		System.out.println("Tiger Compiler v" + VERSION + " by Roi Atalla.\n");
@@ -107,6 +107,7 @@ public class Tiger {
 			for(TigerToken token : parser.getTokens()) {
 				System.out.print(token.getTokenString() + " ");
 			}
+			System.out.println();
 		}
 		
 		if(printAST) {

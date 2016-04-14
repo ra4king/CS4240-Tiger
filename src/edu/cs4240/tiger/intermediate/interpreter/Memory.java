@@ -21,7 +21,7 @@ public class Memory {
 	}
 	
 	public void printMemory() {
-		System.out.print("Int vars: ");
+		System.out.print("\nInt vars: ");
 		System.out.println(intVars);
 		
 		System.out.print("\nFloat vars: ");

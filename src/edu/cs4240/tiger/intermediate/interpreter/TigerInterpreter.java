@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import edu.cs4240.tiger.intermediate.TigerIRInstruction;
 import edu.cs4240.tiger.intermediate.TigerIROpcode;
@@ -179,7 +180,7 @@ public class TigerInterpreter {
 		
 		boolean keepRunning = true;
 		
-		int totalCycles = 0;
+		int instrCount = 0;
 		
 		try {
 			while(keepRunning) {
@@ -187,7 +188,7 @@ public class TigerInterpreter {
 					break;
 				}
 				
-				totalCycles++;
+				instrCount++;
 				
 				TigerIRInstruction currInstr = instructions.get(currentPC++);
 				List<Pair<String, ParamType>> params = currInstr.getParams();
@@ -429,12 +430,7 @@ public class TigerInterpreter {
 							int value;
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
 							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
-								try {
-									value = (Integer)context.getValue().get(params.get(1).getKey());
-								}
-								catch(ClassCastException exc) {
-									throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
-								}
+								value = context.getValue().get(params.get(1).getKey()).intValue();
 							} else {
 								value = memory.loadInt(params.get(1).getKey());
 							}
@@ -446,12 +442,7 @@ public class TigerInterpreter {
 							float value;
 							Pair<Pair<Integer, String>, HashMap<String, Number>> context = stack.peek();
 							if(context != null && context.getValue().containsKey(params.get(1).getKey())) {
-								try {
-									value = (Float)context.getValue().get(params.get(1).getKey());
-								}
-								catch(ClassCastException exc) {
-									throw new IllegalArgumentException("Type mismatch for '" + params.get(1).getKey() + "'");
-								}
+								value = context.getValue().get(params.get(1).getKey()).floatValue();
 							} else {
 								value = memory.loadFloat(params.get(1).getKey());
 							}
@@ -703,19 +694,21 @@ public class TigerInterpreter {
 		}
 		finally {
 			if(printDebug) {
-				System.out.println("\nRuntime took " + totalCycles + " cycles.");
+				System.out.println("\n===============================================");
+				System.out.println("DEBUG SUMMARY:");
+				
+				System.out.println("\nExecuted " + instrCount + " instructions.");
 				
 				System.out.println("\nInt regs:");
-				for(String s : intRegs.keySet()) {
+				
+				for(String s : intRegs.keySet().stream().sorted((s1, s2) -> Integer.parseInt(s1.substring(2)) - Integer.parseInt(s2.substring(2))).collect(Collectors.toList())) {
 					System.out.println(s + ": " + intRegs.get(s));
 				}
 				
 				System.out.println("\nFloat regs:");
-				for(String s : floatRegs.keySet()) {
+				for(String s : floatRegs.keySet().stream().sorted((s1, s2) -> Integer.parseInt(s1.substring(2)) - Integer.parseInt(s2.substring(2))).collect(Collectors.toList())) {
 					System.out.println(s + ": " + floatRegs.get(s));
 				}
-				
-				System.out.println();
 				
 				memory.printMemory();
 			}
