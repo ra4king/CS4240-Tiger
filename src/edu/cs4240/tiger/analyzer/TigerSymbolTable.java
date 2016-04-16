@@ -30,6 +30,7 @@ public class TigerSymbolTable {
 	static {
 		builtInFunctions = new HashMap<>();
 		builtInFunctions.put("printi", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
+		builtInFunctions.put("printc", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
 		builtInFunctions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
 		builtInFunctions.put("readi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
 		builtInFunctions.put("readf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));

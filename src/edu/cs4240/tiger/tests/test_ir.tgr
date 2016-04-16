@@ -1,0 +1,116 @@
+let
+	var a, b, c : int;
+	var d, e, f : float;
+	var in2 : float;
+	
+	var count : int := 0;
+	
+	var myArr : array[5] of array[10] of int;
+	
+	var seed : int;
+	
+	func randi() : int begin
+		seed := 69069 * seed + 1234567;
+		return (seed/65536) % 32768;
+	end;
+	
+	func factf ( n : float ) : float begin
+		if n <= 0 then
+			return 1;
+		endif;
+		if n <= 1 then
+			return 1;
+		endif;
+		d := factf(n - 1);
+		return n * d;
+	end;
+	
+	func mc91(n : int) : int begin
+		if n > 100 then
+			return n - 10;
+		else
+			a := mc91(n + 11);
+			a := mc91(a);
+			return a;
+		endif;
+	end;
+	
+	func setInt(arr : array[10] of int, off : int, val : int) begin
+		arr[off] := val;
+	end;
+	
+	func getInt(arr : array[10] of int, off : int) : int begin
+		return arr[off];
+	end;
+in
+	for count := 0 to 35 do
+		//in2 := readf();
+		printi(count);
+		f := factf(count);
+		printf(f);
+	enddo;
+	
+	for count := 0 to 100 do
+		printi(count);
+		a := mc91(count);
+		printi(a);
+		
+		if a <> 91 then
+			printi(100000);
+		endif;
+	enddo;
+	
+	for a := 0 to 10 do
+		for b := 0 to 5 do
+			setInt(myArr[b], a, a + b);
+		enddo;
+	enddo;
+	
+	for a := 0 to 10 do
+		for b := 0 to 5 do
+			c := getInt(myArr[b], a);
+			printi(c);
+			
+			if c <> a + b then
+				printi(1000000);
+			endif;
+		enddo;
+	enddo;
+	
+	printc(10);
+	printc(72);
+	printc(101);
+	printc(108);
+	printc(108);
+	printc(111);
+	printc(44);
+	printc(32);
+	printc(87);
+	printc(111);
+	printc(114);
+	printc(108);
+	printc(100);
+	printc(33);
+	printc(10);
+	
+	printc(10);
+	printc(69);
+	printc(110);
+	printc(116);
+	printc(101);
+	printc(114);
+	printc(32);
+	printc(115);
+	printc(101);
+	printc(101);
+	printc(100);
+	printc(58);
+	printc(32);
+ 
+	seed := readi();
+	
+	for a := 0 to 20 do
+		b := randi();
+		printi(b);
+	enddo;
+end

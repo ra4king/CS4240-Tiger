@@ -295,6 +295,31 @@ public class TigerInterpreter {
 							break;
 						}
 						
+						case MODi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = getRegValue(params.get(2).getKey(), intRegs);
+							intRegs.put(params.get(0).getKey(), src1 % src2);
+							break;
+						}
+						case MODIi: {
+							int src1 = getRegValue(params.get(1).getKey(), intRegs);
+							int src2 = Integer.parseInt(params.get(2).getKey());
+							intRegs.put(params.get(0).getKey(), src1 % src2);
+							break;
+						}
+						case MODf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = getRegValue(params.get(2).getKey(), floatRegs);
+							floatRegs.put(params.get(0).getKey(), src1 % src2);
+							break;
+						}
+						case MODIf: {
+							float src1 = getRegValue(params.get(1).getKey(), floatRegs);
+							float src2 = Float.parseFloat(params.get(2).getKey());
+							floatRegs.put(params.get(0).getKey(), src1 % src2);
+							break;
+						}
+						
 						case ANDi: {
 							int src1 = getRegValue(params.get(1).getKey(), intRegs);
 							int src2 = getRegValue(params.get(2).getKey(), intRegs);
@@ -562,6 +587,12 @@ public class TigerInterpreter {
 										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 1, got " + (params.size() - 1));
 									}
 									System.out.println("printi: " + getRegValue(params.get(1).getKey(), intRegs));
+									break;
+								case "printc":
+									if(params.size() != 2) {
+										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 1, got " + (params.size() - 1));
+									}
+									System.out.print((char)(int)getRegValue(params.get(1).getKey(), intRegs));
 									break;
 								case "printf":
 									if(params.size() != 2) {

@@ -27,7 +27,7 @@ public class IRGeneratorTester {
 			
 			//System.out.println(StringifyTigerIR.stringifyIR(ir));
 			TigerInterpreter interpreter = new TigerInterpreter(ir);
-			interpreter.run(true);
+			interpreter.run(false);
 		}
 		catch(TigerParseException exc) {
 			System.err.println(exc.toString());

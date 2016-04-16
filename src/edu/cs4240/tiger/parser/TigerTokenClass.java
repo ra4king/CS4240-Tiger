@@ -41,6 +41,7 @@ public enum TigerTokenClass implements TigerSymbol {
 	MINUS(Regex.string("-")),
 	STAR(Regex.string("*")),
 	FWSLASH(Regex.string("/")),
+	PERCENT(Regex.string("%")),
 	EQUAL(Regex.string("=")),
 	NOTEQUAL(Regex.string("<>")),
 	LT(Regex.string("<")),

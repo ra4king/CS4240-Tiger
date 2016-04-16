@@ -320,7 +320,7 @@ public class TigerIRGenerator {
 				reg = nextFloatReg();
 			}
 			
-			String op = ((LeafNode)((RuleNode)numexpr.getChildren().get(1)).getChildren().get(0)).getToken().getTokenClass() == TigerTokenClass.PLUS ? "ADD" : "SUB";
+			String op = operatorToCommand(((LeafNode)((RuleNode)numexpr.getChildren().get(1)).getChildren().get(0)).getToken());
 			op += getOpSuffix(termChild.getValue());
 			ir.add(op + " " + reg + " " + numexprChild.getKey() + " " + termChild.getKey());
 			return new Pair<>(reg, isInt ? ParamType.REGISTERi : ParamType.REGISTERf);
@@ -347,7 +347,7 @@ public class TigerIRGenerator {
 				reg = nextFloatReg();
 			}
 			
-			String op = ((LeafNode)((RuleNode)term.getChildren().get(1)).getChildren().get(0)).getToken().getTokenClass() == TigerTokenClass.STAR ? "MUL" : "DIV";
+			String op = operatorToCommand(((LeafNode)((RuleNode)term.getChildren().get(1)).getChildren().get(0)).getToken());
 			op += getOpSuffix(factorChild.getValue());
 			ir.add(op + " " + reg + " " + termChild.getKey() + " " + factorChild.getKey());
 			return new Pair<>(reg, isInt ? ParamType.REGISTERi : ParamType.REGISTERf);
@@ -511,19 +511,6 @@ public class TigerIRGenerator {
 		return "Label" + labelCount++;
 	}
 	
-	private TigerType.BaseType getParamType(TigerType type) {
-		switch(type.baseType) {
-			case INT:
-				return BaseType.INT;
-			case FLOAT:
-				return BaseType.FLOAT;
-			case ARRAY:
-				return getParamType(((TigerArrayType)type).subType);
-		}
-		
-		return null;
-	}
-	
 	private void handleIntToFloat(Pair<String, ParamType> leftParam, Pair<String, ParamType> rightParam, List<String> ir) {
 		if(leftParam.getValue() == ParamType.REGISTERi && rightParam.getValue() == ParamType.REGISTERf) {
 			String tmpReg = nextFloatReg();
@@ -557,6 +544,23 @@ public class TigerIRGenerator {
 		}
 		
 		throw new IllegalArgumentException("Invalid boolop " + leafNode.getToken());
+	}
+	
+	private String operatorToCommand(TigerToken token) {
+		switch(token.getTokenClass()) {
+			case PLUS:
+				return "ADD";
+			case MINUS:
+				return "SUB";
+			case STAR:
+				return "MUL";
+			case FWSLASH:
+				return "DIV";
+			case PERCENT:
+				return "MOD";
+			default:
+				throw new IllegalArgumentException("Not an operator: " + token);
+		}
 	}
 	
 	private String getOpSuffix(ParamType type) {

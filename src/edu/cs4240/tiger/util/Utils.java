@@ -30,6 +30,7 @@ public class Utils {
 		specialTokenClassesToString.put(TigerTokenClass.MINUS, "-");
 		specialTokenClassesToString.put(TigerTokenClass.STAR, "*");
 		specialTokenClassesToString.put(TigerTokenClass.FWSLASH, "/");
+		specialTokenClassesToString.put(TigerTokenClass.PERCENT, "%");
 		specialTokenClassesToString.put(TigerTokenClass.EQUAL, "=");
 		specialTokenClassesToString.put(TigerTokenClass.NOTEQUAL, "<>");
 		specialTokenClassesToString.put(TigerTokenClass.LT, "<");
@@ -54,6 +55,7 @@ public class Utils {
 		specialTokenStringToClasses.put("-", TigerTokenClass.MINUS);
 		specialTokenStringToClasses.put("*", TigerTokenClass.STAR);
 		specialTokenStringToClasses.put("/", TigerTokenClass.FWSLASH);
+		specialTokenStringToClasses.put("%", TigerTokenClass.PERCENT);
 		specialTokenStringToClasses.put("=", TigerTokenClass.EQUAL);
 		specialTokenStringToClasses.put("<>", TigerTokenClass.NOTEQUAL);
 		specialTokenStringToClasses.put("<", TigerTokenClass.LT);
