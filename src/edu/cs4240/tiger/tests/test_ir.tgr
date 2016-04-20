@@ -2,17 +2,13 @@ let
 	var a, b, c : int;
 	var d, e, f : float;
 	var in2 : float;
+	var id : int;
 	
 	var count : int := 0;
 	
 	var myArr : array[5] of array[10] of int;
 	
 	var seed : int;
-	
-	func randi() : int begin
-		seed := 69069 * seed + 1234567;
-		return (seed/65536) % 32768;
-	end;
 	
 	func factf ( n : float ) : float begin
 		if n <= 0 then
@@ -35,6 +31,14 @@ let
 		endif;
 	end;
 	
+	func testFunc(n : float) : int begin
+		if n < 5 then
+			return 0;
+		else
+			return 1;
+		endif;
+	end;
+	
 	func setInt(arr : array[10] of int, off : int, val : int) begin
 		arr[off] := val;
 	end;
@@ -42,6 +46,40 @@ let
 	func getInt(arr : array[10] of int, off : int) : int begin
 		return arr[off];
 	end;
+	
+	func a(a : int) begin if a = 1 then printc(97 - 32); else printc(97); endif; end;
+	func b(a : int) begin if a = 1 then printc(98 - 32); else printc(98); endif; end;
+	func c(a : int) begin if a = 1 then printc(99 - 32); else printc(99); endif; end;
+	func d(a : int) begin if a = 1 then printc(100 - 32); else printc(100); endif; end;
+	func e(a : int) begin if a = 1 then printc(101 - 32); else printc(101); endif; end;
+	func f(a : int) begin if a = 1 then printc(102 - 32); else printc(102); endif; end;
+	func g(a : int) begin if a = 1 then printc(103 - 32); else printc(103); endif; end;
+	func h(a : int) begin if a = 1 then printc(104 - 32); else printc(104); endif; end;
+	func i(a : int) begin if a = 1 then printc(105 - 32); else printc(105); endif; end;
+	func j(a : int) begin if a = 1 then printc(106 - 32); else printc(106); endif; end;
+	func k(a : int) begin if a = 1 then printc(107 - 32); else printc(107); endif; end;
+	func l(a : int) begin if a = 1 then printc(108 - 32); else printc(108); endif; end;
+	func m(a : int) begin if a = 1 then printc(109 - 32); else printc(109); endif; end;
+	func n(a : int) begin if a = 1 then printc(110 - 32); else printc(110); endif; end;
+	func o(a : int) begin if a = 1 then printc(111 - 32); else printc(111); endif; end;
+	func p(a : int) begin if a = 1 then printc(112 - 32); else printc(112); endif; end;
+	func q(a : int) begin if a = 1 then printc(113 - 32); else printc(113); endif; end;
+	func r(a : int) begin if a = 1 then printc(114 - 32); else printc(114); endif; end;
+	func s(a : int) begin if a = 1 then printc(115 - 32); else printc(115); endif; end;
+	func t(a : int) begin if a = 1 then printc(116 - 32); else printc(116); endif; end;
+	func u(a : int) begin if a = 1 then printc(117 - 32); else printc(117); endif; end;
+	func v(a : int) begin if a = 1 then printc(118 - 32); else printc(118); endif; end;
+	func w(a : int) begin if a = 1 then printc(119 - 32); else printc(119); endif; end;
+	func x(a : int) begin if a = 1 then printc(120 - 32); else printc(120); endif; end;
+	func y(a : int) begin if a = 1 then printc(121 - 32); else printc(121); endif; end;
+	func z(a : int) begin if a = 1 then printc(122 - 32); else printc(122); endif; end;
+	
+	func space() begin printc(32); end;
+	func newline() begin printc(10); end;
+	func comma() begin printc(44); end;
+	func dot() begin printc(46); end;
+	func colon() begin printc(58); end;
+	func exclam() begin printc(33); end;
 in
 	for count := 0 to 35 do
 		//in2 := readf();
@@ -77,40 +115,34 @@ in
 		enddo;
 	enddo;
 	
-	printc(10);
-	printc(72);
-	printc(101);
-	printc(108);
-	printc(108);
-	printc(111);
-	printc(44);
-	printc(32);
-	printc(87);
-	printc(111);
-	printc(114);
-	printc(108);
-	printc(100);
-	printc(33);
-	printc(10);
+	newline();
+	h(1); e(0); l(0); l(0); o(0); comma(); space(); w(0); o(0); r(0); l(0); d(0); exclam(); newline();
+	newline();
 	
-	printc(10);
-	printc(69);
-	printc(110);
-	printc(116);
-	printc(101);
-	printc(114);
-	printc(32);
-	printc(115);
-	printc(101);
-	printc(101);
-	printc(100);
-	printc(58);
-	printc(32);
- 
+	id := createWindow(800, 600);
+	
+	printi(id);
+	a := readi();
+    b := readi();
+    c := readi();
+    
+    setWindowBackground(id, a, b, c);
+	
 	seed := readi();
+	
+	srand(seed);
 	
 	for a := 0 to 20 do
 		b := randi();
 		printi(b);
+		d := randf();
+		printf(d);
 	enddo;
+	
+	a := testFunc(4);
+	printi(a);
+	a := testFunc(6);
+	printi(a);
+	
+	destroyWindow(id);
 end

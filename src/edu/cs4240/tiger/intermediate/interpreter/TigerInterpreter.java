@@ -1,13 +1,18 @@
 package edu.cs4240.tiger.intermediate.interpreter;
 
+import java.awt.Color;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import edu.cs4240.tiger.intermediate.TigerIRInstruction;
 import edu.cs4240.tiger.intermediate.TigerIROpcode;
@@ -20,8 +25,12 @@ import edu.cs4240.tiger.util.Pair;
 public class TigerInterpreter {
 	private Memory memory;
 	private HashMap<String, Pair<List<String>, Integer>> functions;
+	private HashMap<String, Pair<Pair<Integer, Boolean>, BuiltInFunction>> builtInFunctions;
 	private HashMap<String, Integer> labels;
 	private ArrayList<TigerIRInstruction> instructions;
+	
+	private Random rng;
+	private Scanner stdin;
 	
 	public TigerInterpreter(List<String> input) {
 		memory = new Memory();
@@ -29,6 +38,7 @@ public class TigerInterpreter {
 		labels = new HashMap<>();
 		instructions = new ArrayList<>();
 		parse(input);
+		buildBuiltIntFunctions();
 	}
 	
 	private void parse(List<String> input) {
@@ -161,6 +171,77 @@ public class TigerInterpreter {
 		}
 	}
 	
+	private void buildBuiltIntFunctions() {
+		builtInFunctions = new HashMap<>();
+		
+		// Pair<Pair<NumParams, ReturnsValue?>, Function>
+		builtInFunctions.put("printi", new Pair<>(new Pair<>(1, false), (args, returnReg, intRegs, floatRegs) -> System.out.println("printi: " + getRegValue(args.get(0).getKey(), intRegs))));
+		builtInFunctions.put("printc", new Pair<>(new Pair<>(1, false), (args, returnReg, intRegs, floatRegs) -> System.out.print((char)(int)getRegValue(args.get(0).getKey(), intRegs))));
+		builtInFunctions.put("printf", new Pair<>(new Pair<>(1, false), (args, returnReg, intRegs, floatRegs) -> System.out.println("printf: " + getRegValue(args.get(0).getKey(), floatRegs))));
+		builtInFunctions.put("srand", new Pair<>(new Pair<>(1, false), (args, returnReg, intRegs, floatRegs) -> rng = new Random(getRegValue(args.get(0).getKey(), intRegs))));
+		
+		builtInFunctions.put("readi", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
+			System.out.print("readi: ");
+			if(!stdin.hasNextInt()) {
+				throw new IllegalStateException("Type mismatch, readi expected integer");
+			}
+			
+			intRegs.put(returnReg.getKey(), stdin.nextInt());
+		}));
+		builtInFunctions.put("readf", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
+			System.out.print("readf: ");
+			if(!stdin.hasNextFloat()) {
+				throw new IllegalStateException("Type mismatch, readf expected float");
+			}
+			
+			floatRegs.put(returnReg.getKey(), stdin.nextFloat());
+		}));
+		builtInFunctions.put("randi", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
+			if(rng == null) {
+				rng = new Random();
+			}
+			
+			intRegs.put(returnReg.getKey(), rng.nextInt());
+		}));
+		builtInFunctions.put("randf", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
+			if(rng == null) {
+				rng = new Random();
+			}
+			
+			floatRegs.put(returnReg.getKey(), rng.nextFloat());
+		}));
+		
+		ArrayList<JFrame> windows = new ArrayList<>();
+		builtInFunctions.put("createWindow", new Pair<>(new Pair<>(2, true), (args, returnReg, intRegs, floatRegs) -> {
+			int idx = windows.size();
+			
+			JFrame frame = new JFrame();
+			windows.add(frame);
+			
+			frame.setSize(intRegs.get(args.get(0).getKey()), intRegs.get(args.get(1).getKey()));
+			frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+			frame.setVisible(true);
+			frame.setLocationRelativeTo(null);
+			
+			intRegs.put(returnReg.getKey(), idx);
+		}));
+		
+		builtInFunctions.put("setWindowBackground", new Pair<>(new Pair<>(4, false), (args, returnReg, intRegs, floatRegs) -> {
+			JFrame frame = windows.get(intRegs.get(args.get(0).getKey()));
+			int r = intRegs.get(args.get(1).getKey());
+			int g = intRegs.get(args.get(2).getKey());
+			int b = intRegs.get(args.get(3).getKey());
+			frame.getContentPane().setBackground(new Color(r, g, b));
+			frame.getContentPane().setForeground(new Color(r, g, b));
+		}));
+		
+		builtInFunctions.put("destroyWindow", new Pair<>(new Pair<>(1, false), (args, returnReg, intRegs, floatRegs) -> {
+			JFrame frame = windows.get(intRegs.get(args.get(0).getKey()));
+			frame.setVisible(false);
+			frame.dispose();
+		}));
+	}
+	
 	public void run(boolean printDebug) {
 		if(printDebug) {
 			System.out.println(functions);
@@ -169,12 +250,13 @@ public class TigerInterpreter {
 			System.out.println();
 		}
 		
-		Scanner stdin = new Scanner(System.in);
-		
 		HashMap<String, Integer> intRegs = new HashMap<>();
 		HashMap<String, Float> floatRegs = new HashMap<>();
 		// Pair<Pair<Return Address, Return Value Register>, HashMap<Argument, Value>>
 		Deque<Pair<Pair<Integer, String>, HashMap<String, Number>>> stack = new ArrayDeque<>();
+		
+		stdin = new Scanner(System.in);
+		rng = null;
 		
 		int currentPC = functions.get("main").getValue();
 		
@@ -581,98 +663,84 @@ public class TigerInterpreter {
 						}
 						
 						case CALL: {
-							switch(params.get(0).getKey()) {
-								case "printi":
-									if(params.size() != 2) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 1, got " + (params.size() - 1));
+							if(builtInFunctions.containsKey(params.get(0).getKey())) {
+								Pair<Pair<Integer, Boolean>, BuiltInFunction> builtInFunctionPair = builtInFunctions.get(params.get(0).getKey());
+								
+								int paramCount = builtInFunctionPair.getKey().getKey() + 1;
+								if(params.size() != paramCount) {
+									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() + "'. Expected " + paramCount + ", got " + (params.size() - 1));
+								}
+								
+								List<Pair<String, ParamType>> funcArgs = new ArrayList<>();
+								for(int i = 1; i < params.size(); i++) {
+									funcArgs.add(params.get(i));
+								}
+								
+								builtInFunctionPair.getValue().call(funcArgs, null, intRegs, floatRegs);
+							} else {
+								if(!functions.containsKey(params.get(0).getKey())) {
+									throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
+								}
+								
+								Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
+								if(func.getKey().size() != params.size() - 1) {
+									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
+									                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 1));
+								}
+								
+								HashMap<String, Number> funcArgs = new HashMap<>();
+								for(int i = 0; i < func.getKey().size(); i++) {
+									if(params.get(i + 1).getValue() == ParamType.REGISTERi) {
+										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), intRegs));
+									} else {
+										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), floatRegs));
 									}
-									System.out.println("printi: " + getRegValue(params.get(1).getKey(), intRegs));
-									break;
-								case "printc":
-									if(params.size() != 2) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 1, got " + (params.size() - 1));
-									}
-									System.out.print((char)(int)getRegValue(params.get(1).getKey(), intRegs));
-									break;
-								case "printf":
-									if(params.size() != 2) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 1, got " + (params.size() - 1));
-									}
-									System.out.println("printf: " + getRegValue(params.get(1).getKey(), floatRegs));
-									break;
-								default:
-									if(!functions.containsKey(params.get(0).getKey())) {
-										throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
-									}
-									
-									Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
-									if(func.getKey().size() != params.size() - 1) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
-										                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 1));
-									}
-									
-									HashMap<String, Number> funcArgs = new HashMap<>();
-									for(int i = 0; i < func.getKey().size(); i++) {
-										if(params.get(i + 1).getValue() == ParamType.REGISTERi) {
-											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), intRegs));
-										} else {
-											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 1).getKey(), floatRegs));
-										}
-									}
-									stack.push(new Pair<>(new Pair<>(currentPC, null), funcArgs));
-									currentPC = func.getValue();
-									break;
+								}
+								stack.push(new Pair<>(new Pair<>(currentPC, null), funcArgs));
+								currentPC = func.getValue();
 							}
 							break;
 						}
 						case CALL_RET: {
-							switch(params.get(0).getKey()) {
-								case "readi":
-									if(params.size() != 2) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function 'printi'. Expected 0, got " + (params.size() - 2));
+							if(builtInFunctions.containsKey(params.get(0).getKey())) {
+								Pair<Pair<Integer, Boolean>, BuiltInFunction> builtInFunctionPair = builtInFunctions.get(params.get(0).getKey());
+								
+								if(!builtInFunctionPair.getKey().getValue()) {
+									throw new IllegalArgumentException("Function '" + params.get(0).getKey() + "' does not return a value.");
+								}
+								
+								int paramCount = builtInFunctionPair.getKey().getKey() + 2;
+								if(params.size() != paramCount) {
+									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() + "'. Expected " + paramCount + ", got " + (params.size() - 1));
+								}
+								
+								List<Pair<String, ParamType>> funcArgs = new ArrayList<>();
+								for(int i = 2; i < params.size(); i++) {
+									funcArgs.add(params.get(i));
+								}
+								
+								builtInFunctionPair.getValue().call(funcArgs, params.get(1), intRegs, floatRegs);
+							} else {
+								if(!functions.containsKey(params.get(0).getKey())) {
+									throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
+								}
+								
+								Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
+								if(func.getKey().size() != params.size() - 2) {
+									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
+									                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 2));
+								}
+								
+								HashMap<String, Number> funcArgs = new HashMap<>();
+								for(int i = 0; i < func.getKey().size(); i++) {
+									if(params.get(i + 2).getValue() == ParamType.REGISTERi) {
+										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), intRegs));
+									} else {
+										funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), floatRegs));
 									}
-									
-									System.out.print("readi: ");
-									if(!stdin.hasNextInt()) {
-										throw new IllegalStateException("Type mismatch, readi expected integer");
-									}
-									
-									intRegs.put(params.get(1).getKey(), stdin.nextInt());
-									break;
-								case "readf":
-									if(params.size() != 2) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function 'printf'. Expected 0, got " + (params.size() - 2));
-									}
-									
-									System.out.print("readf: ");
-									if(!stdin.hasNextFloat()) {
-										throw new IllegalStateException("Type mismatch, readf expected float");
-									}
-									
-									floatRegs.put(params.get(1).getKey(), stdin.nextFloat());
-									break;
-								default:
-									if(!functions.containsKey(params.get(0).getKey())) {
-										throw new IllegalArgumentException("Unknown function name '" + params.get(0).getKey());
-									}
-									
-									Pair<List<String>, Integer> func = functions.get(params.get(0).getKey());
-									if(func.getKey().size() != params.size() - 2) {
-										throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() +
-										                                     "'. Expected " + func.getKey().size() + ", got " + (params.size() - 2));
-									}
-									
-									HashMap<String, Number> funcArgs = new HashMap<>();
-									for(int i = 0; i < func.getKey().size(); i++) {
-										if(params.get(i + 2).getValue() == ParamType.REGISTERi) {
-											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), intRegs));
-										} else {
-											funcArgs.put(func.getKey().get(i), getRegValue(params.get(i + 2).getKey(), floatRegs));
-										}
-									}
-									stack.push(new Pair<>(new Pair<>(currentPC, params.get(1).getKey()), funcArgs));
-									currentPC = func.getValue();
-									break;
+								}
+								stack.push(new Pair<>(new Pair<>(currentPC, params.get(1).getKey()), funcArgs));
+								currentPC = func.getValue();
 							}
 							break;
 						}
@@ -768,5 +836,9 @@ public class TigerInterpreter {
 			}
 		}
 		return parts.toArray(new String[parts.size()]);
+	}
+	
+	interface BuiltInFunction {
+		void call(List<Pair<String, ParamType>> args, Pair<String, ParamType> returnReg, HashMap<String, Integer> intRegs, HashMap<String, Float> floatRegs);
 	}
 }

@@ -3,6 +3,7 @@ package edu.cs4240.tiger.analyzer;
 import static edu.cs4240.tiger.util.Utils.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,14 @@ public class TigerSymbolTable {
 		builtInFunctions.put("printf", new Pair<>(null, Collections.singletonList(new Pair<>("f", TigerType.FLOAT_TYPE))));
 		builtInFunctions.put("readi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
 		builtInFunctions.put("readf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));
+		
+		builtInFunctions.put("srand", new Pair<>(null, Collections.singletonList(new Pair<>("i", TigerType.INT_TYPE))));
+		builtInFunctions.put("randi", new Pair<>(TigerType.INT_TYPE, Collections.emptyList()));
+		builtInFunctions.put("randf", new Pair<>(TigerType.FLOAT_TYPE, Collections.emptyList()));
+		
+		builtInFunctions.put("createWindow", new Pair<>(TigerType.INT_TYPE, Arrays.asList(new Pair<>("width", TigerType.INT_TYPE), new Pair<>("height", TigerType.INT_TYPE))));
+		builtInFunctions.put("setWindowBackground", new Pair<>(null, Arrays.asList(new Pair<>("id", TigerType.INT_TYPE), new Pair<>("r", TigerType.INT_TYPE), new Pair<>("g", TigerType.INT_TYPE), new Pair<>("b", TigerType.INT_TYPE))));
+		builtInFunctions.put("destroyWindow", new Pair<>(null, Collections.singletonList(new Pair<>("id", TigerType.INT_TYPE))));
 	}
 	
 	public TigerSymbolTable(RuleNode ast) throws TigerParseException {

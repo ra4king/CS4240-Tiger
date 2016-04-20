@@ -7,7 +7,7 @@ Tiger IR Layout:
 .......... | Function declarations (optional): .FUNC
 .......... | 
 .FUNC main | A main function must be provided
-	...... | No arguments, no return rule.
+	...... | No arguments, no return value.
 	RET    |
 .......... |
 .......... /
@@ -61,4 +61,4 @@ Control:
 	CALL Label [SR1 [SR2 [...]]]
 	CALL_RET Label DR [SR1 [SR2 [...]]]
 	RET
-	RETi/f [SR]
+	RETi/f SR
