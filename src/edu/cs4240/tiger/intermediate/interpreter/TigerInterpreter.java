@@ -186,7 +186,9 @@ public class TigerInterpreter {
 				throw new IllegalStateException("Type mismatch, readi expected integer");
 			}
 			
-			intRegs.put(returnReg.getKey(), stdin.nextInt());
+			if(returnReg != null) {
+				intRegs.put(returnReg.getKey(), stdin.nextInt());
+			}
 		}));
 		builtInFunctions.put("readf", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
 			System.out.print("readf: ");
@@ -194,21 +196,27 @@ public class TigerInterpreter {
 				throw new IllegalStateException("Type mismatch, readf expected float");
 			}
 			
-			floatRegs.put(returnReg.getKey(), stdin.nextFloat());
+			if(returnReg != null) {
+				floatRegs.put(returnReg.getKey(), stdin.nextFloat());
+			}
 		}));
 		builtInFunctions.put("randi", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
 			if(rng == null) {
 				rng = new Random();
 			}
 			
-			intRegs.put(returnReg.getKey(), rng.nextInt());
+			if(returnReg != null) {
+				intRegs.put(returnReg.getKey(), rng.nextInt());
+			}
 		}));
 		builtInFunctions.put("randf", new Pair<>(new Pair<>(0, true), (args, returnReg, intRegs, floatRegs) -> {
 			if(rng == null) {
 				rng = new Random();
 			}
 			
-			floatRegs.put(returnReg.getKey(), rng.nextFloat());
+			if(returnReg != null) {
+				floatRegs.put(returnReg.getKey(), rng.nextFloat());
+			}
 		}));
 		
 		ArrayList<JFrame> windows = new ArrayList<>();
@@ -223,7 +231,9 @@ public class TigerInterpreter {
 			frame.setVisible(true);
 			frame.setLocationRelativeTo(null);
 			
-			intRegs.put(returnReg.getKey(), idx);
+			if(returnReg != null) {
+				intRegs.put(returnReg.getKey(), idx);
+			}
 		}));
 		
 		builtInFunctions.put("setWindowBackground", new Pair<>(new Pair<>(4, false), (args, returnReg, intRegs, floatRegs) -> {
