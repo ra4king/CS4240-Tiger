@@ -677,7 +677,7 @@ public class TigerInterpreter {
 								Pair<Pair<Integer, Boolean>, BuiltInFunction> builtInFunctionPair = builtInFunctions.get(params.get(0).getKey());
 								
 								int paramCount = builtInFunctionPair.getKey().getKey() + 1;
-								if(params.size() != paramCount) {
+								if(params.size() < paramCount) {
 									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() + "'. Expected " + paramCount + ", got " + (params.size() - 1));
 								}
 								
@@ -720,7 +720,7 @@ public class TigerInterpreter {
 								}
 								
 								int paramCount = builtInFunctionPair.getKey().getKey() + 2;
-								if(params.size() != paramCount) {
+								if(params.size() < paramCount) {
 									throw new IllegalArgumentException("Incorrect number of arguments to function '" + params.get(0).getKey() + "'. Expected " + paramCount + ", got " + (params.size() - 1));
 								}
 								
